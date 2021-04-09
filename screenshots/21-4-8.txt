@@ -1,0 +1,4 @@
+1: Moved engine stuff over to this to simplify things. Going to do very simple 
+   software tilemap rendering type stuff to constrain the design space. Removed
+   all the DirectX and existing game stuff. Maybe this will help with my lack
+   of direction.
