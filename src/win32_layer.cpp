@@ -432,6 +432,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			InitGameState(&gameMemory);
 			Bitmap test_bitmap = {(uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height};
 			Bitmap test_sprite = { NULL, 0, 0 };
+			Bitmap grass_sprite = { NULL, 0, 0 };
+			Bitmap water_sprite = { NULL, 0, 0 };
+			Bitmap mountain_sprite = { NULL, 0, 0 };
 
 			int w = 0, h = 0, n = 0;
 			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &w, &h, &n, 4);
@@ -439,9 +442,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			test_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(test_sprite.buffer, test_sprite.width, test_sprite.height);
 
-			Bitmap grass_sprite = { NULL, 0, 0 };
-			Bitmap water_sprite = { NULL, 0, 0 };
-			Bitmap mountain_sprite = { NULL, 0, 0 };
 			grass_sprite.buffer = (uchar*)stbi_load((char*)"assets/grass_sprite.bmp", &w, &h, &n, 4);
 			grass_sprite.width = w;
 			grass_sprite.height = h;
