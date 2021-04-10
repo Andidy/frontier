@@ -1,0 +1,3 @@
+1: Added functions to draw pixels, rectangles, sprites, and magnified sprites
+   additionally added a tilemap data structure to the game portion of the code
+   and added a way to render the tile data as sprites.
