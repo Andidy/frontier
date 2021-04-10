@@ -4,11 +4,9 @@
 	Fixes that stbi_load loads in rgba order instead of argb.
 */
 void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
-	
+	uint32_t* buffer = (uint32_t*)memory;
 	for (int h = 0; h < height; h++) {
 		for (int w = 0; w < width; w++) {
-			uint32_t* buffer = (uint32_t*)memory;
-
 			uint32_t temp = buffer[w + width * h];
 
 			uchar r = (uchar)temp;
@@ -54,9 +52,9 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 		return false;
 	}
 
+	uint32_t* buffer = (uint32_t*)bitmap->buffer;
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
-			uint32_t* buffer = (uint32_t*)bitmap->buffer;
 			buffer[(x+j) + bitmap->width * (y+i)] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
 		}
 	}
@@ -75,11 +73,36 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 		return false;
 	}
 
+	uint32_t* bitmap_buffer = (uint32_t*)bitmap->buffer;
+	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
 	for (int i = 0; i < sprite->height; i++) {
 		for (int j = 0; j < sprite->width; j++) {
-			uint32_t* bitmap_buffer = (uint32_t*)bitmap->buffer;
-			uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
 			bitmap_buffer[(x+j) + bitmap->width * (y+i)] = sprite_buffer[j + sprite->width * i];
+		}
+	}
+
+	return true;
+}
+
+/*
+	Works the same as draw sprite, except that every pixel in the source
+	image is scaled by the scale parameter. So with a scale parameter of
+	4 a single pixel in the source image becomes a 4x4 rectangle in the
+	bitmap.
+*/
+bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bitmap* sprite) {
+	if (x < 0 || (x + scale * sprite->width) >= bitmap->width || y < 0 || (y + scale * sprite->height) >= bitmap->height) {
+		return false;
+	}
+
+	uint32_t* bitmap_buffer = (uint32_t*)bitmap->buffer;
+	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
+	for (int i = 0; i < sprite->height; i++) {
+		for (int j = 0; j < sprite->width; j++) {
+			uint32_t pixel = sprite_buffer[j + sprite->width * i];
+			for (int k = 0; k < scale * scale; k++) {
+				bitmap_buffer[(x + k % scale + j * scale) + bitmap->width * (y + k / scale + i * scale)] = pixel;	
+			}
 		}
 	}
 

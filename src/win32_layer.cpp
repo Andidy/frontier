@@ -449,6 +449,21 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				DebugPrint((char*)"Error\n");
 			}
 
+			result = DrawSpriteMagnified(&test_bitmap, 600, 600, 2, &test_sprite);
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
+
+			result = DrawSpriteMagnified(&test_bitmap, 750, 300, 4, &test_sprite);
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
+
+			result = DrawSpriteMagnified(&test_bitmap, 100, 100, 8, &test_sprite);
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
+
 			while (win32_running) {
 				// Timing
 				f32 dt = 0.0f;
