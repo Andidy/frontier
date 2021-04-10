@@ -38,7 +38,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{409a4ed8-0bb0-4f66-8ccd-0c7fe2dd07ed}</ProjectGuid>
-    <RootNamespace>engine</RootNamespace>
+    <RootNamespace>frontier</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>frontier</ProjectName>
   </PropertyGroup>

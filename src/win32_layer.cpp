@@ -345,13 +345,6 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 		DIB_RGB_COLORS, SRCCOPY);
 }
 
-void DrawLineInBackBuffer(win32_OffScreenBuffer* buffer) {
-	uchar* ptr = (uchar*)buffer->memory;
-	for (int i = 0; i < buffer->height; i++) {
-		ptr[4 * (30 + buffer->width * i)] = 255;
-	}
-}
-
 // ============================================================================
 
 
@@ -390,8 +383,6 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	win32_LoadXInput();
-	
-	stbi_set_flip_vertically_on_load(1);
 
 	// Timing Info
 	LARGE_INTEGER perftimerfreqresult;
@@ -433,7 +424,30 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 			// InitGameState(&gameMemory, Vec2((f32)dim.width, (f32)dim.height));
-			DrawLineInBackBuffer(&globalBackBuffer);
+			Bitmap test_bitmap = {(uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height};
+			Bitmap test_sprite;
+
+			int x = 0, y = 0, n = 0;
+			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &x, &y, &n, 4);
+			test_sprite.width = x;
+			test_sprite.height = y;
+			CorrectSTBILoadMemoryLayout(test_sprite.buffer, test_sprite.width, test_sprite.height);
+
+
+			bool result = DrawPixel(&test_bitmap, 300, 300, { 255, 0, 0, 0 });
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
+
+			result = DrawRect(&test_bitmap, 0, 0, 32, 32, { 255, 125, 50, 0 });
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
+
+			result = DrawSprite(&test_bitmap, 400, 400, &test_sprite);
+			if (!result) {
+				DebugPrint((char*)"Error\n");
+			}
 
 			while (win32_running) {
 				// Timing
