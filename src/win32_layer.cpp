@@ -18,8 +18,10 @@
 #define UNICODE
 #endif 
 
-int window_width = 1200;
-int window_height = 900;
+// Add 16 to width and 39 to height so that the client area is the numbers you
+// actually want
+int window_width = 1024 + 16;
+int window_height = 576 + 39;
 
 int win32_running = 0;
 
@@ -408,6 +410,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			win32_WindowDimension dim = win32_GetWindowDimension(window);
 			win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 			
+			char str_buffer[256];
+			sprintf_s(str_buffer, "Client x,y: %d, %d\n", dim.width, dim.height);
+			DebugPrint(str_buffer);
+
 			win32_running = 1;
 
 			LARGE_INTEGER lasttimer;
@@ -423,45 +429,60 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			gameMemory.size = Kilobytes((u64)1);
 			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-			// InitGameState(&gameMemory, Vec2((f32)dim.width, (f32)dim.height));
+			InitGameState(&gameMemory);
 			Bitmap test_bitmap = {(uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height};
-			Bitmap test_sprite;
+			Bitmap test_sprite = { NULL, 0, 0 };
 
-			int x = 0, y = 0, n = 0;
-			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &x, &y, &n, 4);
-			test_sprite.width = x;
-			test_sprite.height = y;
+			int w = 0, h = 0, n = 0;
+			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &w, &h, &n, 4);
+			test_sprite.width = w;
+			test_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(test_sprite.buffer, test_sprite.width, test_sprite.height);
 
+			Bitmap grass_sprite = { NULL, 0, 0 };
+			Bitmap water_sprite = { NULL, 0, 0 };
+			Bitmap mountain_sprite = { NULL, 0, 0 };
+			grass_sprite.buffer = (uchar*)stbi_load((char*)"assets/grass_sprite.bmp", &w, &h, &n, 4);
+			grass_sprite.width = w;
+			grass_sprite.height = h;
+			CorrectSTBILoadMemoryLayout(grass_sprite.buffer, grass_sprite.width, grass_sprite.height);
 
-			bool result = DrawPixel(&test_bitmap, 300, 300, { 255, 0, 0, 0 });
-			if (!result) {
-				DebugPrint((char*)"Error\n");
-			}
+			water_sprite.buffer = (uchar*)stbi_load((char*)"assets/water_sprite.bmp", &w, &h, &n, 4);
+			water_sprite.width = w;
+			water_sprite.height = h;
+			CorrectSTBILoadMemoryLayout(water_sprite.buffer, water_sprite.width, water_sprite.height);
 
-			result = DrawRect(&test_bitmap, 0, 0, 32, 32, { 255, 125, 50, 0 });
-			if (!result) {
-				DebugPrint((char*)"Error\n");
-			}
+			mountain_sprite.buffer = (uchar*)stbi_load((char*)"assets/mountain_sprite.bmp", &w, &h, &n, 4);
+			mountain_sprite.width = w;
+			mountain_sprite.height = h;
+			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
-			result = DrawSprite(&test_bitmap, 400, 400, &test_sprite);
-			if (!result) {
-				DebugPrint((char*)"Error\n");
-			}
-
-			result = DrawSpriteMagnified(&test_bitmap, 600, 600, 2, &test_sprite);
-			if (!result) {
-				DebugPrint((char*)"Error\n");
-			}
-
-			result = DrawSpriteMagnified(&test_bitmap, 750, 300, 4, &test_sprite);
-			if (!result) {
-				DebugPrint((char*)"Error\n");
-			}
-
-			result = DrawSpriteMagnified(&test_bitmap, 100, 100, 8, &test_sprite);
-			if (!result) {
-				DebugPrint((char*)"Error\n");
+			GameState* gs = (GameState*)gameMemory.data;
+			for (int y = 0; y < 18; y++) {
+				for (int x = 0; x < 32; x++) {
+					switch (gs->tilemap.tiles[x + 32 * y].type) {
+						case TileType::NONE: break;
+						case TileType::GRASS:
+						{
+							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &grass_sprite)) {
+								DebugPrint((char*)"Error\n");
+							}
+						} break;
+						case TileType::WATER:
+						{
+							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &water_sprite)) {
+								DebugPrint((char*)"Error\n");
+							}
+						} break;
+						case TileType::MOUNTAIN:
+						{
+							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &mountain_sprite)) {
+								DebugPrint((char*)"Error\n");
+							}
+						} break;
+						default: break;
+					}
+				}
 			}
 
 			while (win32_running) {
@@ -503,7 +524,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Render Game
 				{
-					Win32DisplayBufferInWindow(&globalBackBuffer, GetDC(window), window_width, window_height);
+					HDC hdc = GetDC(window);
+					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
+					ReleaseDC(window, hdc);
 				}
 
 				// Swap Input structs

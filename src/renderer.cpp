@@ -27,7 +27,7 @@ void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
 	coordinates are outside the boundaries of the bitmap.
 */
 bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
-	if (x < 0 || x >= bitmap->width || y < 0 || y >= bitmap->height) {
+	if (x < 0 || x > bitmap->width || y < 0 || y > bitmap->height) {
 		return false;
 	}
 	
@@ -47,7 +47,7 @@ bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 	rect is outside the boundaries of the bitmap.
 */
 bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color color) {
-	if (x < 0 || (x + w) >= bitmap->width || y < 0 || (y + h) >= bitmap->height ||
+	if (x < 0 || (x + w) > bitmap->width || y < 0 || (y + h) > bitmap->height ||
 		w < 0 || h < 0) {
 		return false;
 	}
@@ -69,7 +69,7 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 	rect is outside the boundaries of the bitmap.
 */
 bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
-	if (x < 0 || (x+sprite->width) >= bitmap->width || y < 0 || (y+sprite->height) >= bitmap->height) {
+	if (x < 0 || (x+sprite->width) > bitmap->width || y < 0 || (y+sprite->height) > bitmap->height) {
 		return false;
 	}
 
@@ -91,7 +91,7 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 	bitmap.
 */
 bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bitmap* sprite) {
-	if (x < 0 || (x + scale * sprite->width) >= bitmap->width || y < 0 || (y + scale * sprite->height) >= bitmap->height) {
+	if (x < 0 || (x + scale * sprite->width) > bitmap->width || y < 0 || (y + scale * sprite->height) > bitmap->height) {
 		return false;
 	}
 

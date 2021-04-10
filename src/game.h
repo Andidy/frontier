@@ -5,11 +5,29 @@
 
 #include "../libs/simplex.h"
 
-struct GameState {
-	
+enum class TileType {
+	NONE,
+	GRASS,
+	WATER,
+	MOUNTAIN,
+	NUM_TYPES
 };
 
-void InitGameState(Memory* gameMemory, vec2 windowDimensions);
+struct Tile {
+	TileType type;
+};
+
+struct Tilemap {
+	int32_t width;
+	int32_t height;
+	Tile* tiles;
+};
+
+struct GameState {
+	Tilemap tilemap;
+};
+
+void InitGameState(Memory* gameMemory);
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt);
 
 #endif
