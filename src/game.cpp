@@ -8,6 +8,14 @@ void InitGameState(Memory* gameMemory) {
 	for (int y = 0; y < 18; y++) {
 		for (int x = 0; x < 32; x++) {
 			gs->tilemap.tiles[x + 32 * y].type = TileType::GRASS;
+
+			if (10 < x && x < 15 && 10 < y && y < 17) {
+				gs->tilemap.tiles[x + 32 * y].type = TileType::WATER;
+			}
+
+			if (x == 4 && 3 < y && y < 6) {
+				gs->tilemap.tiles[x + 32 * y].type = TileType::MOUNTAIN;
+			}
 		}
 	}
 }
