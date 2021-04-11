@@ -430,7 +430,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
 			InitGameState(&gameMemory);
-			Bitmap test_bitmap = {(uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height};
+
+			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
+			TilemapRenderer tilemap_renderer(32, 32, 1, 32, 18, 0, 0, 1024, 576, viewport);
+			
 			Bitmap test_sprite = { NULL, 0, 0 };
 			Bitmap grass_sprite = { NULL, 0, 0 };
 			Bitmap water_sprite = { NULL, 0, 0 };
@@ -457,6 +460,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			mountain_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
+			tilemap_renderer.DrawSprite(0, 0, &test_sprite);
+			tilemap_renderer.DrawSprite(32, 0, &grass_sprite);
+			tilemap_renderer.DrawSprite(0, 32, &water_sprite);
+			tilemap_renderer.DrawSprite(32, 32, &mountain_sprite);
+
+			
 			GameState* gs = (GameState*)gameMemory.data;
 			for (int y = 0; y < 18; y++) {
 				for (int x = 0; x < 32; x++) {
@@ -464,26 +473,21 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						case TileType::NONE: break;
 						case TileType::GRASS:
 						{
-							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &grass_sprite)) {
-								DebugPrint((char*)"Error\n");
-							}
+							tilemap_renderer.DrawSprite(x * 32, y * 32, &grass_sprite);
 						} break;
 						case TileType::WATER:
 						{
-							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &water_sprite)) {
-								DebugPrint((char*)"Error\n");
-							}
+							tilemap_renderer.DrawSprite(x * 32, y * 32, &water_sprite);
 						} break;
 						case TileType::MOUNTAIN:
 						{
-							if (!DrawSprite(&test_bitmap, x * 32, y * 32, &mountain_sprite)) {
-								DebugPrint((char*)"Error\n");
-							}
+							tilemap_renderer.DrawSprite(x * 32, y * 32, &mountain_sprite);
 						} break;
 						default: break;
 					}
 				}
 			}
+			
 
 			while (win32_running) {
 				// Timing
@@ -520,6 +524,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Update Game
 				{
 					GameUpdate(&gameMemory, newInput, dt);
+					char str_buffer[256];
+					sprintf_s(str_buffer, "mouse: %d, %d\n", newInput->mouse.x, newInput->mouse.y);
+					DebugPrint(str_buffer);
 				}
 
 				// Render Game

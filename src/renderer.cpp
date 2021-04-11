@@ -111,13 +111,14 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 
 TilemapRenderer::TilemapRenderer() {}
 
-TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int w_w, int w_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap) {
+TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap) {
 	tile_width = tile_w;
 	tile_height = tile_h;
+	tile_scale = tile_s;
 	tilemap_width = tilemap_w;
 	tilemap_height = tilemap_h;
-	world_width = w_w;
-	world_height = w_h;
+	world_width = tile_w * tile_s * tilemap_w;
+	world_height = tile_h * tile_s * tilemap_h;
 	view_x = v_x;
 	view_y = v_y;
 	view_w = v_w;
@@ -128,5 +129,26 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 }
 
 void TilemapRenderer::DrawSprite(int32_t x, int32_t y, Bitmap* sprite) {
+	
+	// for starting corner we want the larger value
+	int32_t start_x = (x >= view_x) ? x : view_x;
+	int32_t start_y = (y >= view_y) ? y : view_y;
+	// for ending corner we want the smaller value
+	int32_t end_x = (x + sprite->width < view_x + view_w) ? x + sprite->width : view_x + view_w;
+	int32_t end_y = (y + sprite->height < view_y + view_h) ? y + sprite->height : view_y + view_h;
+
+	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
+	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
+	for (int i = start_y; i < end_y; i++) {
+		for (int j = start_x; j < end_x; j++) {
+			uint32_t pixel = sprite_buffer[(j-x) + sprite->width * (i-y)];
+			for (int k = 0; k < tile_scale * tile_scale; k++) {
+				int32_t viewport_x = ((x - view_x + j - x) * tile_scale + k % tile_scale);
+				int32_t viewport_y = ((y - view_y + i - y) * tile_scale + k / tile_scale);
+				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+			}
+		}
+	}
+
 
 }

@@ -48,7 +48,7 @@ struct TilemapRenderer {
 	Bitmap view_bitmap{NULL, 0, 0};
 
 	TilemapRenderer();
-	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int w_w, int w_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap);
+	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap);
 	void DrawSprite(int32_t x, int32_t y, Bitmap* sprite);
 };
 
