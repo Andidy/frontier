@@ -108,3 +108,25 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 
 	return true;
 }
+
+TilemapRenderer::TilemapRenderer() {}
+
+TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int w_w, int w_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap) {
+	tile_width = tile_w;
+	tile_height = tile_h;
+	tilemap_width = tilemap_w;
+	tilemap_height = tilemap_h;
+	world_width = w_w;
+	world_height = w_h;
+	view_x = v_x;
+	view_y = v_y;
+	view_w = v_w;
+	view_h = v_h;
+	view_bitmap.buffer = bitmap.buffer;
+	view_bitmap.width = bitmap.width;
+	view_bitmap.height = bitmap.height;
+}
+
+void TilemapRenderer::DrawSprite(int32_t x, int32_t y, Bitmap* sprite) {
+
+}
