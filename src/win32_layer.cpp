@@ -432,7 +432,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			InitGameState(&gameMemory);
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 4, 32, 18, 0, 0, 1024, 576, viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 32, 18, 0, 0, 1024, 576, viewport);
 			
 			Bitmap test_sprite = { NULL, 0, 0 };
 			Bitmap grass_sprite = { NULL, 0, 0 };
@@ -460,16 +460,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			mountain_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
-			/*
-			tilemap_renderer.DrawSprite(0, 0, &test_sprite);
-			tilemap_renderer.DrawSprite(32, 0, &grass_sprite);
-			tilemap_renderer.DrawSprite(0, 32, &water_sprite);
-			tilemap_renderer.DrawSprite(32, 32, &mountain_sprite);
-			*/
-			
 			GameState* gs = (GameState*)gameMemory.data;
-			for (int y = 0; y < 18; y++) {
-				for (int x = 0; x < 32; x++) {
+			
+			int start_x = tilemap_renderer.view_x / (tilemap_renderer.tile_width * tilemap_renderer.tile_scale);
+			int start_y = tilemap_renderer.view_y / (tilemap_renderer.tile_height * tilemap_renderer.tile_scale);
+			int end_x = (tilemap_renderer.view_x + tilemap_renderer.view_w) / (tilemap_renderer.tile_width * tilemap_renderer.tile_scale);
+			int end_y = (tilemap_renderer.view_y + tilemap_renderer.view_h) / (tilemap_renderer.tile_height * tilemap_renderer.tile_scale);
+			
+			for (int y = start_y; y <= end_y; y++) {
+				for (int x = start_x; x <= end_x; x++) {
 					switch (gs->tilemap.tiles[x + 32 * y].type) {
 						case TileType::NONE: break;
 						case TileType::GRASS:
@@ -527,7 +526,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					GameUpdate(&gameMemory, newInput, dt);
 					char str_buffer[256];
 					sprintf_s(str_buffer, "mouse: %d, %d\n", newInput->mouse.x, newInput->mouse.y);
-					DebugPrint(str_buffer);
+					//DebugPrint(str_buffer);
 				}
 
 				// Render Game
