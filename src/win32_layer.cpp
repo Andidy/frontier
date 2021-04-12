@@ -432,7 +432,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			InitGameState(&gameMemory);
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 1, 32, 18, 0, 0, 1024, 576, viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 32, 18, 200, 0, 1024, 576, viewport);
 			
 			Bitmap test_sprite = { NULL, 0, 0 };
 			Bitmap grass_sprite = { NULL, 0, 0 };
