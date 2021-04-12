@@ -145,7 +145,9 @@ void TilemapRenderer::DrawSprite(int32_t x, int32_t y, Bitmap* sprite) {
 			for (int k = 0; k < tile_scale * tile_scale; k++) {
 				int32_t viewport_x = ((x - view_x + j - x) * tile_scale + k % tile_scale);
 				int32_t viewport_y = ((y - view_y + i - y) * tile_scale + k / tile_scale);
-				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+				if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
+					bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+				}
 			}
 		}
 	}
