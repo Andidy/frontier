@@ -3,6 +3,8 @@
 
 #include "universal.h"
 
+#include "game_types.h"
+
 struct Color {
 	uchar b;
 	uchar g;
@@ -47,9 +49,12 @@ struct TilemapRenderer {
 	int32_t view_h{ 0 };
 	Bitmap view_bitmap{NULL, 0, 0};
 
+	Bitmap* sprites[4];
+
 	TilemapRenderer();
 	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap);
 	void DrawSprite(int32_t x, int32_t y, Bitmap* sprite);
+	void DrawTilemap(GameState* gs);
 };
 
 #endif

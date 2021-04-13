@@ -126,6 +126,10 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	view_bitmap.buffer = bitmap.buffer;
 	view_bitmap.width = bitmap.width;
 	view_bitmap.height = bitmap.height;
+
+	for (int i = 0; i < 4; i++) {
+		sprites[i] = NULL;
+	}
 }
 
 void TilemapRenderer::DrawSprite(int32_t tile_x, int32_t tile_y, Bitmap* sprite) {
@@ -151,16 +155,37 @@ void TilemapRenderer::DrawSprite(int32_t tile_x, int32_t tile_y, Bitmap* sprite)
 			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
 				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
 			}
-			/*
-			for (int k = 0; k < tile_scale * tile_scale; k++) {
-				int32_t viewport_x = ((x - view_x) * tile_scale + k % tile_scale);
-				int32_t viewport_y = ((y - view_y) * tile_scale + k / tile_scale);
-				
-				if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
-					bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
-				}
+		}
+	}
+}
+
+void TilemapRenderer::DrawTilemap(GameState* gs) {
+	int32_t scaled_tile_width = tile_width * tile_scale;
+	int32_t scaled_tile_height = tile_height * tile_scale;
+
+	int start_x = view_x / scaled_tile_width;
+	int start_y = view_y / scaled_tile_height;
+	int end_x = (view_x + view_w) / scaled_tile_width;
+	int end_y = (view_y + view_h) / scaled_tile_height;
+
+	for (int y = start_y; y <= end_y; y++) {
+		for (int x = start_x; x <= end_x; x++) {
+			switch (gs->tilemap.tiles[x + gs->tilemap.width * y].type) {
+				case TileType::NONE: break;
+				case TileType::GRASS:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[1]);
+				} break;
+				case TileType::WATER:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[2]);
+				} break;
+				case TileType::MOUNTAIN:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[3]);
+				} break;
+				default: break;
 			}
-			*/
 		}
 	}
 }
