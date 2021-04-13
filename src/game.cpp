@@ -51,18 +51,26 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 
 	if (keyReleased(key.r)) {
+		gs->x /= gs->s;
+		gs->y /= gs->s;
 		gs->s += 1;
+		if (gs->s > 8) gs->s = 8;
+		gs->x *= gs->s;
+		gs->y *= gs->s;
 	}
 	if (keyReleased(key.f)) {
+		gs->x /= gs->s;
+		gs->y /= gs->s;
 		gs->s -= 1;
+		if (gs->s < 1) gs->s = 1;
+		gs->x *= gs->s;
+		gs->y *= gs->s;
 	}
 
 	if (gs->x < 0.0f) gs->x = 0.0f;
 	if (gs->y < 0.0f) gs->y = 0.0f;
-	if (gs->x >= (200.0f * 32.0f * 2.0f - 1024.0f)) gs->x = (200.0f * 32.0f * 2.0f - 1024.0f);
-	if (gs->y >= (100.0f * 32.0f * 2.0f - 576.0f)) gs->y = (100.0f * 32.0f * 2.0f - 576.0f);
-	if (gs->s < 1) gs->s = 1;
-	if (gs->s > 8) gs->s = 8;
+	if (gs->x >= (200.0f * 32.0f * gs->s - 1024.0f)) gs->x = (200.0f * 32.0f * gs->s - 1024.0f);
+	if (gs->y >= (100.0f * 32.0f * gs->s - 576.0f)) gs->y = (100.0f * 32.0f * gs->s - 576.0f);
 
 	// end Camera Update
 	// ========================================================================
