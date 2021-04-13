@@ -458,14 +458,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 2, 200, 100, 0, 0, 1024, 576, viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, viewport);
 			
 			GameState* gs = (GameState*)gameMemory.data;
-			
-			int32_t tile_width = tilemap_renderer.tile_width * tilemap_renderer.tile_scale;
-			int32_t tile_height = tilemap_renderer.tile_height * tilemap_renderer.tile_scale;
-
-			
 
 			while (win32_running) {
 				// Timing
@@ -511,6 +506,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				{
 					tilemap_renderer.view_x = (int32_t)gs->x;
 					tilemap_renderer.view_y = (int32_t)gs->y;
+					tilemap_renderer.tile_scale = gs->s;
+
+					int32_t tile_width = tilemap_renderer.tile_width * tilemap_renderer.tile_scale;
+					int32_t tile_height = tilemap_renderer.tile_height * tilemap_renderer.tile_scale;
 
 					int start_x = tilemap_renderer.view_x / tile_width;
 					int start_y = tilemap_renderer.view_y / tile_height;

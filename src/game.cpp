@@ -5,6 +5,7 @@ void InitGameState(Memory* gameMemory) {
 
 	gs->x = 0;
 	gs->y = 0;
+	gs->s = 1;
 
 	const int tilemap_width = 200;
 	const int tilemap_height = 100;
@@ -49,10 +50,20 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		gs->y += dt * speed;
 	}
 
+	if (keyReleased(key.r)) {
+		gs->s += 1;
+	}
+	if (keyReleased(key.f)) {
+		gs->s -= 1;
+	}
+
 	if (gs->x < 0.0f) gs->x = 0.0f;
 	if (gs->y < 0.0f) gs->y = 0.0f;
 	if (gs->x >= (200.0f * 32.0f * 2.0f - 1024.0f)) gs->x = (200.0f * 32.0f * 2.0f - 1024.0f);
 	if (gs->y >= (100.0f * 32.0f * 2.0f - 576.0f)) gs->y = (100.0f * 32.0f * 2.0f - 576.0f);
+	if (gs->s < 1) gs->s = 1;
+	if (gs->s > 8) gs->s = 8;
+
 	// end Camera Update
 	// ========================================================================
 }

@@ -28,6 +28,7 @@ struct GameState {
 
 	f32 x;
 	f32 y;
+	int32_t s;
 };
 
 void InitGameState(Memory* gameMemory);
