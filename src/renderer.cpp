@@ -128,29 +128,39 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	view_bitmap.height = bitmap.height;
 }
 
-void TilemapRenderer::DrawSprite(int32_t x, int32_t y, Bitmap* sprite) {
+void TilemapRenderer::DrawSprite(int32_t tile_x, int32_t tile_y, Bitmap* sprite) {
 	
 	// for starting corner we want the larger value
-	int32_t start_x = (x >= view_x) ? x : view_x;
-	int32_t start_y = (y >= view_y) ? y : view_y;
+	int32_t start_x = (tile_x >= view_x) ? tile_x : view_x;
+	int32_t start_y = (tile_y >= view_y) ? tile_y : view_y;
 	// for ending corner we want the smaller value
-	int32_t end_x = (x + sprite->width < view_x + view_w) ? x + sprite->width : view_x + view_w;
-	int32_t end_y = (y + sprite->height < view_y + view_h) ? y + sprite->height : view_y + view_h;
+	int32_t end_x = (tile_x + sprite->width * tile_scale < view_x + view_w) ? tile_x + sprite->width * tile_scale : view_x + view_w;
+	int32_t end_y = (tile_y + sprite->height * tile_scale < view_y + view_h) ? tile_y + sprite->height * tile_scale : view_y + view_h;
 
 	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
 	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
-	for (int i = start_y; i < end_y; i++) {
-		for (int j = start_x; j < end_x; j++) {
-			uint32_t pixel = sprite_buffer[(j-x) + sprite->width * (i-y)];
+
+	for (int y = start_y; y < end_y; y++) {
+		for (int x = start_x; x < end_x; x++) {
+			
+			uint32_t pixel = sprite_buffer[((x - tile_x) / tile_scale) + sprite->width * ((y - tile_y) / tile_scale)];
+			
+			int32_t viewport_x = (x - view_x);
+			int32_t viewport_y = (y - view_y);
+
+			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
+				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+			}
+			/*
 			for (int k = 0; k < tile_scale * tile_scale; k++) {
-				int32_t viewport_x = ((x - view_x + j - x) * tile_scale + k % tile_scale);
-				int32_t viewport_y = ((y - view_y + i - y) * tile_scale + k / tile_scale);
+				int32_t viewport_x = ((x - view_x) * tile_scale + k % tile_scale);
+				int32_t viewport_y = ((y - view_y) * tile_scale + k / tile_scale);
+				
 				if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
 					bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
 				}
 			}
+			*/
 		}
 	}
-
-
 }

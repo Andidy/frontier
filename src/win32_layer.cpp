@@ -431,9 +431,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitGameState(&gameMemory);
 
-			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 1, 32, 18, 200, 0, 1024, 576, viewport);
-			
 			Bitmap test_sprite = { NULL, 0, 0 };
 			Bitmap grass_sprite = { NULL, 0, 0 };
 			Bitmap water_sprite = { NULL, 0, 0 };
@@ -460,33 +457,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			mountain_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
+			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
+			TilemapRenderer tilemap_renderer(32, 32, 2, 200, 100, 0, 0, 1024, 576, viewport);
+			
 			GameState* gs = (GameState*)gameMemory.data;
 			
-			int start_x = tilemap_renderer.view_x / (tilemap_renderer.tile_width * tilemap_renderer.tile_scale);
-			int start_y = tilemap_renderer.view_y / (tilemap_renderer.tile_height * tilemap_renderer.tile_scale);
-			int end_x = (tilemap_renderer.view_x + tilemap_renderer.view_w) / (tilemap_renderer.tile_width * tilemap_renderer.tile_scale);
-			int end_y = (tilemap_renderer.view_y + tilemap_renderer.view_h) / (tilemap_renderer.tile_height * tilemap_renderer.tile_scale);
-			
-			for (int y = start_y; y <= end_y; y++) {
-				for (int x = start_x; x <= end_x; x++) {
-					switch (gs->tilemap.tiles[x + 32 * y].type) {
-						case TileType::NONE: break;
-						case TileType::GRASS:
-						{
-							tilemap_renderer.DrawSprite(x * 32, y * 32, &grass_sprite);
-						} break;
-						case TileType::WATER:
-						{
-							tilemap_renderer.DrawSprite(x * 32, y * 32, &water_sprite);
-						} break;
-						case TileType::MOUNTAIN:
-						{
-							tilemap_renderer.DrawSprite(x * 32, y * 32, &mountain_sprite);
-						} break;
-						default: break;
-					}
-				}
-			}
+			int32_t tile_width = tilemap_renderer.tile_width * tilemap_renderer.tile_scale;
+			int32_t tile_height = tilemap_renderer.tile_height * tilemap_renderer.tile_scale;
+
 			
 
 			while (win32_running) {
@@ -531,6 +509,35 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Render Game
 				{
+					tilemap_renderer.view_x = (int32_t)gs->x;
+					tilemap_renderer.view_y = (int32_t)gs->y;
+
+					int start_x = tilemap_renderer.view_x / tile_width;
+					int start_y = tilemap_renderer.view_y / tile_height;
+					int end_x = (tilemap_renderer.view_x + tilemap_renderer.view_w) / tile_width;
+					int end_y = (tilemap_renderer.view_y + tilemap_renderer.view_h) / tile_height;
+
+					for (int y = start_y; y <= end_y; y++) {
+						for (int x = start_x; x <= end_x; x++) {
+							switch (gs->tilemap.tiles[x + 200 * y].type) {
+								case TileType::NONE: break;
+								case TileType::GRASS:
+								{
+									tilemap_renderer.DrawSprite(x * tile_width, y * tile_height, &grass_sprite);
+								} break;
+								case TileType::WATER:
+								{
+									tilemap_renderer.DrawSprite(x * tile_width, y * tile_height, &water_sprite);
+								} break;
+								case TileType::MOUNTAIN:
+								{
+									tilemap_renderer.DrawSprite(x * tile_width, y * tile_height, &mountain_sprite);
+								} break;
+								default: break;
+							}
+						}
+					}
+					
 					HDC hdc = GetDC(window);
 					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
 					ReleaseDC(window, hdc);

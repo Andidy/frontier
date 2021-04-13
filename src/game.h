@@ -25,6 +25,9 @@ struct Tilemap {
 
 struct GameState {
 	Tilemap tilemap;
+
+	f32 x;
+	f32 y;
 };
 
 void InitGameState(Memory* gameMemory);

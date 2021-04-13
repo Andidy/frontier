@@ -3,8 +3,11 @@
 void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
-	const int tilemap_width = 32;
-	const int tilemap_height = 18;
+	gs->x = 0;
+	gs->y = 0;
+
+	const int tilemap_width = 200;
+	const int tilemap_height = 100;
 
 	gs->tilemap = { tilemap_width, tilemap_height, NULL };
 	gs->tilemap.tiles = (Tile*)malloc(sizeof(Tile) * tilemap_width * tilemap_height);
@@ -24,11 +27,32 @@ void InitGameState(Memory* gameMemory) {
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
-	// GameState* gameState = (GameState*)gameMemory->data;
+	GameState* gs = (GameState*)gameMemory->data;
 
 	// ========================================================================
 	// Camera Update
 
+	KeyboardState key = gameInput->keyboard;
+
+	const f32 speed = 1.0f;
+	if (keyDown(key.a)) {
+		gs->x -= dt * speed;
+	}
+	if (keyDown(key.d)) {
+		gs->x += dt * speed;
+	}
+	if (keyDown(key.w)) {
+		gs->y -= dt * speed;
+		
+	}
+	if (keyDown(key.s)) {
+		gs->y += dt * speed;
+	}
+
+	if (gs->x < 0.0f) gs->x = 0.0f;
+	if (gs->y < 0.0f) gs->y = 0.0f;
+	if (gs->x >= (200.0f * 32.0f * 2.0f - 1024.0f)) gs->x = (200.0f * 32.0f * 2.0f - 1024.0f);
+	if (gs->y >= (100.0f * 32.0f * 2.0f - 576.0f)) gs->y = (100.0f * 32.0f * 2.0f - 576.0f);
 	// end Camera Update
 	// ========================================================================
 }
