@@ -51,9 +51,12 @@ struct TilemapRenderer {
 
 	Bitmap* sprites[4];
 
+	Bitmap texture_atlases[1];
+
 	TilemapRenderer();
 	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap);
 	void DrawSprite(int32_t x, int32_t y, Bitmap* sprite);
+	void DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawTilemap(GameState* gs);
 };
 

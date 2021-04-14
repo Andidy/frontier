@@ -435,6 +435,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Bitmap grass_sprite = { NULL, 0, 0 };
 			Bitmap water_sprite = { NULL, 0, 0 };
 			Bitmap mountain_sprite = { NULL, 0, 0 };
+			Bitmap ta_0_0 = { NULL, 0, 0 };
 
 			int w = 0, h = 0, n = 0;
 			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &w, &h, &n, 4);
@@ -457,12 +458,19 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			mountain_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
+			ta_0_0.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0.bmp", &w, &h, &n, 4);
+			ta_0_0.width = w;
+			ta_0_0.height = h;
+			CorrectSTBILoadMemoryLayout(ta_0_0.buffer, ta_0_0.width, ta_0_0.height);
+
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
 			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, viewport);
 			
 			tilemap_renderer.sprites[1] = &grass_sprite;
 			tilemap_renderer.sprites[2] = &water_sprite;
 			tilemap_renderer.sprites[3] = &mountain_sprite;
+
+			tilemap_renderer.texture_atlases[0] = ta_0_0;
 
 			GameState* gs = (GameState*)gameMemory.data;
 

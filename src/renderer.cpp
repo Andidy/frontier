@@ -132,14 +132,14 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	}
 }
 
-void TilemapRenderer::DrawSprite(int32_t tile_x, int32_t tile_y, Bitmap* sprite) {
+void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, Bitmap* sprite) {
 	
 	// for starting corner we want the larger value
-	int32_t start_x = (tile_x >= view_x) ? tile_x : view_x;
-	int32_t start_y = (tile_y >= view_y) ? tile_y : view_y;
+	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
+	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
 	// for ending corner we want the smaller value
-	int32_t end_x = (tile_x + sprite->width * tile_scale < view_x + view_w) ? tile_x + sprite->width * tile_scale : view_x + view_w;
-	int32_t end_y = (tile_y + sprite->height * tile_scale < view_y + view_h) ? tile_y + sprite->height * tile_scale : view_y + view_h;
+	int32_t end_x = (world_x + sprite->width * tile_scale < view_x + view_w) ? world_x + sprite->width * tile_scale : view_x + view_w;
+	int32_t end_y = (world_y + sprite->height * tile_scale < view_y + view_h) ? world_y + sprite->height * tile_scale : view_y + view_h;
 
 	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
 	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
@@ -147,8 +147,47 @@ void TilemapRenderer::DrawSprite(int32_t tile_x, int32_t tile_y, Bitmap* sprite)
 	for (int y = start_y; y < end_y; y++) {
 		for (int x = start_x; x < end_x; x++) {
 			
-			uint32_t pixel = sprite_buffer[((x - tile_x) / tile_scale) + sprite->width * ((y - tile_y) / tile_scale)];
+			uint32_t pixel = sprite_buffer[((x - world_x) / tile_scale) + sprite->width * ((y - world_y) / tile_scale)];
 			
+			int32_t viewport_x = (x - view_x);
+			int32_t viewport_y = (y - view_y);
+
+			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
+				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+			}
+		}
+	}
+}
+
+/*
+	Draw a sprite into the viewport.
+	Params:
+	world_x / world_y: world coordinates of the sprite being drawn
+	tex_atlas_x / tex_atlas_y: the index inside the texture atlas of the sprite
+	texture_atlas: the texture atlas where the sprite is located
+*/
+void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
+
+	// for starting corner we want the larger value
+	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
+	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
+	// for ending corner we want the smaller value
+	int32_t end_x = (world_x + texture_atlas->width * tile_scale < view_x + view_w) ? world_x + texture_atlas->width * tile_scale : view_x + view_w;
+	int32_t end_y = (world_y + texture_atlas->height * tile_scale < view_y + view_h) ? world_y + texture_atlas->height * tile_scale : view_y + view_h;
+
+	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
+	uint32_t* sprite_buffer = (uint32_t*)texture_atlas->buffer;
+
+	int32_t tex_atlas_off_x = tex_atlas_x * tile_width;
+	int32_t tex_atlas_off_y = tex_atlas_y * tile_height;
+
+	for (int y = start_y; y < end_y; y++) {
+		for (int x = start_x; x < end_x; x++) {
+
+			int32_t pixel_x = ((x - world_x) / tile_scale + tex_atlas_off_x);
+			int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
+			uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
+
 			int32_t viewport_x = (x - view_x);
 			int32_t viewport_y = (y - view_y);
 
@@ -174,15 +213,15 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 				case TileType::NONE: break;
 				case TileType::GRASS:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[1]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &texture_atlases[0]);
 				} break;
 				case TileType::WATER:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[2]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &texture_atlases[0]);
 				} break;
 				case TileType::MOUNTAIN:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, sprites[3]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &texture_atlases[0]);
 				} break;
 				default: break;
 			}
