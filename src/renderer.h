@@ -49,12 +49,18 @@ struct TilemapRenderer {
 	int32_t view_h{ 0 };
 	Bitmap view_bitmap{NULL, 0, 0};
 
-	Bitmap* sprites[4];
+	// Animation state
+	int32_t animation_frame;
+	int32_t animation_max_frames;
+	f32 animation_frame_time;
+	f32 animation_max_frame_time;
 
-	Bitmap texture_atlases[1];
+	// Textures for the renderer to use
+	Bitmap* sprites[4];
+	Bitmap texture_atlases[4];
 
 	TilemapRenderer();
-	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap);
+	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap);
 	void DrawSprite(int32_t x, int32_t y, Bitmap* sprite);
 	void DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawTilemap(GameState* gs);

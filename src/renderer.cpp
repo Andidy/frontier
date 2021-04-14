@@ -111,7 +111,7 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 
 TilemapRenderer::TilemapRenderer() {}
 
-TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, Bitmap bitmap) {
+TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap) {
 	tile_width = tile_w;
 	tile_height = tile_h;
 	tile_scale = tile_s;
@@ -126,9 +126,16 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	view_bitmap.buffer = bitmap.buffer;
 	view_bitmap.width = bitmap.width;
 	view_bitmap.height = bitmap.height;
+	animation_frame = 0;
+	animation_max_frames = anim_max_frames;
+	animation_frame_time = 0;
+	animation_max_frame_time = anim_frame_time;
 
 	for (int i = 0; i < 4; i++) {
 		sprites[i] = NULL;
+	}
+	for (int i = 0; i < 4; i++) {
+		texture_atlases[i] = { NULL, 0, 0 };
 	}
 }
 
@@ -172,8 +179,8 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
 	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
 	// for ending corner we want the smaller value
-	int32_t end_x = (world_x + texture_atlas->width * tile_scale < view_x + view_w) ? world_x + texture_atlas->width * tile_scale : view_x + view_w;
-	int32_t end_y = (world_y + texture_atlas->height * tile_scale < view_y + view_h) ? world_y + texture_atlas->height * tile_scale : view_y + view_h;
+	int32_t end_x = (world_x + tile_width * tile_scale < view_x + view_w) ? world_x + tile_width * tile_scale : view_x + view_w;
+	int32_t end_y = (world_y + tile_width * tile_scale < view_y + view_h) ? world_y + tile_width * tile_scale : view_y + view_h;
 
 	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
 	uint32_t* sprite_buffer = (uint32_t*)texture_atlas->buffer;
@@ -213,15 +220,15 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 				case TileType::NONE: break;
 				case TileType::GRASS:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &texture_atlases[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &texture_atlases[animation_frame]);
 				} break;
 				case TileType::WATER:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &texture_atlases[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &texture_atlases[animation_frame]);
 				} break;
 				case TileType::MOUNTAIN:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &texture_atlases[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &texture_atlases[animation_frame]);
 				} break;
 				default: break;
 			}

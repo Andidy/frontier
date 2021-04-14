@@ -436,6 +436,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Bitmap water_sprite = { NULL, 0, 0 };
 			Bitmap mountain_sprite = { NULL, 0, 0 };
 			Bitmap ta_0_0 = { NULL, 0, 0 };
+			Bitmap ta_0_1 = { NULL, 0, 0 };
+			Bitmap ta_0_2 = { NULL, 0, 0 };
+			Bitmap ta_0_3 = { NULL, 0, 0 };
 
 			int w = 0, h = 0, n = 0;
 			test_sprite.buffer = (uchar*)stbi_load((char*)"assets/test_sprite.bmp", &w, &h, &n, 4);
@@ -463,14 +466,32 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			ta_0_0.height = h;
 			CorrectSTBILoadMemoryLayout(ta_0_0.buffer, ta_0_0.width, ta_0_0.height);
 
+			ta_0_1.buffer = (uchar*)stbi_load((char*)"assets/ta_0_1.bmp", &w, &h, &n, 4);
+			ta_0_1.width = w;
+			ta_0_1.height = h;
+			CorrectSTBILoadMemoryLayout(ta_0_1.buffer, ta_0_1.width, ta_0_1.height);
+
+			ta_0_2.buffer = (uchar*)stbi_load((char*)"assets/ta_0_2.bmp", &w, &h, &n, 4);
+			ta_0_2.width = w;
+			ta_0_2.height = h;
+			CorrectSTBILoadMemoryLayout(ta_0_2.buffer, ta_0_2.width, ta_0_2.height);
+
+			ta_0_3.buffer = (uchar*)stbi_load((char*)"assets/ta_0_3.bmp", &w, &h, &n, 4);
+			ta_0_3.width = w;
+			ta_0_3.height = h;
+			CorrectSTBILoadMemoryLayout(ta_0_3.buffer, ta_0_3.width, ta_0_3.height);
+
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, 4, 0.25f, viewport);
 			
 			tilemap_renderer.sprites[1] = &grass_sprite;
 			tilemap_renderer.sprites[2] = &water_sprite;
 			tilemap_renderer.sprites[3] = &mountain_sprite;
 
 			tilemap_renderer.texture_atlases[0] = ta_0_0;
+			tilemap_renderer.texture_atlases[1] = ta_0_1;
+			tilemap_renderer.texture_atlases[2] = ta_0_2;
+			tilemap_renderer.texture_atlases[3] = ta_0_3;
 
 			GameState* gs = (GameState*)gameMemory.data;
 
@@ -519,6 +540,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					tilemap_renderer.view_x = (int32_t)gs->x;
 					tilemap_renderer.view_y = (int32_t)gs->y;
 					tilemap_renderer.tile_scale = gs->s;
+
+					tilemap_renderer.animation_frame_time += dt / 1000.0f;
+					if (tilemap_renderer.animation_frame_time > tilemap_renderer.animation_max_frame_time) {
+						tilemap_renderer.animation_frame = (tilemap_renderer.animation_frame + 1) % tilemap_renderer.animation_max_frames;
+						tilemap_renderer.animation_frame_time = 0.0f;
+					}
 
 					tilemap_renderer.DrawTilemap(gs);
 					
