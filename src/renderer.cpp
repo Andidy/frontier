@@ -220,15 +220,31 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 				case TileType::NONE: break;
 				case TileType::GRASS:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &texture_atlases[animation_frame]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &(tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]));
 				} break;
 				case TileType::WATER:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &texture_atlases[animation_frame]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
 				} break;
 				case TileType::MOUNTAIN:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &texture_atlases[animation_frame]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
+				} break;
+				case TileType::HOUSE:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
+				} break;
+				case TileType::FORT:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
+				} break;
+				case TileType::MINE:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
+				} break;
+				case TileType::RAIL:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
 				default: break;
 			}

@@ -461,29 +461,85 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			mountain_sprite.height = h;
 			CorrectSTBILoadMemoryLayout(mountain_sprite.buffer, mountain_sprite.width, mountain_sprite.height);
 
-			ta_0_0.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0.bmp", &w, &h, &n, 4);
+			/*
+			ta_0_0.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0_0.bmp", &w, &h, &n, 4);
 			ta_0_0.width = w;
 			ta_0_0.height = h;
 			CorrectSTBILoadMemoryLayout(ta_0_0.buffer, ta_0_0.width, ta_0_0.height);
 
-			ta_0_1.buffer = (uchar*)stbi_load((char*)"assets/ta_0_1.bmp", &w, &h, &n, 4);
+			ta_0_1.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0_1.bmp", &w, &h, &n, 4);
 			ta_0_1.width = w;
 			ta_0_1.height = h;
 			CorrectSTBILoadMemoryLayout(ta_0_1.buffer, ta_0_1.width, ta_0_1.height);
 
-			ta_0_2.buffer = (uchar*)stbi_load((char*)"assets/ta_0_2.bmp", &w, &h, &n, 4);
+			ta_0_2.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0_2.bmp", &w, &h, &n, 4);
 			ta_0_2.width = w;
 			ta_0_2.height = h;
 			CorrectSTBILoadMemoryLayout(ta_0_2.buffer, ta_0_2.width, ta_0_2.height);
 
-			ta_0_3.buffer = (uchar*)stbi_load((char*)"assets/ta_0_3.bmp", &w, &h, &n, 4);
+			ta_0_3.buffer = (uchar*)stbi_load((char*)"assets/ta_0_0_3.bmp", &w, &h, &n, 4);
 			ta_0_3.width = w;
 			ta_0_3.height = h;
 			CorrectSTBILoadMemoryLayout(ta_0_3.buffer, ta_0_3.width, ta_0_3.height);
+			*/
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
 			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, 4, 0.25f, viewport);
 			
+			// Generate storage pattern for texture atlases
+			{
+				FILE* file;
+				errno_t err;
+				char buffer[256];
+
+				// figure out how many texture atlases we have
+				for (int i = 0; i < INT_MAX; i++) {
+					snprintf(buffer, 256, "assets/ta_%d_0.bmp", i);
+					if ((err = fopen_s(&file, buffer, "r"))) {
+						// failed to find ta_i so we are done
+						tilemap_renderer.num_tex_atlases = i;
+						break;
+					}
+					else {
+						// successfully found ta_i now we count the anim frames
+						fclose(file);
+					}
+				}
+
+				// allocate the texture atlases
+				tilemap_renderer.tex_atlases = (TextureAtlas*)malloc(sizeof(TextureAtlas) * tilemap_renderer.num_tex_atlases);
+				TextureAtlas* tas = tilemap_renderer.tex_atlases;
+
+				// figure out how many animation frames per atlas
+				for (int i = 0; i < tilemap_renderer.num_tex_atlases; i++) {
+					for (int j = 0; j < INT_MAX; j++) {
+						snprintf(buffer, 256, "assets/ta_%d_%d.bmp", i, j);
+						if ((err = fopen_s(&file, buffer, "r"))) {
+							// failed to open ta_i_anim_j so there's no more frames
+							tas[i].num_anim_frames = j;
+							break;
+						}
+						else {
+							// successfully found ta_i_anim_j keep counting
+							continue;
+						}
+					}
+				}
+
+				// load the frames
+				for (int i = 0; i < tilemap_renderer.num_tex_atlases; i++) {
+					tas[i].frames = (Bitmap*)malloc(sizeof(Bitmap) * tas[i].num_anim_frames);
+					for (int j = 0; j < tas[i].num_anim_frames; j++) {
+						snprintf(buffer, 256, "assets/ta_%d_%d.bmp", i, j);
+						uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+						tas[i].frames[j].buffer = buf;
+						tas[i].frames[j].width = w;
+						tas[i].frames[j].height = h;
+						CorrectSTBILoadMemoryLayout(buf, w, h);
+					}
+				}
+			}
+
 			tilemap_renderer.sprites[1] = &grass_sprite;
 			tilemap_renderer.sprites[2] = &water_sprite;
 			tilemap_renderer.sprites[3] = &mountain_sprite;
@@ -543,7 +599,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					tilemap_renderer.animation_frame_time += dt / 1000.0f;
 					if (tilemap_renderer.animation_frame_time > tilemap_renderer.animation_max_frame_time) {
-						tilemap_renderer.animation_frame = (tilemap_renderer.animation_frame + 1) % tilemap_renderer.animation_max_frames;
+						// use this line if all texture atlases have the same number of animation frames
+						// tilemap_renderer.animation_frame = (tilemap_renderer.animation_frame + 1) % tilemap_renderer.animation_max_frames;
+						// otherwise use this line
+						tilemap_renderer.animation_frame += 1;
 						tilemap_renderer.animation_frame_time = 0.0f;
 					}
 

@@ -23,6 +23,22 @@ void InitGameState(Memory* gameMemory) {
 			if (x == 4 && 3 < y && y < 6) {
 				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MOUNTAIN;
 			}
+
+			if (x == 5 && 3 < y && y < 6) {
+				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MINE;
+			}
+
+			if (x == 16 && y == 3) {
+				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::FORT;
+			}
+
+			if (15 < x && x < 19 && 3 < y && y < 6) {
+				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::HOUSE;
+			}
+
+			if (x == 18 && 5 < y && y < 15) {
+				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::RAIL;
+			}
 		}
 	}
 }

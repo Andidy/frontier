@@ -8,6 +8,10 @@ enum class TileType {
 	GRASS,
 	WATER,
 	MOUNTAIN,
+	HOUSE,
+	FORT,
+	MINE,
+	RAIL,
 	NUM_TYPES
 };
 
