@@ -26,6 +26,8 @@ struct Tilemap {
 };
 
 struct GameState {
+	int64_t game_tick;
+	
 	Tilemap tilemap;
 
 	f32 x;

@@ -3,6 +3,8 @@
 void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
+	gs->game_tick = 0;
+
 	gs->x = 0;
 	gs->y = 0;
 	gs->s = 1;
@@ -50,6 +52,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	// Camera Update
 
 	KeyboardState key = gameInput->keyboard;
+	MouseState mouse = gameInput->mouse;
 
 	const f32 speed = 1.0f;
 	if (keyDown(key.a)) {
@@ -89,4 +92,56 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	// end Camera Update
 	// ========================================================================
+
+	if (keyReleased(mouse.left)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Left Release, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyPressed(mouse.left)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Left Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyReleased(mouse.middle)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Middle RElease, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyPressed(mouse.middle)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Middle Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyReleased(mouse.right)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Right Released, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyPressed(mouse.right)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Right Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyReleased(mouse.x1)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse X1 Released, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyPressed(mouse.x1)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse X1 Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyReleased(mouse.x2)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse X2 Released, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+	if (keyPressed(mouse.x2)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse X2 Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+	}
+
 }

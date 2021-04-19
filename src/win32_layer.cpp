@@ -143,6 +143,53 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 				}
 			} break;
 
+			case WM_LBUTTONDOWN: { 
+				gameInput->mouse.left.endedDown = 1; 
+				gameInput->mouse.left.transitionCount = 1; 
+			} break;
+			case WM_LBUTTONUP: { 
+				gameInput->mouse.left.endedDown = 0; 
+				gameInput->mouse.left.transitionCount = 1; 
+			} break;
+			case WM_MBUTTONDOWN: { 
+				gameInput->mouse.middle.endedDown = 1; 
+				gameInput->mouse.middle.transitionCount = 1; 
+			} break;
+			case WM_MBUTTONUP: { 
+				gameInput->mouse.middle.endedDown = 0; 
+				gameInput->mouse.middle.transitionCount = 1; 
+			} break;
+			case WM_RBUTTONDOWN: { 
+				gameInput->mouse.right.endedDown = 1; 
+				gameInput->mouse.right.transitionCount = 1; 
+			} break;
+			case WM_RBUTTONUP: { 
+				gameInput->mouse.right.endedDown = 0; 
+				gameInput->mouse.right.transitionCount = 1; 
+			} break;
+			case WM_XBUTTONDOWN: { 
+				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
+				if (fwButton == XBUTTON1) {
+					gameInput->mouse.x1.endedDown = 1;
+					gameInput->mouse.x1.transitionCount = 1;
+				}
+				else {
+					gameInput->mouse.x2.endedDown = 1;
+					gameInput->mouse.x2.transitionCount = 1;
+				}
+			} break;
+			case WM_XBUTTONUP: { 
+				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
+				if (fwButton == XBUTTON1) {
+					gameInput->mouse.x1.endedDown = 0;
+					gameInput->mouse.x1.transitionCount = 1;
+				}
+				else {
+					gameInput->mouse.x2.endedDown = 0;
+					gameInput->mouse.x2.transitionCount = 1;
+				}
+			} break;
+
 			case WM_MOUSEMOVE:
 			{
 				// mouse move is for only when action is needed during movement
@@ -432,7 +479,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			InitGameState(&gameMemory);
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, 4, 0.25f, viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 100, 100, 1024, 576, 4, 0.25f, viewport);
 			
 			// Generate storage pattern for texture atlases
 			{
