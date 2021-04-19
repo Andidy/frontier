@@ -61,9 +61,6 @@ struct TilemapRenderer {
 	f32 animation_max_frame_time;
 
 	// Textures for the renderer to use
-	Bitmap* sprites[4];
-	Bitmap texture_atlases[1024];
-
 	int32_t num_tex_atlases;
 	TextureAtlas* tex_atlases;
 

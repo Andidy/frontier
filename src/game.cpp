@@ -60,7 +60,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 	if (keyDown(key.w)) {
 		gs->y -= dt * speed;
-		
 	}
 	if (keyDown(key.s)) {
 		gs->y += dt * speed;

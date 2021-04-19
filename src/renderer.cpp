@@ -14,6 +14,14 @@ void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
 			uchar b = (uchar)(temp >> 16);
 			uchar a = (uchar)(temp >> 24);
 
+			// super basic transparency (magenta = transparent)
+			if (r == 255 && g == 255 && b == 255 && a == 0) {
+				a = 0;
+			}
+			else {
+				a = 255;
+			}
+
 			buffer[w + width * h] = (b | g << 8 | r << 16 | a << 24);
 		}
 	}
@@ -130,13 +138,6 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	animation_max_frames = anim_max_frames;
 	animation_frame_time = 0;
 	animation_max_frame_time = anim_frame_time;
-
-	for (int i = 0; i < 4; i++) {
-		sprites[i] = NULL;
-	}
-	for (int i = 0; i < 4; i++) {
-		texture_atlases[i] = { NULL, 0, 0 };
-	}
 }
 
 void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, Bitmap* sprite) {
@@ -190,13 +191,12 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 
 	for (int y = start_y; y < end_y; y++) {
 		for (int x = start_x; x < end_x; x++) {
+			int32_t viewport_x = (x - view_x);
+			int32_t viewport_y = (y - view_y);
 
 			int32_t pixel_x = ((x - world_x) / tile_scale + tex_atlas_off_x);
 			int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
 			uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
-
-			int32_t viewport_x = (x - view_x);
-			int32_t viewport_y = (y - view_y);
 
 			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
 				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
