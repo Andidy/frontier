@@ -1,0 +1,3 @@
+Added animation, improved texture atlas loading, improved mouse support,
+viewport used by the tilemap renderer doesn't have to be the window viewport,
+beginning of UI renderering functions

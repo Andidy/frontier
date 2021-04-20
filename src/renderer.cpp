@@ -117,6 +117,14 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 	return true;
 }
 
+void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t height, int32_t line_width, Color background_color, Color line_color) {
+	DrawRect(viewport, x, y, width, height, background_color);
+	DrawRect(viewport, x + line_width, y + line_width, width-(2 * line_width), line_width, line_color);
+	DrawRect(viewport, x + line_width, y + line_width, line_width, height - (2 * line_width), line_color);
+	DrawRect(viewport, x + width - (2 * line_width), y + line_width, line_width, height - (2 * line_width), line_color);
+	DrawRect(viewport, x + line_width, y + height - (2*line_width), width - (2*line_width), line_width, line_color);
+}
+
 TilemapRenderer::TilemapRenderer() {}
 
 TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap) {
@@ -140,33 +148,6 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	animation_max_frame_time = anim_frame_time;
 }
 
-void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, Bitmap* sprite) {
-	
-	// for starting corner we want the larger value
-	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
-	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
-	// for ending corner we want the smaller value
-	int32_t end_x = (world_x + sprite->width * tile_scale < view_x + view_w) ? world_x + sprite->width * tile_scale : view_x + view_w;
-	int32_t end_y = (world_y + sprite->height * tile_scale < view_y + view_h) ? world_y + sprite->height * tile_scale : view_y + view_h;
-
-	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
-	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
-
-	for (int y = start_y; y < end_y; y++) {
-		for (int x = start_x; x < end_x; x++) {
-			
-			uint32_t pixel = sprite_buffer[((x - world_x) / tile_scale) + sprite->width * ((y - world_y) / tile_scale)];
-			
-			int32_t viewport_x = (x - view_x);
-			int32_t viewport_y = (y - view_y);
-
-			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
-				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
-			}
-		}
-	}
-}
-
 /*
 	Draw a sprite into the viewport.
 	Params:
@@ -175,6 +156,8 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, Bitmap* sprit
 	texture_atlas: the texture atlas where the sprite is located
 */
 void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
+
+	//debug_counter++;
 
 	// for starting corner we want the larger value
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
@@ -194,11 +177,11 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 			int32_t viewport_x = (x - view_x);
 			int32_t viewport_y = (y - view_y);
 
-			int32_t pixel_x = ((x - world_x) / tile_scale + tex_atlas_off_x);
-			int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
-			uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
-
 			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
+				int32_t pixel_x = ((x - world_x) / tile_scale + tex_atlas_off_x);
+				int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
+				uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
+
 				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
 			}
 		}

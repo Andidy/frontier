@@ -20,8 +20,10 @@
 
 // Add 16 to width and 39 to height so that the client area is the numbers you
 // actually want
-int window_width = 1024 + 16;
-int window_height = 576 + 39;
+int temp_window_w = 32 * 40;
+int temp_window_h = 32 * 30;
+int window_width = temp_window_w + 16;
+int window_height = temp_window_h + 39;
 
 int win32_running = 0;
 
@@ -479,7 +481,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			InitGameState(&gameMemory);
 
 			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
-			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 100, 100, 1024, 576, 4, 0.25f, viewport);
+			
+			Bitmap game_viewport = { NULL, 0, 0 };
+			game_viewport.buffer = (uchar*)malloc(sizeof(uchar) * 4 * 1024 * 576);
+			game_viewport.width = 1024;
+			game_viewport.height = 576;
+
+			int32_t tilemap_renderer_pos_x = temp_window_w - 1024;
+			int32_t tilemap_renderer_pos_y = temp_window_h - 576;
+
+			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, 1024, 576, 4, 0.25f, game_viewport);
 			
 			// Generate storage pattern for texture atlases
 			{
@@ -553,7 +564,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					//OutputDebugStringA(str_buffer);
+					OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 
@@ -594,7 +605,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					tilemap_renderer.DrawTilemap(gs);
-					
+
+					DrawSprite(&viewport, tilemap_renderer_pos_x, tilemap_renderer_pos_y, &(tilemap_renderer.view_bitmap));
+					DrawUIRect(&viewport, 0, 0, temp_window_w, 192, 2, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+					DrawUIRect(&viewport, 0, 192, temp_window_w - 1024, temp_window_h - 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+					DrawUIRect(&viewport, 500, 500, 500, 100, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+
 					HDC hdc = GetDC(window);
 					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
 					ReleaseDC(window, hdc);
