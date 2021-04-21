@@ -118,11 +118,12 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 }
 
 void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t height, int32_t line_width, Color background_color, Color line_color) {
+	int32_t lw2 = (2 * line_width);
 	DrawRect(viewport, x, y, width, height, background_color);
-	DrawRect(viewport, x + line_width, y + line_width, width-(2 * line_width), line_width, line_color);
-	DrawRect(viewport, x + line_width, y + line_width, line_width, height - (2 * line_width), line_color);
-	DrawRect(viewport, x + width - (2 * line_width), y + line_width, line_width, height - (2 * line_width), line_color);
-	DrawRect(viewport, x + line_width, y + height - (2*line_width), width - (2*line_width), line_width, line_color);
+	DrawRect(viewport, x + line_width, y + line_width, width - lw2, line_width, line_color);
+	DrawRect(viewport, x + line_width, y + line_width, line_width, height - lw2, line_color);
+	DrawRect(viewport, x + width - lw2, y + line_width, line_width, height - lw2, line_color);
+	DrawRect(viewport, x + line_width, y + height - lw2, width - lw2, line_width, line_color);
 }
 
 TilemapRenderer::TilemapRenderer() {}
@@ -156,9 +157,6 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	texture_atlas: the texture atlas where the sprite is located
 */
 void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
-
-	//debug_counter++;
-
 	// for starting corner we want the larger value
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
 	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
