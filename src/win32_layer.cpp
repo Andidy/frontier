@@ -552,6 +552,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			while (win32_running) {
 				// Timing
 				f32 dt = 0.0f;
+				uint64_t timer1, timer2, timer3, timer4, timer5, timer6, timer7, timer8;
 				{
 					LARGE_INTEGER endtimer;
 					QueryPerformanceCounter(&endtimer);
@@ -582,6 +583,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// Update Game
+				timer1 = __rdtsc();
 				{
 					GameUpdate(&gameMemory, newInput, dt);
 					char str_buffer[256];
@@ -590,6 +592,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// Render Game
+				timer2 = __rdtsc();
 				{
 					tilemap_renderer.view_x = (int32_t)gs->x;
 					tilemap_renderer.view_y = (int32_t)gs->y;
@@ -605,16 +608,37 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					tilemap_renderer.DrawTilemap(gs);
-
+					timer3 = __rdtsc();
 					DrawSprite(&viewport, tilemap_renderer_pos_x, tilemap_renderer_pos_y, &(tilemap_renderer.view_bitmap));
+					timer4 = __rdtsc();
 					DrawUIRect(&viewport, 0, 0, temp_window_w, 192, 2, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+					timer5 = __rdtsc();
 					DrawUIRect(&viewport, 0, 192, temp_window_w - 1024, temp_window_h - 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+					timer6 = __rdtsc();
 					DrawUIRect(&viewport, 500, 500, 500, 100, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+					timer7 = __rdtsc();
 
 					HDC hdc = GetDC(window);
 					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
 					ReleaseDC(window, hdc);
 				}
+				timer8 = __rdtsc();
+
+				char buffer[256];
+				snprintf(buffer, 256, "Game Update Cycles: %I64u\n", timer2 - timer1);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "DrawTilemap Cycles: %I64u\n", timer3 - timer2);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "Tilemap to Viewport Cycles: %I64u\n", timer4 - timer3);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "UI 1 Cycles: %I64u\n", timer5 - timer4);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "UI 2 Cycles: %I64u\n", timer6 - timer5);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "UI 3 Cycles: %I64u\n", timer7 - timer6);
+				DebugPrint(buffer);
+				snprintf(buffer, 256, "Windows draw to screen Cycles: %I64u\n", timer8 - timer7);
+				DebugPrint(buffer);
 
 				// Swap Input structs
 				{
