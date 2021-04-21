@@ -22,6 +22,27 @@
 
 void DebugPrint(char* str);
 
+enum CycleType {
+	CT_GAME_UPDATE,
+	CT_DRAW_PIXEL,
+	CT_DRAW_RECT,
+	CT_DRAW_SPRITE,
+	CT_DRAW_SPRITE_MAG,
+	CT_TM_DRAW_TILEMAP,
+	CT_TM_DRAW_SPRITE,
+	CT_UI_DRAW_RECT,
+	CT_NUM_CYCLE_TYPES
+};
+
+struct CycleCounter {
+	uint64_t start_cycles[1024];
+	uint64_t cycles[1024];
+	int64_t times_called[1024];
+};
+
+void BeginTimer(CycleType type);
+void EndTimer(CycleType type);
+
 // end Debug stuff
 // ============================================================================
 // Memory

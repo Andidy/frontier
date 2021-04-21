@@ -327,6 +327,17 @@ void DebugPrint(char* str) {
 	OutputDebugStringA(str);
 }
 
+CycleCounter global_cycle_counter;
+
+void BeginTimer(CycleType type) {
+	global_cycle_counter.start_cycles[type] = __rdtsc();
+}
+
+void EndTimer(CycleType type) {
+	global_cycle_counter.cycles[type] += __rdtsc() - global_cycle_counter.start_cycles[type];
+	global_cycle_counter.times_called[type] += 1;
+}
+
 struct win32_WindowDimension {
 	i32 width;
 	i32 height;
@@ -433,6 +444,13 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
+	// init cycle counter
+	for (int i = 0; i < 1024; i++) {
+		global_cycle_counter.start_cycles[i] = 0;
+		global_cycle_counter.cycles[i] = 0;
+		global_cycle_counter.times_called[i] = 0;
+	}
+	
 	win32_LoadXInput();
 
 	// Timing Info
@@ -552,7 +570,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			while (win32_running) {
 				// Timing
 				f32 dt = 0.0f;
-				uint64_t timer1, timer2, timer3, timer4, timer5, timer6, timer7, timer8;
 				{
 					LARGE_INTEGER endtimer;
 					QueryPerformanceCounter(&endtimer);
@@ -583,7 +600,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// Update Game
-				timer1 = __rdtsc();
 				{
 					GameUpdate(&gameMemory, newInput, dt);
 					char str_buffer[256];
@@ -592,7 +608,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// Render Game
-				timer2 = __rdtsc();
 				{
 					tilemap_renderer.view_x = (int32_t)gs->x;
 					tilemap_renderer.view_y = (int32_t)gs->y;
@@ -608,37 +623,75 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					tilemap_renderer.DrawTilemap(gs);
-					timer3 = __rdtsc();
+
 					DrawSprite(&viewport, tilemap_renderer_pos_x, tilemap_renderer_pos_y, &(tilemap_renderer.view_bitmap));
-					timer4 = __rdtsc();
 					DrawUIRect(&viewport, 0, 0, temp_window_w, 192, 2, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					timer5 = __rdtsc();
 					DrawUIRect(&viewport, 0, 192, temp_window_w - 1024, temp_window_h - 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					timer6 = __rdtsc();
 					DrawUIRect(&viewport, 500, 500, 500, 100, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					timer7 = __rdtsc();
 
 					HDC hdc = GetDC(window);
 					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
 					ReleaseDC(window, hdc);
 				}
-				timer8 = __rdtsc();
 
-				char buffer[256];
-				snprintf(buffer, 256, "Game Update Cycles: %I64u\n", timer2 - timer1);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "DrawTilemap Cycles: %I64u\n", timer3 - timer2);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "Tilemap to Viewport Cycles: %I64u\n", timer4 - timer3);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "UI 1 Cycles: %I64u\n", timer5 - timer4);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "UI 2 Cycles: %I64u\n", timer6 - timer5);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "UI 3 Cycles: %I64u\n", timer7 - timer6);
-				DebugPrint(buffer);
-				snprintf(buffer, 256, "Windows draw to screen Cycles: %I64u\n", timer8 - timer7);
-				DebugPrint(buffer);
+				// Timers
+				{
+					char buffer[256];
+					uint64_t cycles = 0;
+					int64_t calls = 0;
+					snprintf(buffer, 256, "--- Begin Timer Print Outs ---\n");
+					DebugPrint(buffer);
+
+					cycles = global_cycle_counter.cycles[CT_GAME_UPDATE];
+					calls = global_cycle_counter.times_called[CT_GAME_UPDATE];
+					snprintf(buffer, 256, "\tGame Update Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+
+					cycles = global_cycle_counter.cycles[CT_TM_DRAW_TILEMAP];
+					calls = global_cycle_counter.times_called[CT_TM_DRAW_TILEMAP];
+					snprintf(buffer, 256, "\tTM::DrawTilemap Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+					
+					cycles = global_cycle_counter.cycles[CT_TM_DRAW_SPRITE];
+					calls = global_cycle_counter.times_called[CT_TM_DRAW_SPRITE];
+					snprintf(buffer, 256, "\tTM::DrawSprite Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+
+					cycles = global_cycle_counter.cycles[CT_UI_DRAW_RECT];
+					calls = global_cycle_counter.times_called[CT_UI_DRAW_RECT];
+					snprintf(buffer, 256, "\tDrawUIRect Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+					
+					cycles = global_cycle_counter.cycles[CT_DRAW_PIXEL];
+					calls = global_cycle_counter.times_called[CT_DRAW_PIXEL];
+					snprintf(buffer, 256, "\tDrawPixel Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+
+					cycles = global_cycle_counter.cycles[CT_DRAW_RECT];
+					calls = global_cycle_counter.times_called[CT_DRAW_RECT];
+					snprintf(buffer, 256, "\tDrawRect Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+					
+					cycles = global_cycle_counter.cycles[CT_DRAW_SPRITE];
+					calls = global_cycle_counter.times_called[CT_DRAW_SPRITE];
+					snprintf(buffer, 256, "\tDrawSprite Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+					
+					cycles = global_cycle_counter.cycles[CT_DRAW_SPRITE_MAG];
+					calls = global_cycle_counter.times_called[CT_DRAW_SPRITE_MAG];
+					snprintf(buffer, 256, "\tDrawSpriteMag Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+					DebugPrint(buffer);
+
+					snprintf(buffer, 256, "--- End Timer Print Outs ---\n");
+					DebugPrint(buffer);
+
+					// clear cycle counter at end of frame
+					for (int i = 0; i < 1024; i++) {
+						global_cycle_counter.start_cycles[i] = 0;
+						global_cycle_counter.cycles[i] = 0;
+						global_cycle_counter.times_called[i] = 0;
+					}
+				}
 
 				// Swap Input structs
 				{

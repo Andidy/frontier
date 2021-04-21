@@ -1,5 +1,7 @@
 #include "renderer.h"
 
+extern CycleCounter global_cycle_counter;
+
 /*
 	Fixes that stbi_load loads in rgba order instead of argb.
 */
@@ -35,6 +37,7 @@ void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
 	coordinates are outside the boundaries of the bitmap.
 */
 bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
+	BeginTimer(CT_DRAW_PIXEL);
 	if (x < 0 || x > bitmap->width || y < 0 || y > bitmap->height) {
 		return false;
 	}
@@ -42,6 +45,7 @@ bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 	uint32_t* buffer = (uint32_t*)bitmap->buffer;
 	buffer[x + bitmap->width * y] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
 
+	EndTimer(CT_DRAW_PIXEL);
 	return true;
 }
 
@@ -55,6 +59,7 @@ bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 	rect is outside the boundaries of the bitmap.
 */
 bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color color) {
+	BeginTimer(CT_DRAW_RECT);
 	if (x < 0 || (x + w) > bitmap->width || y < 0 || (y + h) > bitmap->height ||
 		w < 0 || h < 0) {
 		return false;
@@ -67,6 +72,7 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 		}
 	}
 
+	EndTimer(CT_DRAW_RECT);
 	return true;
 }
 
@@ -77,6 +83,7 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 	rect is outside the boundaries of the bitmap.
 */
 bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
+	BeginTimer(CT_DRAW_SPRITE);
 	if (x < 0 || (x+sprite->width) > bitmap->width || y < 0 || (y+sprite->height) > bitmap->height) {
 		return false;
 	}
@@ -89,6 +96,7 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 		}
 	}
 
+	EndTimer(CT_DRAW_SPRITE);
 	return true;
 }
 
@@ -99,6 +107,7 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 	bitmap.
 */
 bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bitmap* sprite) {
+	BeginTimer(CT_DRAW_SPRITE_MAG);
 	if (x < 0 || (x + scale * sprite->width) > bitmap->width || y < 0 || (y + scale * sprite->height) > bitmap->height) {
 		return false;
 	}
@@ -114,16 +123,19 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 		}
 	}
 
+	EndTimer(CT_DRAW_SPRITE_MAG);
 	return true;
 }
 
 void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t height, int32_t line_width, Color background_color, Color line_color) {
+	BeginTimer(CT_UI_DRAW_RECT);
 	int32_t lw2 = (2 * line_width);
 	DrawRect(viewport, x, y, width, height, background_color);
 	DrawRect(viewport, x + line_width, y + line_width, width - lw2, line_width, line_color);
 	DrawRect(viewport, x + line_width, y + line_width, line_width, height - lw2, line_color);
 	DrawRect(viewport, x + width - lw2, y + line_width, line_width, height - lw2, line_color);
 	DrawRect(viewport, x + line_width, y + height - lw2, width - lw2, line_width, line_color);
+	EndTimer(CT_UI_DRAW_RECT);
 }
 
 TilemapRenderer::TilemapRenderer() {}
@@ -157,6 +169,8 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	texture_atlas: the texture atlas where the sprite is located
 */
 void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
+	BeginTimer(CT_TM_DRAW_SPRITE);
+	
 	// for starting corner we want the larger value
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
 	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
@@ -184,9 +198,12 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 			}
 		}
 	}
+	EndTimer(CT_TM_DRAW_SPRITE);
 }
 
 void TilemapRenderer::DrawTilemap(GameState* gs) {
+	BeginTimer(CT_TM_DRAW_TILEMAP);
+
 	int32_t scaled_tile_width = tile_width * tile_scale;
 	int32_t scaled_tile_height = tile_height * tile_scale;
 
@@ -231,4 +248,6 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 			}
 		}
 	}
+
+	EndTimer(CT_TM_DRAW_TILEMAP);
 }

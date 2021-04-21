@@ -1,5 +1,7 @@
 #include "game.h"
 
+extern CycleCounter global_cycle_counter;
+
 void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
@@ -46,6 +48,7 @@ void InitGameState(Memory* gameMemory) {
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
+	BeginTimer(CT_GAME_UPDATE);
 	GameState* gs = (GameState*)gameMemory->data;
 
 	// ========================================================================
@@ -144,4 +147,5 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		DebugPrint(buffer);
 	}
 
+	EndTimer(CT_GAME_UPDATE);
 }
