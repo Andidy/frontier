@@ -1,0 +1,1 @@
+1: example of output of cycle counting functions
