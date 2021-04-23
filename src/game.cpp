@@ -35,8 +35,8 @@ void ScreenToTile(int scr_x, int scr_y, int rect_x, int rect_y, int view_x, int 
 }
 
 void TileToScreen(int world_x, int world_y, int rect_x, int rect_y, int view_x, int view_y, int tile_width, int tile_height, int32_t* out_x, int32_t* out_y) {
-	*(out_x) = (world_x * 32) - view_x + rect_x;
-	*(out_y) = (world_y * 32) - view_y + rect_y;
+	*(out_x) = (world_x * tile_width) - view_x + rect_x;
+	*(out_y) = (world_y * tile_height) - view_y + rect_y;
 }
 
 // End UI System
