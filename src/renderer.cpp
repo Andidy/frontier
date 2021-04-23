@@ -129,12 +129,14 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 
 void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t height, int32_t line_width, Color background_color, Color line_color) {
 	BeginTimer(CT_UI_DRAW_RECT);
-	int32_t lw2 = (2 * line_width);
 	DrawRect(viewport, x, y, width, height, background_color);
-	DrawRect(viewport, x + line_width, y + line_width, width - lw2, line_width, line_color);
-	DrawRect(viewport, x + line_width, y + line_width, line_width, height - lw2, line_color);
-	DrawRect(viewport, x + width - lw2, y + line_width, line_width, height - lw2, line_color);
-	DrawRect(viewport, x + line_width, y + height - lw2, width - lw2, line_width, line_color);
+	if (line_width > 0) {
+		int32_t lw2 = (2 * line_width);
+		DrawRect(viewport, x + line_width, y + line_width, width - lw2, line_width, line_color);
+		DrawRect(viewport, x + line_width, y + line_width, line_width, height - lw2, line_color);
+		DrawRect(viewport, x + width - lw2, y + line_width, line_width, height - lw2, line_color);
+		DrawRect(viewport, x + line_width, y + height - lw2, width - lw2, line_width, line_color);
+	}
 	EndTimer(CT_UI_DRAW_RECT);
 }
 
