@@ -568,6 +568,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 			}
 
+
+			Bitmap font = { NULL, 0, 0 };
+			// load font
+			{
+				int w = 0, h = 0, n = 0;
+				uchar* buf = stbi_load("assets/font.bmp", &w, &h, &n, 4);
+				font.buffer = buf;
+				font.width = w;
+				font.height = h;
+			}
+
 			GameState* gs = (GameState*)gameMemory.data;
 
 			while (win32_running) {
@@ -623,15 +634,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tilemap_renderer.animation_frame_time = 0.0f;
 					}
 
-					//DrawUIRect(&viewport, 0, 0, temp_window_w, 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					//DrawUIRect(&viewport, 0, 192, temp_window_w - 1024, temp_window_h - 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					// DrawUIRect(&viewport, 500, 500, 128, 192, 3, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-
-					//UIRect r0 = gs->ui_system.rects[0];
-					//UIRect r1 = gs->ui_system.rects[1];
-					//UIRect r2 = gs->ui_system.rects[2];
-					//UIRect r3 = gs->ui_system.rects[3];
-
 					for (int i = 0; i < gs->ui_system.NUM_RECTS; i++) {
 						UIRect r = gs->ui_system.rects[i];
 						switch (r.type) {
@@ -642,6 +644,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 							case UIRectType::BUTTON:
 							{
 								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
+								DrawUIText(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, r.text, r.text_len, &font);
 							} break;
 							case UIRectType::GAME:
 							{
@@ -656,11 +659,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						}
 					}
 					
-					//DrawUIRect(&viewport, r0.x, r0.y, r0.w, r0.h, r0.line_width, { 255, 0, 255, 255 }, { 0, 255, 0, 255 });
-					//DrawUIRect(&viewport, r1.x, r1.y, r1.w, r1.h, r1.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					//DrawUIRect(&viewport, r2.x, r2.y, r2.w, r2.h, r2.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-					//DrawUIRect(&viewport, r3.x, r3.y, r3.w, r3.h, r3.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-
 					HDC hdc = GetDC(window);
 					Win32DisplayBufferInWindow(&globalBackBuffer, hdc, window_width, window_height);
 					ReleaseDC(window, hdc);

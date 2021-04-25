@@ -52,13 +52,17 @@ void InitGameState(Memory* gameMemory) {
 	gs->y = 0;
 	gs->s = 1;
 
-	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0 };
-	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3 };
-	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3 };
-	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3 };
-	gs->ui_system.rects[4] = { 2, 509, 509, 110, 20, UIRectType::BUTTON, 1 };
-	gs->ui_system.rects[5] = { 2, 509, 529, 110, 20, UIRectType::BUTTON, 1 };
-	gs->ui_system.rects[6] = { 2, 509, 549, 110, 20, UIRectType::BUTTON, 1 };
+	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0, 0, NULL };
+	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3, 0, NULL };
+	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3, 0, NULL };
+	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3, 0, NULL };
+
+	char* str1 = (char*)"Button 1";
+	char* str2 = (char*)"Button 2";
+	char* str3 = (char*)"Button 3";
+	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str1), str1 };
+	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str2), str2 };
+	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str3), str3 };
 
 
 	const int tilemap_width = 200;

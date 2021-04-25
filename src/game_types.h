@@ -46,6 +46,8 @@ struct UIRect {
 
 	UIRectType type;
 	int32_t line_width;
+	int32_t text_len;
+	char* text;
 };
 
 struct UISystem {
