@@ -639,6 +639,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 							{
 								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
 							} break;
+							case UIRectType::BUTTON:
+							{
+								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
+							} break;
 							case UIRectType::GAME:
 							{
 								tilemap_renderer.view_x = (int32_t)gs->x;

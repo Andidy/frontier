@@ -56,6 +56,10 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3 };
 	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3 };
 	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3 };
+	gs->ui_system.rects[4] = { 2, 509, 509, 110, 20, UIRectType::BUTTON, 1 };
+	gs->ui_system.rects[5] = { 2, 509, 529, 110, 20, UIRectType::BUTTON, 1 };
+	gs->ui_system.rects[6] = { 2, 509, 549, 110, 20, UIRectType::BUTTON, 1 };
+
 
 	const int tilemap_width = 200;
 	const int tilemap_height = 100;
@@ -170,6 +174,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			snprintf(buffer, 256, "50, 25 Screen Pos: %d, %d\n", scr_x, scr_y);
 			DebugPrint(buffer);
 		}
+		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {
+			snprintf(buffer, 256, "Button %d Pressed\n", ui_rect_clicked - 3);
+			DebugPrint(buffer);
+		}
 	}
 	if (keyPressed(mouse.left)) {
 		char buffer[256];
@@ -178,7 +186,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 	if (keyReleased(mouse.middle)) {
 		char buffer[256];
-		snprintf(buffer, 256, "Mouse Middle RElease, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		snprintf(buffer, 256, "Mouse Middle Release, Mouse Position: %d, %d\n", mouse.x, mouse.y);
 		DebugPrint(buffer);
 	}
 	if (keyPressed(mouse.middle)) {

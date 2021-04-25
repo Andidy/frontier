@@ -34,6 +34,7 @@ struct Tilemap {
 
 enum class UIRectType {
 	BOX,
+	BUTTON,
 	GAME,
 	NUM_RECT_TYPES
 };
@@ -48,7 +49,7 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 4;
+	static const int32_t NUM_RECTS = 7;
 	UIRect rects[NUM_RECTS];
 };
 
