@@ -47,6 +47,8 @@ void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
 	gs->game_tick = 0;
+	gs->tick_rate = 1;
+	gs->tick_timer = 0.0f;
 
 	gs->x = 0;
 	gs->y = 0;
@@ -70,11 +72,14 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str3), str3, 0 };
 
 	// UIImage test rect
-	gs->ui_system.rects[7] = { 1, 9, 9, 38, 38, true, UIRectType::IMAGE, 1, 0, NULL, 0 };
+	gs->ui_system.rects[7] = { 1, 9, 201, 38, 38, true, UIRectType::IMAGE, 1, 0, NULL, 0 };
 
 	// unit menu ui elements
 	gs->ui_system.rects[8] = { 1, 0, 0, 1, 1, false, UIRectType::BOX, 1, 0, NULL, 0 };
 	gs->ui_system.rects[9] = { 2, 0, 0, 0, 0, false, UIRectType::TEXT, 0, 0, NULL, 0 };
+	
+	// debug game tick display
+	gs->ui_system.rects[10] = { 2, 9, 9, 100, 100, true, UIRectType::TEXT, 0, 0, NULL, 0 };
 
 	const int tilemap_width = 200;
 	const int tilemap_height = 100;
@@ -192,6 +197,34 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	// end Camera Update
 	// ========================================================================
 
+	gs->tick_timer += dt;
+	if (gs->tick_timer > (1000.0f / (f32)gs->tick_rate)) {
+		gs->tick_timer = 0.0f;
+		gs->game_tick += 1;
+	}
+
+	if (keyReleased(key.one)) {
+		gs->tick_rate = 1;
+	}
+	else if (keyReleased(key.two)) {
+		gs->tick_rate = 2;
+	}
+	else if (keyReleased(key.three)) {
+		gs->tick_rate = 4;
+	}
+	else if (keyReleased(key.four)) {
+		gs->tick_rate = 8;
+	}
+	else if (keyReleased(key.five)) {
+		gs->tick_rate = 16;
+	}
+
+	{
+		int len = snprintf(gs->debug_tick_buffer, 256, "Game Tick: %lld, Tick Rate: %d\n", gs->game_tick, gs->tick_rate);
+		gs->ui_system.rects[10].text = gs->debug_tick_buffer;
+		gs->ui_system.rects[10].text_len = len;
+	}
+
 	if (keyReleased(mouse.left)) {
 		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
 		
@@ -230,8 +263,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				Unit* unit = &(gs->tilemap.units[gs->selected_unit]);
 				int32_t diff_x = labs(tile_x - unit->pos_x);
 				int32_t diff_y = labs(tile_y - unit->pos_y);
+				
 				if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (clicked_unit == -1)) {
-					// clicked tile is adjacent to selected unit's position
+					// clicked tile is adjacent to selected unit's position, and no unit is in the adjacent tile
 					
 					// so we move the unit to the selected position
 					gs->tilemap.units[gs->selected_unit].pos_x = tile_x;

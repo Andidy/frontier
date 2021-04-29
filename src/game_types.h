@@ -81,7 +81,7 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 10;
+	static const int32_t NUM_RECTS = 11;
 	UIRect rects[NUM_RECTS];
 };
 
@@ -90,7 +90,10 @@ struct UISystem {
 
 struct GameState {
 	int64_t game_tick;
-	
+	int32_t tick_rate;
+	f32 tick_timer;
+	char debug_tick_buffer[256];
+
 	Tilemap tilemap;
 
 	int32_t selected_unit;

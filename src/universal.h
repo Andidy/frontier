@@ -118,11 +118,13 @@ struct MouseState {
 	};
 };
 
-const int NUM_KEYBOARD_BUTTONS = 32;
+const int NUM_KEYBOARD_BUTTONS = 42;
 struct KeyboardState {
 	union {
 		ButtonState buttons[NUM_KEYBOARD_BUTTONS];
 		struct {
+			ButtonState zero, one, two, three, four, five,
+				six, seven, eight, nine;
 			ButtonState a, b, c, d, e, f, g, h, i, j, k, l,
 				m, n, o, p, q, r, s, t, u, v, w, x, y, z;
 			ButtonState up, down, left, right;

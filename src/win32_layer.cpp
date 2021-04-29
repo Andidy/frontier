@@ -96,6 +96,17 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 
 				if (isDown != wasDown) {
 					switch (vkCode) {
+						case 0x30: win32_ProcessKeyboardMessage(&gameInput->keyboard.zero, isDown); break;
+						case 0x31: win32_ProcessKeyboardMessage(&gameInput->keyboard.one, isDown); break;
+						case 0x32: win32_ProcessKeyboardMessage(&gameInput->keyboard.two, isDown); break;
+						case 0x33: win32_ProcessKeyboardMessage(&gameInput->keyboard.three, isDown); break;
+						case 0x34: win32_ProcessKeyboardMessage(&gameInput->keyboard.four, isDown); break;
+						case 0x35: win32_ProcessKeyboardMessage(&gameInput->keyboard.five, isDown); break;
+						case 0x36: win32_ProcessKeyboardMessage(&gameInput->keyboard.six, isDown); break;
+						case 0x37: win32_ProcessKeyboardMessage(&gameInput->keyboard.seven, isDown); break;
+						case 0x38: win32_ProcessKeyboardMessage(&gameInput->keyboard.eight, isDown); break;
+						case 0x39: win32_ProcessKeyboardMessage(&gameInput->keyboard.nine, isDown); break;
+						
 						case 'A': win32_ProcessKeyboardMessage(&gameInput->keyboard.a, isDown); break;
 						case 'B': win32_ProcessKeyboardMessage(&gameInput->keyboard.b, isDown); break;
 						case 'C': win32_ProcessKeyboardMessage(&gameInput->keyboard.c, isDown); break;
@@ -507,9 +518,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			game_viewport.buffer = (uchar*)malloc(sizeof(uchar) * 4 * game_viewport_width * game_viewport_height);
 			game_viewport.width = game_viewport_width;
 			game_viewport.height = game_viewport_height;
-
-			//int32_t tilemap_renderer_pos_x = temp_window_w - game_viewport_width;
-			//int32_t tilemap_renderer_pos_y = temp_window_h - game_viewport_height;
 
 			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, game_viewport_width, game_viewport_height, 4, 0.25f, game_viewport);
 			
