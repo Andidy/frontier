@@ -51,6 +51,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->x = 0;
 	gs->y = 0;
 	gs->s = 1;
+	gs->selected_unit = -1;
 
 	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0, 0, NULL, 0 };
 	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3, 0, NULL, 0 };
@@ -106,8 +107,10 @@ void InitGameState(Memory* gameMemory) {
 		}
 	}
 
+	uint32_t id_counter = 0;
 	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
 	gs->tilemap.units[0].type = UnitType::ARMY;
+	gs->tilemap.units[0].id = id_counter++;
 	gs->tilemap.units[0].pos_x = 3;
 	gs->tilemap.units[0].pos_y = 3;
 	gs->tilemap.units[0].max_hp = 10;
@@ -115,6 +118,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[0].attack = 3;
 
 	gs->tilemap.units[1].type = UnitType::ARMY;
+	gs->tilemap.units[1].id = id_counter++;
 	gs->tilemap.units[1].pos_x = 3;
 	gs->tilemap.units[1].pos_y = 4;
 	gs->tilemap.units[1].max_hp = 10;
@@ -122,8 +126,9 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[1].attack = 3;
 
 	gs->tilemap.units[2].type = UnitType::NAVY;
-	gs->tilemap.units[2].pos_x = 3;
-	gs->tilemap.units[2].pos_y = 5;
+	gs->tilemap.units[2].id = id_counter++;
+	gs->tilemap.units[2].pos_x = 13;
+	gs->tilemap.units[2].pos_y = 15;
 	gs->tilemap.units[2].max_hp = 10;
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
@@ -191,15 +196,15 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];	
 			int32_t tile_x = 0, tile_y = 0;
 			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
-			snprintf(buffer, 256, "Tile Clicked: %d, %d\n", tile_x, tile_y);
-			DebugPrint(buffer);
-
-			int32_t world_x = 50;
-			int32_t world_y = 25;
-			int32_t scr_x = 0;
-			int32_t scr_y = 0;
-			TileToScreen(world_x, world_y, r.x, r.y, gs->x, gs->y, 32, 32, &scr_x, &scr_y);
-			snprintf(buffer, 256, "50, 25 Screen Pos: %d, %d\n", scr_x, scr_y);
+			
+			for (int i = 0; i < gs->tilemap.num_units; i++) {
+				int32_t x = gs->tilemap.units[i].pos_x;
+				int32_t y = gs->tilemap.units[i].pos_y;
+				if (tile_x == x && tile_y == y) {
+					gs->selected_unit = i;
+				}
+			}
+			snprintf(buffer, 256, "Tile Clicked: %d, %d\nUnit Clicked: %d\n", tile_x, tile_y, gs->selected_unit);
 			DebugPrint(buffer);
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {

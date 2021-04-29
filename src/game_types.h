@@ -15,6 +15,8 @@ enum class UnitType {
 struct Unit {
 	UnitType type;
 
+	uint32_t id;
+
 	int32_t pos_x;
 	int32_t pos_y;
 
@@ -87,6 +89,8 @@ struct GameState {
 	int64_t game_tick;
 	
 	Tilemap tilemap;
+
+	int32_t selected_unit;
 
 	f32 x;
 	f32 y;

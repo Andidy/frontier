@@ -153,8 +153,6 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 	int32_t cursor_x = start_cursor_x;
 	int32_t cursor_y = start_cursor_y;
 
-	DebugPrint(text);
-
 	uint32_t* viewport_buffer = (uint32_t*)viewport->buffer;
 	uint32_t* font_buffer = (uint32_t*)font->buffer;
 
