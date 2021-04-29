@@ -299,5 +299,20 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 		}
 	}
 
+	for (int i = 0; i < gs->tilemap.num_units; i++) {
+		Unit* unit = &(gs->tilemap.units[i]);
+		switch (unit->type) {
+			case UnitType::ARMY: 
+			{
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 0, 0, &(tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]));
+			} break;
+			case UnitType::NAVY:
+			{
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 1, 0, &(tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]));
+			} break;
+			default: break;
+		}
+	}
+
 	EndTimer(CT_TM_DRAW_TILEMAP);
 }

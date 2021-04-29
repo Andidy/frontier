@@ -52,23 +52,25 @@ void InitGameState(Memory* gameMemory) {
 	gs->y = 0;
 	gs->s = 1;
 
-	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0, 0, NULL };
-	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3, 0, NULL };
-	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3, 0, NULL };
-	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3, 0, NULL };
+	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0, 0, NULL, 0 };
+	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3, 0, NULL, 0 };
+	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3, 0, NULL, 0 };
+	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3, 0, NULL, 0 };
 
 	char* str1 = (char*)"Button 1";
 	char* str2 = (char*)"Button 2";
 	char* str3 = (char*)"Button 3";
-	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str1), str1 };
-	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str2), str2 };
-	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str3), str3 };
+	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str1), str1, 0 };
+	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str2), str2, 0 };
+	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str3), str3, 0 };
 
+	gs->ui_system.rects[7] = { 1, 9, 9, 38, 38, UIRectType::IMAGE, 1, 0, NULL, 0 };
 
 	const int tilemap_width = 200;
 	const int tilemap_height = 100;
+	const int num_units = 3;
 
-	gs->tilemap = { tilemap_width, tilemap_height, NULL };
+	gs->tilemap = { tilemap_width, tilemap_height, NULL, num_units, NULL };
 	gs->tilemap.tiles = (Tile*)malloc(sizeof(Tile) * tilemap_width * tilemap_height);
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
@@ -103,6 +105,28 @@ void InitGameState(Memory* gameMemory) {
 			}
 		}
 	}
+
+	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
+	gs->tilemap.units[0].type = UnitType::ARMY;
+	gs->tilemap.units[0].pos_x = 3;
+	gs->tilemap.units[0].pos_y = 3;
+	gs->tilemap.units[0].max_hp = 10;
+	gs->tilemap.units[0].current_hp = 10;
+	gs->tilemap.units[0].attack = 3;
+
+	gs->tilemap.units[1].type = UnitType::ARMY;
+	gs->tilemap.units[1].pos_x = 3;
+	gs->tilemap.units[1].pos_y = 4;
+	gs->tilemap.units[1].max_hp = 10;
+	gs->tilemap.units[1].current_hp = 10;
+	gs->tilemap.units[1].attack = 3;
+
+	gs->tilemap.units[2].type = UnitType::NAVY;
+	gs->tilemap.units[2].pos_x = 3;
+	gs->tilemap.units[2].pos_y = 5;
+	gs->tilemap.units[2].max_hp = 10;
+	gs->tilemap.units[2].current_hp = 10;
+	gs->tilemap.units[2].attack = 3;
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {

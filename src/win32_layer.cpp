@@ -579,6 +579,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				font.height = h;
 			}
 
+			const int32_t MAX_UI_IMAGE_BITMAPS = 1;
+			Bitmap ui_image_bitmaps[MAX_UI_IMAGE_BITMAPS];
+			{
+				int w = 0, h = 0, n = 0;
+				uchar* buf = stbi_load("assets/ui_image.bmp", &w, &h, &n, 4);
+				ui_image_bitmaps[0].buffer = buf;
+				ui_image_bitmaps[0].width = w;
+				ui_image_bitmaps[0].height = h;
+				CorrectSTBILoadMemoryLayout(buf, w, h);
+			}
+
 			GameState* gs = (GameState*)gameMemory.data;
 
 			while (win32_running) {
@@ -645,6 +656,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 							{
 								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
 								DrawUIText(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, r.text, r.text_len, &font);
+							} break;
+							case UIRectType::IMAGE:
+							{
+								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
+								DrawSprite(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, &ui_image_bitmaps[0]);
 							} break;
 							case UIRectType::GAME:
 							{
