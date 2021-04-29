@@ -197,14 +197,42 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			int32_t tile_x = 0, tile_y = 0;
 			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
 			
+			// get id of unit in clicked tile if any
+			int32_t clicked_unit = -1;
 			for (int i = 0; i < gs->tilemap.num_units; i++) {
 				int32_t x = gs->tilemap.units[i].pos_x;
 				int32_t y = gs->tilemap.units[i].pos_y;
 				if (tile_x == x && tile_y == y) {
-					gs->selected_unit = i;
+					clicked_unit = i;
 				}
 			}
-			snprintf(buffer, 256, "Tile Clicked: %d, %d\nUnit Clicked: %d\n", tile_x, tile_y, gs->selected_unit);
+
+			if (gs->selected_unit == -1) {
+				// case : have no unit selected
+				gs->selected_unit = clicked_unit;
+			}
+			else if (0 <= gs->selected_unit && gs->selected_unit < gs->tilemap.num_units) {
+				// case : have a unit selected
+				Unit* unit = &(gs->tilemap.units[gs->selected_unit]);
+				int32_t diff_x = labs(tile_x - unit->pos_x);
+				int32_t diff_y = labs(tile_y - unit->pos_y);
+				if ((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) {
+					// clicked tile is adjacent to selected unit's position
+					
+					// so we move the unit to the selected position
+					gs->tilemap.units[gs->selected_unit].pos_x = tile_x;
+					gs->tilemap.units[gs->selected_unit].pos_y = tile_y;
+				}
+				else if ((clicked_unit != gs->selected_unit) && (clicked_unit != -1)) {
+					// clicked tile is not adjacent, and we clicked a different unit
+
+					// so we select that unit instead
+					gs->selected_unit = clicked_unit;
+				}
+			}
+
+
+			snprintf(buffer, 256, "Tile Clicked: %d, %d\nUnit Selected: %d, Unit Clicked: %d\n", tile_x, tile_y, gs->selected_unit, clicked_unit);
 			DebugPrint(buffer);
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {
