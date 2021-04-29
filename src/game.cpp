@@ -196,7 +196,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	// end Camera Update
 	// ========================================================================
-
+	// Game World Ticks
 	gs->tick_timer += dt;
 	if (gs->tick_timer > (1000.0f / (f32)gs->tick_rate)) {
 		gs->tick_timer = 0.0f;
@@ -224,6 +224,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		gs->ui_system.rects[10].text = gs->debug_tick_buffer;
 		gs->ui_system.rects[10].text_len = len;
 	}
+
+	// end Game World Ticks
+	// ========================================================================
+	// Mouse Input Controls
 
 	if (keyReleased(mouse.left)) {
 		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
@@ -380,6 +384,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		snprintf(buffer, 256, "Mouse X2 Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
 		DebugPrint(buffer);
 	}
+
+	// end Mouse Input Controls
+	// ============================================================================
 
 	EndTimer(CT_GAME_UPDATE);
 }
