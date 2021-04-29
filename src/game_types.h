@@ -56,8 +56,9 @@ struct Tilemap {
 
 enum class UIRectType {
 	BOX,
-	BUTTON,
+	TEXT,
 	IMAGE,
+	BUTTON,
 	GAME,
 	NUM_RECT_TYPES
 };
@@ -66,6 +67,8 @@ struct UIRect {
 	int32_t layer;
 	int32_t x, y;
 	int32_t w, h;
+
+	bool visible;
 
 	UIRectType type;
 	
@@ -78,7 +81,7 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 8;
+	static const int32_t NUM_RECTS = 10;
 	UIRect rects[NUM_RECTS];
 };
 
@@ -91,6 +94,7 @@ struct GameState {
 	Tilemap tilemap;
 
 	int32_t selected_unit;
+	char unit_info_buffer[256];
 
 	f32 x;
 	f32 y;

@@ -13,7 +13,7 @@ int32_t UIClick(UISystem* ui_system, int32_t x, int32_t y) {
 		hits[i] = false;
 		if (ui_system->rects[i].x < x && x < (ui_system->rects[i].x + ui_system->rects[i].w) &&
 			ui_system->rects[i].y < y && y < (ui_system->rects[i].y + ui_system->rects[i].h)) {
-			hits[i] = true;
+			hits[i] = ui_system->rects[i].visible;
 		}
 	}
 
@@ -53,19 +53,28 @@ void InitGameState(Memory* gameMemory) {
 	gs->s = 1;
 	gs->selected_unit = -1;
 
-	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, UIRectType::GAME, 0, 0, NULL, 0 };
-	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, UIRectType::BOX, 3, 0, NULL, 0 };
-	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, UIRectType::BOX, 3, 0, NULL, 0 };
-	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, UIRectType::BOX, 3, 0, NULL, 0 };
-
+	// ui game rect
+	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, true, UIRectType::GAME, 0, 0, NULL, 0 };
+	
+	// ui box test rects
+	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
+	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
+	
+	// ui button test rects
+	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
 	char* str1 = (char*)"Button 1";
 	char* str2 = (char*)"Button 2";
 	char* str3 = (char*)"Button 3";
-	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str1), str1, 0 };
-	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str2), str2, 0 };
-	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, UIRectType::BUTTON, 1, (int)strlen(str3), str3, 0 };
+	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str1), str1, 0 };
+	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str2), str2, 0 };
+	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str3), str3, 0 };
 
-	gs->ui_system.rects[7] = { 1, 9, 9, 38, 38, UIRectType::IMAGE, 1, 0, NULL, 0 };
+	// UIImage test rect
+	gs->ui_system.rects[7] = { 1, 9, 9, 38, 38, true, UIRectType::IMAGE, 1, 0, NULL, 0 };
+
+	// unit menu ui elements
+	gs->ui_system.rects[8] = { 1, 0, 0, 1, 1, false, UIRectType::BOX, 1, 0, NULL, 0 };
+	gs->ui_system.rects[9] = { 2, 0, 0, 0, 0, false, UIRectType::TEXT, 0, 0, NULL, 0 };
 
 	const int tilemap_width = 200;
 	const int tilemap_height = 100;
@@ -193,6 +202,11 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		DebugPrint(buffer);
 		
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			// Hide the context menus because we clicked outside of them
+			gs->ui_system.rects[8].visible = false;
+			gs->ui_system.rects[9].visible = false;
+
+			// Handle the click in the game window
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];	
 			int32_t tile_x = 0, tile_y = 0;
 			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
@@ -216,12 +230,18 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				Unit* unit = &(gs->tilemap.units[gs->selected_unit]);
 				int32_t diff_x = labs(tile_x - unit->pos_x);
 				int32_t diff_y = labs(tile_y - unit->pos_y);
-				if ((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) {
+				if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (clicked_unit == -1)) {
 					// clicked tile is adjacent to selected unit's position
 					
 					// so we move the unit to the selected position
 					gs->tilemap.units[gs->selected_unit].pos_x = tile_x;
 					gs->tilemap.units[gs->selected_unit].pos_y = tile_y;
+				}
+				else if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (0 <= clicked_unit && clicked_unit < gs->tilemap.num_units)) {
+					// clicked an adjacent tile with a unit in it
+					
+					// so attack the unit
+					gs->tilemap.units[clicked_unit].current_hp -= gs->tilemap.units[gs->selected_unit].attack;
 				}
 				else if ((clicked_unit != gs->selected_unit) && (clicked_unit != -1)) {
 					// clicked tile is not adjacent, and we clicked a different unit
@@ -256,9 +276,50 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		DebugPrint(buffer);
 	}
 	if (keyReleased(mouse.right)) {
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+
 		char buffer[256];
-		snprintf(buffer, 256, "Mouse Right Released, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		snprintf(buffer, 256, "Mouse Right Release, Mouse Position: %d, %d\n", mouse.x, mouse.y);
 		DebugPrint(buffer);
+		snprintf(buffer, 256, "UI Rect Clicked: %d\n", ui_rect_clicked);
+		DebugPrint(buffer);
+
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
+
+			// get id of unit in clicked tile if any
+			int32_t clicked_unit = -1;
+			for (int i = 0; i < gs->tilemap.num_units; i++) {
+				int32_t x = gs->tilemap.units[i].pos_x;
+				int32_t y = gs->tilemap.units[i].pos_y;
+				if (tile_x == x && tile_y == y) {
+					clicked_unit = i;
+				}
+			}
+
+			if (0 <= clicked_unit && clicked_unit < gs->tilemap.num_units) {
+				// if we clicked on a unit, populate and open the unit menu
+				Unit* unit = &(gs->tilemap.units[clicked_unit]);
+				
+				int len = snprintf(gs->unit_info_buffer, 256, "ID: %d, POS: %d, %d\nHP: %d/%d\nAttack: %d", unit->id, unit->pos_x, unit->pos_y, unit->current_hp, unit->max_hp, unit->attack);
+				
+				int line_width = 3;
+				gs->ui_system.rects[8].visible = true;
+				gs->ui_system.rects[8].x = mouse.x;
+				gs->ui_system.rects[8].y = mouse.y;
+				gs->ui_system.rects[8].line_width = 3;
+				gs->ui_system.rects[8].w = 22 * 9;
+				gs->ui_system.rects[8].h = 3 * 16 + 2 * 3 * line_width;
+
+				gs->ui_system.rects[9].visible = true;
+				gs->ui_system.rects[9].x = mouse.x + 3 * line_width;
+				gs->ui_system.rects[9].y = mouse.y + 3 * line_width;
+				gs->ui_system.rects[9].text = gs->unit_info_buffer;
+				gs->ui_system.rects[9].text_len = len;
+			}
+		}
 	}
 	if (keyPressed(mouse.right)) {
 		char buffer[256];

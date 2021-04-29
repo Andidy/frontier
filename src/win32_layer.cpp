@@ -647,31 +647,37 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					for (int i = 0; i < gs->ui_system.NUM_RECTS; i++) {
 						UIRect r = gs->ui_system.rects[i];
-						switch (r.type) {
-							case UIRectType::BOX:
-							{
-								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
-							} break;
-							case UIRectType::BUTTON:
-							{
-								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
-								DrawUIText(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, r.text, r.text_len, &font);
-							} break;
-							case UIRectType::IMAGE:
-							{
-								DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
-								DrawSprite(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, &ui_image_bitmaps[0]);
-							} break;
-							case UIRectType::GAME:
-							{
-								tilemap_renderer.view_x = (int32_t)gs->x;
-								tilemap_renderer.view_y = (int32_t)gs->y;
-								tilemap_renderer.tile_scale = gs->s;
+						if (r.visible) {
+							switch (r.type) {
+								case UIRectType::BOX:
+								{
+									DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 0, 0, 0, 255 }, { 200, 205, 207, 255 });
+								} break;
+								case UIRectType::BUTTON:
+								{
+									DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
+									DrawUIText(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, r.text, r.text_len, &font);
+								} break;
+								case UIRectType::TEXT:
+								{
+									DrawUIText(&viewport, r.x, r.y, r.text, r.text_len, &font);
+								} break;
+								case UIRectType::IMAGE:
+								{
+									DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
+									DrawSprite(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, &ui_image_bitmaps[0]);
+								} break;
+								case UIRectType::GAME:
+								{
+									tilemap_renderer.view_x = (int32_t)gs->x;
+									tilemap_renderer.view_y = (int32_t)gs->y;
+									tilemap_renderer.tile_scale = gs->s;
 
-								tilemap_renderer.DrawTilemap(gs);
-								DrawSprite(&viewport, r.x, r.y, &(tilemap_renderer.view_bitmap));
-							} break;
-							default: break;
+									tilemap_renderer.DrawTilemap(gs);
+									DrawSprite(&viewport, r.x, r.y, &(tilemap_renderer.view_bitmap));
+								} break;
+								default: break;
+							}
 						}
 					}
 					
