@@ -5,6 +5,86 @@ extern CycleCounter global_cycle_counter;
 // ============================================================================
 // UI System
 
+UIRect CreateUIRect(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::BOX;
+	result.line_width = line_width;
+	result.text = NULL;
+	result.text_len = 0;
+	result.bitmap_index = 0;
+	return result;
+}
+
+UIRect CreateUIText(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::TEXT;
+	result.line_width = 0;
+	result.text = NULL;
+	result.text_len = 0;
+	result.bitmap_index = 0;
+	return result;
+}
+
+UIRect CreateUIImage(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width, int bitmap_index) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::IMAGE;
+	result.line_width = line_width;
+	result.text = NULL;
+	result.text_len = 0;
+	result.bitmap_index = bitmap_index;
+	return result;
+}
+
+UIRect CreateUIButton(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width, char* text) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::BUTTON;
+	result.line_width = line_width;
+	result.text = text;
+	result.text_len = (int32_t)strlen(text);
+	result.bitmap_index = 0;
+	return result;
+}
+
+UIRect CreateUIGame(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::GAME;
+	result.line_width = 0;
+	result.text = NULL;
+	result.text_len = 0;
+	result.bitmap_index = 0;
+	return result;
+}
+
 int32_t UIClick(UISystem* ui_system, int32_t x, int32_t y) {
 	
 	bool hits[ui_system->NUM_RECTS];
@@ -62,34 +142,34 @@ void InitGameState(Memory* gameMemory) {
 	gs->selected_unit = -1;
 
 	// ui game rect
-	gs->ui_system.rects[0] = { 0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, true, UIRectType::GAME, 0, 0, NULL, 0 };
+	gs->ui_system.rects[0] = CreateUIGame(0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, true);
 	
 	// ui box test rects
-	gs->ui_system.rects[1] = { 0, 0, 0, (32 * 40), 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
-	gs->ui_system.rects[2] = { 0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
+	gs->ui_system.rects[1] = CreateUIRect(0, 0, 0, (32 * 40), 192, true, 3);
+	gs->ui_system.rects[2] = CreateUIRect(0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, true, 3);
 	
 	// ui button test rects
-	gs->ui_system.rects[3] = { 1, 500, 500, 128, 192, true, UIRectType::BOX, 3, 0, NULL, 0 };
+	gs->ui_system.rects[3] = CreateUIRect(1, 500, 500, 128, 192, true, 3);
 	char* str1 = (char*)"Button 1";
 	char* str2 = (char*)"Button 2";
 	char* str3 = (char*)"Button 3";
-	gs->ui_system.rects[4] = { 2, 509, 509, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str1), str1, 0 };
-	gs->ui_system.rects[5] = { 2, 509, 531, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str2), str2, 0 };
-	gs->ui_system.rects[6] = { 2, 509, 553, 110, 22, true, UIRectType::BUTTON, 1, (int)strlen(str3), str3, 0 };
+	gs->ui_system.rects[4] = CreateUIButton(2, 509, 509, 110, 22, true, 1, str1);
+	gs->ui_system.rects[5] = CreateUIButton(2, 509, 531, 110, 22, true, 1, str2);
+	gs->ui_system.rects[6] = CreateUIButton(2, 509, 553, 110, 22, true, 1, str3);
 
 	// UIImage test rect
-	gs->ui_system.rects[7] = { 1, 9, 201, 38, 38, true, UIRectType::IMAGE, 1, 0, NULL, 0 };
+	gs->ui_system.rects[7] = CreateUIImage(1, 9, 201, 38, 38, true, 1, 0);
 
 	// unit menu ui elements
-	gs->ui_system.rects[8] = { 1, 0, 0, 1, 1, false, UIRectType::BOX, 1, 0, NULL, 0 };
-	gs->ui_system.rects[9] = { 2, 0, 0, 0, 0, false, UIRectType::TEXT, 0, 0, NULL, 0 };
+	gs->ui_system.rects[8] = CreateUIRect(1, 0, 0, 1, 1, false, 1);
+	gs->ui_system.rects[9] = CreateUIText(2, 0, 0, 0, 0, false);
 	
 	// debug game tick display
-	gs->ui_system.rects[10] = { 2, 9, 9, 100, 100, true, UIRectType::TEXT, 0, 0, NULL, 0 };
+	gs->ui_system.rects[10] = CreateUIText(2, 9, 9, 100, 100, true);
 
-	const int tilemap_width = 200;
-	const int tilemap_height = 100;
-	const int num_units = 3;
+	int tilemap_width = gs->tilemap.width;
+	int tilemap_height = gs->tilemap.height;
+	int num_units = gs->tilemap.num_units;
 
 	gs->tilemap.tiles = (Tile*)malloc(sizeof(Tile) * tilemap_width * tilemap_height);
 	for (int y = 0; y < tilemap_height; y++) {
