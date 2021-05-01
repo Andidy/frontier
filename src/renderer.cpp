@@ -206,6 +206,26 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, in
 }
 
 /*
+	Resize the viewport.
+	Params:
+	width: new width of the viewport
+	height: new height of the viewport
+*/
+void TilemapRenderer::ResizeViewport(int width, int height) {
+	if (view_bitmap.buffer) {
+		free((void*)view_bitmap.buffer);
+	}
+	
+	view_w = width;
+	view_h = height;
+
+	view_bitmap.buffer = (uchar*)malloc(sizeof(uchar) * 4 * width * height);
+	view_bitmap.width = width;
+	view_bitmap.height = height;
+}
+
+
+/*
 	Draw a sprite into the viewport.
 	Params:
 	world_x / world_y: world coordinates of the sprite being drawn

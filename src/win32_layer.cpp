@@ -23,7 +23,7 @@
 int window_width;
 int window_height;
 
-bool window_resized;
+bool window_resized = false;
 
 int win32_running = 0;
 
@@ -451,6 +451,7 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 		case WM_SIZE: 
 		{
 			OutputDebugStringW(L"WM_SIZE\n");
+			window_resized = true;
 			win32_WindowDimension dim = win32_GetWindowDimension(hwnd);
 			win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 
@@ -698,10 +699,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					// Set viewport to globalBackBuffer values so that window resizes propagate properly
+					if(window_resized)
 					{
 						viewport.buffer = (uchar*)globalBackBuffer.memory;
 						viewport.width = globalBackBuffer.width;
 						viewport.height = globalBackBuffer.height;
+
+						int new_width = viewport.width - gs->ui_system.rects[0].x;
+						int new_height = viewport.height - gs->ui_system.rects[0].y;
+						tilemap_renderer.ResizeViewport(new_width, new_height);
+						gs->ui_system.rects[0].w = new_width;
+						gs->ui_system.rects[0].h = new_height;
 					}
 
 					for (int i = 0; i < gs->ui_system.NUM_RECTS; i++) {
@@ -813,6 +821,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					newInput = oldInput;
 					oldInput = temp;
 				}
+
+				window_resized = false;
 			}
 		}
 	}
