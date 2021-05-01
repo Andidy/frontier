@@ -546,7 +546,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			game_viewport.width = game_viewport_width;
 			game_viewport.height = game_viewport_height;
 
-			TilemapRenderer tilemap_renderer(32, 32, 1, 200, 100, 0, 0, game_viewport_width, game_viewport_height, 4, 0.25f, game_viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 0, 0, game_viewport_width, game_viewport_height, 4, 0.25f, game_viewport);
 			
 			// Generate storage pattern for texture atlases
 			{

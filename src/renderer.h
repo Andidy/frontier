@@ -41,10 +41,6 @@ struct TilemapRenderer {
 	int32_t tile_height{ 0 };
 	int32_t tile_scale{ 0 };
 
-	// number of tiles in x/y axis
-	int32_t tilemap_width{ 0 };
-	int32_t tilemap_height{ 0 };
-
 	// region of world to draw
 	int32_t view_x{ 0 };
 	int32_t view_y{ 0 };
@@ -63,7 +59,7 @@ struct TilemapRenderer {
 	TextureAtlas* tex_atlases;
 
 	TilemapRenderer();
-	TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap);
+	TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap);
 	void DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawTilemap(GameState* gs);
 };

@@ -188,12 +188,10 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 
 TilemapRenderer::TilemapRenderer() {}
 
-TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap_w, int tilemap_h, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap) {
+TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap) {
 	tile_width = tile_w;
 	tile_height = tile_h;
 	tile_scale = tile_s;
-	tilemap_width = tilemap_w;
-	tilemap_height = tilemap_h;
 	view_x = v_x;
 	view_y = v_y;
 	view_w = v_w;
