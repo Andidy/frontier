@@ -44,10 +44,6 @@ struct TilemapRenderer {
 	// number of tiles in x/y axis
 	int32_t tilemap_width{ 0 };
 	int32_t tilemap_height{ 0 };
-	
-	// derived value of tile_width(height) * tilemap_width(height)
-	int32_t world_width{ 0 };
-	int32_t world_height{ 0 };
 
 	// region of world to draw
 	int32_t view_x{ 0 };

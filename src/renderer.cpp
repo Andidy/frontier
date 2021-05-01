@@ -194,8 +194,6 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int tilemap
 	tile_scale = tile_s;
 	tilemap_width = tilemap_w;
 	tilemap_height = tilemap_h;
-	world_width = tile_w * tile_s * tilemap_w;
-	world_height = tile_h * tile_s * tilemap_h;
 	view_x = v_x;
 	view_y = v_y;
 	view_w = v_w;
