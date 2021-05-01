@@ -9,6 +9,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../libs/stb/stb_image_write.h"
 
+#include "../libs/json11-master/json11.hpp"
+
 #include <windows.h>
 #include <windowsx.h>
 #include <xinput.h>
@@ -18,12 +20,10 @@
 #define UNICODE
 #endif 
 
-// Add 16 to width and 39 to height so that the client area is the numbers you
-// actually want
-int temp_window_w = 32 * 40;
-int temp_window_h = 32 * 30;
-int window_width = temp_window_w + 16;
-int window_height = temp_window_h + 39;
+int window_width;
+int window_height;
+
+bool window_resized;
 
 int win32_running = 0;
 
@@ -432,6 +432,9 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 		case WM_SIZE: 
 		{
 			OutputDebugStringW(L"WM_SIZE\n");
+			win32_WindowDimension dim = win32_GetWindowDimension(hwnd);
+			win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
+
 		} break;
 		case WM_DESTROY: { win32_running = 0; OutputDebugStringW(L"WM_DESTROY\n"); } break;
 		case WM_CLOSE: { win32_running = 0; OutputDebugStringW(L"WM_CLOSE\n"); } break;
@@ -455,6 +458,7 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
+	// ============================================================================
 	// init cycle counter
 	for (int i = 0; i < 1024; i++) {
 		global_cycle_counter.start_cycles[i] = 0;
@@ -462,12 +466,35 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 		global_cycle_counter.times_called[i] = 0;
 	}
 	
-	win32_LoadXInput();
+	// done initializing cycle counter
+	// ============================================================================
 
+	win32_LoadXInput();
+	
+	// ============================================================================
 	// Timing Info
+
 	LARGE_INTEGER perftimerfreqresult;
 	QueryPerformanceFrequency(&perftimerfreqresult);
 	i64 perftimerfreq = perftimerfreqresult.QuadPart;
+
+	// done initializing timing info
+	// ============================================================================
+	// Load settings
+	
+	debug_ReadFileResult settings_file = debug_ReadFile((char*)"assets/settings.json");
+	std::string json_err_str;
+	json11::Json json = json11::Json::parse((char*)settings_file.data, json_err_str);
+
+	// bool fullscreen = json["fullscreen"].bool_value();
+
+	// Add 16 to width and 39 to height so that the client area is the numbers you
+	// actually want
+	window_width = json["window_width"].int_value() + 16;
+	window_height = json["window_height"].int_value() + 39;
+
+	// done loading settings
+	// ============================================================================
 
 	WNDCLASS window_class = {};
 	window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
@@ -642,8 +669,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Render Game
 				{
-					
-
 					tilemap_renderer.animation_frame_time += dt / 1000.0f;
 					if (tilemap_renderer.animation_frame_time > tilemap_renderer.animation_max_frame_time) {
 						// use this line if all texture atlases have the same number of animation frames
@@ -651,6 +676,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						// otherwise use this line
 						tilemap_renderer.animation_frame += 1;
 						tilemap_renderer.animation_frame_time = 0.0f;
+					}
+
+					// Set viewport to globalBackBuffer values so that window resizes propagate properly
+					{
+						viewport.buffer = (uchar*)globalBackBuffer.memory;
+						viewport.width = globalBackBuffer.width;
+						viewport.height = globalBackBuffer.height;
 					}
 
 					for (int i = 0; i < gs->ui_system.NUM_RECTS; i++) {
