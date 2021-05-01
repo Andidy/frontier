@@ -46,6 +46,12 @@ void TileToScreen(int world_x, int world_y, int rect_x, int rect_y, int view_x, 
 void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
+	gs->tilemap = { 0, 0, NULL, 0, NULL };
+
+	if (LoadGameSettings(gs)) {
+		DebugPrint((char*)"Successfully Loaded Game Settings Json\n");
+	}
+
 	gs->game_tick = 0;
 	gs->tick_rate = 1;
 	gs->tick_timer = 0.0f;
@@ -85,7 +91,6 @@ void InitGameState(Memory* gameMemory) {
 	const int tilemap_height = 100;
 	const int num_units = 3;
 
-	gs->tilemap = { tilemap_width, tilemap_height, NULL, num_units, NULL };
 	gs->tilemap.tiles = (Tile*)malloc(sizeof(Tile) * tilemap_width * tilemap_height);
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
