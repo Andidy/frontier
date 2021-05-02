@@ -69,6 +69,22 @@ UIRect CreateUIButton(int layer, int32_t pos_x, int32_t pos_y, int32_t width, in
 	return result;
 }
 
+UIRect CreateUITilemap(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
+	UIRect result;
+	result.layer = layer;
+	result.x = pos_x;
+	result.y = pos_y;
+	result.w = width;
+	result.h = height;
+	result.visible = visible;
+	result.type = UIRectType::TILEMAP;
+	result.line_width = 0;
+	result.text = NULL;
+	result.text_len = 0;
+	result.bitmap_index = 0;
+	return result;
+}
+
 UIRect CreateUIGame(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
 	UIRect result;
 	result.layer = layer;
@@ -158,7 +174,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[6] = CreateUIButton(2, 509, 553, 110, 22, true, 1, str3);
 
 	// UIImage test rect
-	gs->ui_system.rects[7] = CreateUIImage(1, 9, 201, 38, 38, true, 1, 0);
+	gs->ui_system.rects[7] = CreateUIImage(1, 9, 401, 38, 38, true, 1, 0);
 
 	// unit menu ui elements
 	gs->ui_system.rects[8] = CreateUIRect(1, 0, 0, 1, 1, false, 1);
@@ -166,13 +182,15 @@ void InitGameState(Memory* gameMemory) {
 	
 	// debug game tick display
 	gs->ui_system.rects[10] = CreateUIText(2, 9, 9, 100, 100, true);
-	gs->ui_system.rects[11] = CreateUIText(2, 109, 9, 100, 100, true);
+
+	// Tilemap for map editing
+	gs->ui_system.rects[11] = CreateUITilemap(1, 9, 192+9, 64, 64, true);
 
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
 	int num_units = gs->tilemap.num_units;
 
-	gs->tilemap.tiles = (Tile*)malloc(sizeof(Tile) * tilemap_width * tilemap_height);
+	gs->tilemap.tiles = (Tile*)calloc(tilemap_width * tilemap_height, sizeof(Tile));
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
 			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::GRASS;
@@ -204,6 +222,9 @@ void InitGameState(Memory* gameMemory) {
 			if (x == 100 && y == 99) {
 				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::WATER;
 			}
+			if (x == 199 && y == 99) {
+				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MOUNTAIN;
+			}
 		}
 	}
 
@@ -232,6 +253,12 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[2].max_hp = 10;
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
+
+	gs->editing_tilemap = { 2, 2, NULL, 0, NULL };
+	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
+	for (int i = 0; i < 4; i++) {
+		gs->editing_tilemap.tiles[i].type = (TileType)i;
+	}
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -381,6 +408,14 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {
 			snprintf(buffer, 256, "Button %d Pressed\n", ui_rect_clicked - 3);
+			DebugPrint(buffer);
+		}
+		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::TILEMAP) {
+			// Handle the click in the tilemap
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, 0, 0, 32, 32, &tile_x, &tile_y);
+			snprintf(buffer, 256, "Tile: %d, %d\n", tile_x, tile_y);
 			DebugPrint(buffer);
 		}
 	}

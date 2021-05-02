@@ -570,7 +570,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			int32_t game_viewport_height = 32 * 24;
 
 			Bitmap game_viewport = { NULL, 0, 0 };
-			game_viewport.buffer = (uchar*)malloc(sizeof(uchar) * 4 * game_viewport_width * game_viewport_height);
+			game_viewport.buffer = (uchar*)calloc(4 * game_viewport_width * game_viewport_height, sizeof(uchar));
 			game_viewport.width = game_viewport_width;
 			game_viewport.height = game_viewport_height;
 
@@ -598,7 +598,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// allocate the texture atlases
-				tilemap_renderer.tex_atlases = (TextureAtlas*)malloc(sizeof(TextureAtlas) * tilemap_renderer.num_tex_atlases);
+				tilemap_renderer.tex_atlases = (TextureAtlas*)calloc(tilemap_renderer.num_tex_atlases, sizeof(TextureAtlas));
 				TextureAtlas* tas = tilemap_renderer.tex_atlases;
 
 				// figure out how many animation frames per atlas
@@ -619,7 +619,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// load the frames
 				for (int i = 0; i < tilemap_renderer.num_tex_atlases; i++) {
-					tas[i].frames = (Bitmap*)malloc(sizeof(Bitmap) * tas[i].num_anim_frames);
+					tas[i].frames = (Bitmap*)calloc(tas[i].num_anim_frames, sizeof(Bitmap));
 					for (int j = 0; j < tas[i].num_anim_frames; j++) {
 						snprintf(buffer, 256, "assets/ta_%d_%d.bmp", i, j);
 						uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
@@ -631,6 +631,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 			}
 
+			Bitmap editing_tm_viewport = { NULL, 0, 0 };
+			editing_tm_viewport.width = 64;
+			editing_tm_viewport.height = 64;
+			editing_tm_viewport.buffer = (uchar*)calloc(4 * 64 * 64, sizeof(uchar));
+			TilemapRenderer editing_tilemap_renderer(32, 32, 1, 0, 0, 64, 64, 4, 0.25f, editing_tm_viewport);
+			editing_tilemap_renderer.num_tex_atlases = tilemap_renderer.num_tex_atlases;
+			editing_tilemap_renderer.tex_atlases = tilemap_renderer.tex_atlases;
 
 			Bitmap font = { NULL, 0, 0 };
 			// load font
@@ -754,13 +761,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 									DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
 									DrawSprite(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, &ui_image_bitmaps[0]);
 								} break;
+								case UIRectType::TILEMAP:
+								{
+									editing_tilemap_renderer.DrawTilemap(&(gs->editing_tilemap));
+									DrawSprite(&viewport, r.x, r.y, &(editing_tilemap_renderer.view_bitmap));
+								} break;
 								case UIRectType::GAME:
 								{
 									tilemap_renderer.view_x = (int32_t)gs->x;
 									tilemap_renderer.view_y = (int32_t)gs->y;
 									tilemap_renderer.tile_scale = gs->s;
 
-									tilemap_renderer.DrawTilemap(gs);
+									tilemap_renderer.DrawTilemap(&(gs->tilemap));
 									DrawSprite(&viewport, r.x, r.y, &(tilemap_renderer.view_bitmap));
 								} break;
 								default: break;

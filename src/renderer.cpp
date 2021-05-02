@@ -265,7 +265,7 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 	EndTimer(CT_TM_DRAW_SPRITE);
 }
 
-void TilemapRenderer::DrawTilemap(GameState* gs) {
+void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	BeginTimer(CT_TM_DRAW_TILEMAP);
 
 	int32_t scaled_tile_width = tile_width * tile_scale;
@@ -278,7 +278,8 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
-			switch (gs->tilemap.tiles[x + gs->tilemap.width * y].type) {
+			TileType type = tilemap->tiles[x + tilemap->width * y].type;
+			switch (type) {
 				case TileType::NONE: break;
 				case TileType::GRASS:
 				{
@@ -313,8 +314,8 @@ void TilemapRenderer::DrawTilemap(GameState* gs) {
 		}
 	}
 
-	for (int i = 0; i < gs->tilemap.num_units; i++) {
-		Unit* unit = &(gs->tilemap.units[i]);
+	for (int i = 0; i < tilemap->num_units; i++) {
+		Unit* unit = &(tilemap->units[i]);
 		switch (unit->type) {
 			case UnitType::ARMY: 
 			{

@@ -59,6 +59,7 @@ enum class UIRectType {
 	TEXT,
 	IMAGE,
 	BUTTON,
+	TILEMAP,
 	GAME,
 	NUM_RECT_TYPES
 };
@@ -95,6 +96,8 @@ struct GameState {
 	char debug_text_buffer[256];
 
 	Tilemap tilemap;
+
+	Tilemap editing_tilemap;
 
 	int32_t selected_unit;
 	char unit_info_buffer[256];
