@@ -166,6 +166,7 @@ void InitGameState(Memory* gameMemory) {
 	
 	// debug game tick display
 	gs->ui_system.rects[10] = CreateUIText(2, 9, 9, 100, 100, true);
+	gs->ui_system.rects[11] = CreateUIText(2, 109, 9, 100, 100, true);
 
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
@@ -305,8 +306,8 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 
 	{
-		int len = snprintf(gs->debug_tick_buffer, 256, "Game Tick: %lld, Tick Rate: %d\n", gs->game_tick, gs->tick_rate);
-		gs->ui_system.rects[10].text = gs->debug_tick_buffer;
+		int len = snprintf(gs->debug_text_buffer, 256, "Game Tick: %lld, Tick Rate: %d\nLast Unit Selected: %d\n", gs->game_tick, gs->tick_rate, gs->selected_unit);
+		gs->ui_system.rects[10].text = gs->debug_text_buffer;
 		gs->ui_system.rects[10].text_len = len;
 	}
 
