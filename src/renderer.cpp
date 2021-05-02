@@ -280,7 +280,10 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 		for (int x = start_x; x <= end_x; x++) {
 			TileType type = tilemap->tiles[x + tilemap->width * y].type;
 			switch (type) {
-				case TileType::NONE: break;
+				case TileType::NONE: 
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &(tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]));
+				} break;
 				case TileType::GRASS:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &(tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]));
