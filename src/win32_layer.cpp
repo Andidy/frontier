@@ -23,6 +23,9 @@
 int window_width;
 int window_height;
 
+int client_width;
+int client_height;
+
 bool window_resized = false;
 
 int win32_running = 0;
@@ -455,6 +458,8 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 			win32_WindowDimension dim = win32_GetWindowDimension(hwnd);
 			win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 
+			client_width = dim.width;
+			client_height = dim.height;
 		} break;
 		case WM_DESTROY: { win32_running = 0; OutputDebugStringW(L"WM_DESTROY\n"); } break;
 		case WM_CLOSE: { win32_running = 0; OutputDebugStringW(L"WM_CLOSE\n"); } break;
@@ -508,10 +513,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 	// bool fullscreen = json["fullscreen"].bool_value();
 
+	client_width = json["window_width"].int_value();
+	client_height = json["window_height"].int_value();
+
 	// Add 16 to width and 39 to height so that the client area is the numbers you
 	// actually want
-	window_width = json["window_width"].int_value() + 16;
-	window_height = json["window_height"].int_value() + 39;
+	window_width = client_width + 16;
+	window_height = client_height + 39;
 
 	// done loading settings
 	// ============================================================================
@@ -699,17 +707,29 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					// Set viewport to globalBackBuffer values so that window resizes propagate properly
+					// And propogate changes to UI Rects that are anchored
 					if(window_resized)
 					{
 						viewport.buffer = (uchar*)globalBackBuffer.memory;
 						viewport.width = globalBackBuffer.width;
 						viewport.height = globalBackBuffer.height;
 
+						gs->window_width = client_width;
+						gs->window_height = client_height;
+
 						int new_width = viewport.width - gs->ui_system.rects[0].x;
 						int new_height = viewport.height - gs->ui_system.rects[0].y;
-						tilemap_renderer.ResizeViewport(new_width, new_height);
 						gs->ui_system.rects[0].w = new_width;
 						gs->ui_system.rects[0].h = new_height;
+						tilemap_renderer.ResizeViewport(new_width, new_height);
+
+						new_width = viewport.width - gs->ui_system.rects[1].x;
+						//new_height = viewport.height - gs->ui_system.rects[1].y;
+						gs->ui_system.rects[1].w = new_width;
+						//gs->ui_system.rects[1].h = new_height;
+
+						new_height = viewport.height - gs->ui_system.rects[2].y;
+						gs->ui_system.rects[2].h = new_height;
 					}
 
 					for (int i = 0; i < gs->ui_system.NUM_RECTS; i++) {

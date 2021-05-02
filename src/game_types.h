@@ -103,6 +103,9 @@ struct GameState {
 	f32 y;
 	int32_t s;
 
+	int32_t window_width;
+	int32_t window_height;
+
 	UISystem ui_system;
 };
 
