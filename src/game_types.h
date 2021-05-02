@@ -98,6 +98,8 @@ struct GameState {
 	Tilemap tilemap;
 
 	Tilemap editing_tilemap;
+	int32_t etm_tile_x;
+	int32_t etm_tile_y;
 
 	int32_t selected_unit;
 	char unit_info_buffer[256];

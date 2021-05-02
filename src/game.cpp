@@ -254,6 +254,9 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
 
+	gs->etm_tile_x = -1;
+	gs->etm_tile_y = -1;
+
 	gs->editing_tilemap = { 2, 2, NULL, 0, NULL };
 	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
 	for (int i = 0; i < 4; i++) {
@@ -415,6 +418,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];
 			int32_t tile_x = 0, tile_y = 0;
 			ScreenToTile(mouse.x, mouse.y, r.x, r.y, 0, 0, 32, 32, &tile_x, &tile_y);
+			
+			gs->etm_tile_x = tile_x;
+			gs->etm_tile_y = tile_y;
+
 			snprintf(buffer, 256, "Tile: %d, %d\n", tile_x, tile_y);
 			DebugPrint(buffer);
 		}
@@ -477,6 +484,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				gs->ui_system.rects[9].y = mouse.y + 3 * line_width;
 				gs->ui_system.rects[9].text = gs->unit_info_buffer;
 				gs->ui_system.rects[9].text_len = len;
+			}
+			else if (gs->etm_tile_x != -1 && gs->etm_tile_y != -1) {
+				// we didn't click a unit, so we are editing the map
+				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].type = (TileType)(gs->etm_tile_x + gs->editing_tilemap.width * gs->etm_tile_y);
 			}
 		}
 	}
