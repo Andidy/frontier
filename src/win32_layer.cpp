@@ -763,8 +763,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 								} break;
 								case UIRectType::TILEMAP:
 								{
-									editing_tilemap_renderer.DrawTilemap(&(gs->editing_tilemap));
-									DrawSprite(&viewport, r.x, r.y, &(editing_tilemap_renderer.view_bitmap));
+									DrawSprite(&viewport, r.x, r.y, &tilemap_renderer.tex_atlases[gs->etm_page].frames[tilemap_renderer.animation_frame % tilemap_renderer.tex_atlases[gs->etm_page].num_anim_frames]);
 								} break;
 								case UIRectType::GAME:
 								{

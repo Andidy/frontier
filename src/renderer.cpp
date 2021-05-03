@@ -282,11 +282,11 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 			switch (type) {
 				case TileType::NONE: 
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &(tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]));
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
 				} break;
 				case TileType::GRASS:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &(tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]));
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
 				} break;
 				case TileType::WATER:
 				{
@@ -322,11 +322,11 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 		switch (unit->type) {
 			case UnitType::ARMY: 
 			{
-				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 0, 0, &(tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]));
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 0, 0, &tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]);
 			} break;
 			case UnitType::NAVY:
 			{
-				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 1, 0, &(tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]));
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 1, 0, &tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]);
 			} break;
 			default: break;
 		}

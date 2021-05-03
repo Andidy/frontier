@@ -82,7 +82,7 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 12;
+	static const int32_t NUM_RECTS = 15;
 	UIRect rects[NUM_RECTS];
 };
 
@@ -98,8 +98,9 @@ struct GameState {
 	Tilemap tilemap;
 
 	Tilemap editing_tilemap;
-	int32_t etm_tile_x;
-	int32_t etm_tile_y;
+	TileType etm_tile_type;
+	int32_t etm_page;
+	char etm_page_buffer[8];
 
 	int32_t selected_unit;
 	char unit_info_buffer[256];

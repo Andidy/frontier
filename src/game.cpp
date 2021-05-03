@@ -184,7 +184,15 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[10] = CreateUIText(2, 9, 9, 100, 100, true);
 
 	// Tilemap for map editing
-	gs->ui_system.rects[11] = CreateUITilemap(1, 9, 192+9, 64, 64, true);
+	gs->ui_system.rects[11] = CreateUITilemap(1, 9, 192+22+9, 64, 64, true);
+
+	// buttons for switching the editing tilemap
+	gs->ui_system.rects[12] = CreateUIButton(1, 9, 192 + 9, 15, 22, true, 1, (char*)"<");
+	gs->ui_system.rects[13] = CreateUIButton(1, 9+75, 192 + 9, 15, 22, true, 1, (char*)">");
+
+	// text for showing which page we are on for editing tilemap
+	gs->ui_system.rects[14] = CreateUIText(1, 9 + 15, 192 + 9, 60, 22, true);
+
 
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
@@ -254,8 +262,11 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
 
-	gs->etm_tile_x = -1;
-	gs->etm_tile_y = -1;
+	gs->etm_tile_type = TileType::NONE;
+	gs->etm_page = 0;
+	_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
+	gs->ui_system.rects[14].text = gs->etm_page_buffer;
+	gs->ui_system.rects[14].text_len = strlen(gs->etm_page_buffer);
 
 	gs->editing_tilemap = { 2, 2, NULL, 0, NULL };
 	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
@@ -410,7 +421,29 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			DebugPrint(buffer);
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {
-			snprintf(buffer, 256, "Button %d Pressed\n", ui_rect_clicked - 3);
+			if (ui_rect_clicked == 12) {
+				// left arrow for editing tilemap
+				gs->etm_page -= 1;
+				if (gs->etm_page < 0) gs->etm_page = 0;
+			}
+			else if (ui_rect_clicked == 13) {
+				// right arrow for editing tilemap
+				gs->etm_page += 1;
+				if (gs->etm_page > 1) gs->etm_page = 1;
+			}
+			
+			if (ui_rect_clicked == 12 || ui_rect_clicked == 13) {
+				_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
+				gs->ui_system.rects[14].text = gs->etm_page_buffer;
+				gs->ui_system.rects[14].text_len = strlen(gs->etm_page_buffer);
+
+				int base = 4 * gs->etm_page;
+				for (int i = 0; i < 4; i++) {
+					gs->editing_tilemap.tiles[i].type = (TileType)(base + i);
+				}
+			}
+			
+			snprintf(buffer, 256, "Button \"%s\" Pressed\n", gs->ui_system.rects[ui_rect_clicked].text);
 			DebugPrint(buffer);
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::TILEMAP) {
@@ -419,11 +452,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			int32_t tile_x = 0, tile_y = 0;
 			ScreenToTile(mouse.x, mouse.y, r.x, r.y, 0, 0, 32, 32, &tile_x, &tile_y);
 			
-			gs->etm_tile_x = tile_x;
-			gs->etm_tile_y = tile_y;
-
-			snprintf(buffer, 256, "Tile: %d, %d\n", tile_x, tile_y);
-			DebugPrint(buffer);
+			gs->etm_tile_type = gs->editing_tilemap.tiles[tile_x + gs->editing_tilemap.width * tile_y].type;
 		}
 	}
 	if (keyPressed(mouse.left)) {
@@ -485,9 +514,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				gs->ui_system.rects[9].text = gs->unit_info_buffer;
 				gs->ui_system.rects[9].text_len = len;
 			}
-			else if (gs->etm_tile_x != -1 && gs->etm_tile_y != -1) {
+			else {
 				// we didn't click a unit, so we are editing the map
-				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].type = (TileType)(gs->etm_tile_x + gs->editing_tilemap.width * gs->etm_tile_y);
+				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].type = gs->etm_tile_type;
 			}
 		}
 	}
