@@ -1,0 +1,20 @@
+# frontier
+A game engine for Retro-style strategy games.
+
+Currently Working On: Improving Graphics by creating a system which places suitable graphics in a tile based on the tile's neighbors. 
+I believe the technique I will use is known as "Wang Blob Tiles"
+
+## Features:
+ - Software Rendered
+ - Camera Movment and Zoom levels.
+ - Viewport Clipping (game map elements outside of the game window are not drawn)
+ - UI Elements : Rectangles, Images, ASCII Text, Buttons, Tilemaps, Game Window
+ - Game Map Editing
+ - Unit Movement, Attacking, State Menu
+ 
+### Feature Showcases:
+- Software Rendering & Camera Movement: https://youtu.be/LpRilZxemBQ
+- Initial UI & Unit Movement: https://youtu.be/of5REwYvzBI
+- Unit Combat: https://youtu.be/89JbdbfRlow
+- Tilemap Editing: https://youtu.be/sTUpxr7p5C8
+- Tilemap Editing with Different Tilesets: https://youtu.be/KST4Q0XWDps
