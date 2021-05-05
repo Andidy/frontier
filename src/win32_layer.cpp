@@ -308,14 +308,20 @@ bool LoadGameSettings(GameState* gs) {
 	bool load_success = true;
 
 	debug_ReadFileResult json = debug_ReadFile((char*)"assets/game_settings.json");
+	if (json.data != NULL && json.size >= 0) {
+		std::string json_err_str;
+		json11::Json game_settings_json = json11::Json::parse((char*)json.data, json_err_str);
+
+		gs->tilemap.width = game_settings_json["map_width"].int_value();
+		gs->tilemap.height = game_settings_json["map_height"].int_value();
+		gs->tilemap.num_units = game_settings_json["num_units"].int_value();
+		gs->tilemap.wrap_horz = game_settings_json["map_wrap_horz"].bool_value();
+		gs->tilemap.wrap_vert = game_settings_json["map_wrap_vert"].bool_value();
+	}
+	else {
+		load_success = false;
+	}
 	
-	std::string json_err_str;
-	json11::Json game_settings_json = json11::Json::parse((char*)json.data, json_err_str);
-
-	gs->tilemap.width = game_settings_json["map_width"].int_value();
-	gs->tilemap.height = game_settings_json["map_height"].int_value();
-	gs->tilemap.num_units = game_settings_json["num_units"].int_value();
-
 	return load_success;
 }
 

@@ -1,5 +1,7 @@
 {
   "map_width": 200,
   "map_height": 100,
+  "map_wrap_horz" : true,
+  "map_wrap_vert" : false,
   "num_units": 3
 }

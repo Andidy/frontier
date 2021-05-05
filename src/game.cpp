@@ -137,6 +137,269 @@ void TileToScreen(int world_x, int world_y, int rect_x, int rect_y, int view_x, 
 
 // End UI System
 // ============================================================================
+// Tilemap
+
+/*
+	Check if a two tiles are neighbors in the given tilemap
+	Params:
+	x,y: the primary tile position
+	nx, ny: the potential neighbor tile position 
+*/
+bool ValidNeighbor(Tilemap* tm, int32_t x, int32_t y, int32_t nx, int32_t ny) {
+	int width = tm->width;
+	int height = tm->height;
+
+	//assert(0 <= x && x < width);
+	//assert(0 <= y && y < height);
+	//assert(0 <= nx && nx < width);
+	//assert(0 <= ny && ny < height);
+
+	if (!(0 <= x && x < width)) {
+		return false;
+	}
+	if (!(0 <= y && y < height)) {
+		return false;
+	}
+	if (!(0 <= nx && nx < width)) {
+		return false;
+	}
+	if (!(0 <= ny && ny < height)) {
+		return false;
+	}
+
+	return (labs(x - nx) == 1) || (labs(y-ny) == 1);
+}
+
+const int subtile_positions[192] = {
+	 9,  8,  9, 11, 11, 11, 11,  8,  9, 11, 11, 11, 11, 11, 11,  8,
+	 4,  3,  4,  1,  2, 13, 13,  5,  7, 13, 13, 13, 13,  0,  1,  3,
+
+	 9, 11, 11, 11, 12, 13, 13, 10, 12, 13, 13, 13, 13, 10, 11,  8,
+	 7,  0,  2,  0,  2,  0,  2, 13, 13, 13, 13, 13, 13,  0,  2,  5,
+
+	 7, 10, 12, 10, 12, 10, 12, 13, 13, 13, 13, 13, 13,  5,  7,  5,
+	 7, 13, 13,  0,  2,  0,  2, 13, 13,  0,  2,  0,  2,  5,  4,  3,
+
+	 7, 13, 13, 10, 12,  5,  7, 13, 13, 10, 12, 10, 12,  5,  9,  8,
+	 7,  0,  2,  0,  2,  5,  7, 13, 13, 13, 13, 13, 13,  5,  7,  5,
+
+	 7, 10, 12, 10, 12, 10, 12, 13, 13, 13, 13, 13, 13,  5,  7,  5,
+	 7,  0,  1,  1,  2, 13, 13,  0,  2, 13, 13, 13, 13,  5,  7,  5,
+
+	 7, 10, 11, 11, 12, 13, 13,  5,  7, 13, 13, 13, 13, 10, 12,  5,
+	 4,  1,  1,  1,  1,  1,  1,  3,  4,  1,  1,  1,  1,  1,  1,  3
+};
+
+enum class SubTile {
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+	LEFT,
+	CENTER,
+	RIGHT,
+	BOTTOM_LEFT,
+	BOTTOM,
+	BOTTOM_RIGHT,
+	TOP_LEFT_INVERSE,
+	TOP_RIGHT_INVERSE,
+	BOTTOM_LEFT_INVERSE,
+	BOTTOM_RIGHT_INVERSE,
+	NUM_SUBTILES
+};
+
+/*
+	Cache the wang blob adjacency decisions to determine tile graphics.
+	Params: the tilemap we want to cache the results of
+*/
+void CacheTileRenderingSubtiles(Tilemap* tm) {
+	for (int y = 0; y < tm->height; y++) {
+		for (int x = 0; x < tm->width; x++) {
+			// current tile is at x, y
+
+			int tl = 0;
+			int t = 0;
+			int tr = 0;
+			int l = 0;
+			int r = 0;
+			int bl = 0;
+			int b = 0;
+			int br = 0;
+			// check if neighbors are valid, we assume invalid neighbors
+			// are matching the tile type
+
+			// Neighbor deltas:
+			// -1, -1 | 0, -1 | +1, -1
+			// -------+-------+-------
+			// -1,  0 | 0,  0 | +1,  0
+			// -------+-------+-------
+			// -1, +1 | 0, +1 | +1, +1
+
+			// top
+			if (ValidNeighbor(tm, x, y, x, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x) + tm->width * (y - 1)].type) {
+					t = 1;
+				}
+			}
+			else {
+				t = 1;
+			}
+			// left
+			if (ValidNeighbor(tm, x, y, x - 1, y)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y)].type) {
+					l = 1;
+				}
+			}
+			else {
+				l = 1;
+			}
+			// right
+			if (ValidNeighbor(tm, x, y, x + 1, y)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y)].type) {
+					r = 1;
+				}
+			}
+			else {
+				r = 1;
+			}
+			// bottom
+			if (ValidNeighbor(tm, x, y, x, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x) + tm->width * (y + 1)].type) {
+					b = 1;
+				}
+			}
+			else {
+				b = 1;
+			}
+			// corners only matter if both adjacent sides are solid so we do additional checks first
+
+			// top left
+			if (ValidNeighbor(tm, x, y, x - 1, y - 1) && t && l) {
+				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x - 1) + tm->width * (y - 1)].type) {
+					tl = 0;
+				}
+				else {
+					tl = 1;
+				}
+			}
+			// top right
+			if (ValidNeighbor(tm, x, y, x + 1, y - 1) && t && r) {
+				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x + 1) + tm->width * (y - 1)].type) {
+					tr = 0;
+				}
+				else {
+					tr = 1;
+				}
+			}
+			// bottom left
+			if (ValidNeighbor(tm, x, y, x - 1, y + 1) && b && l) {
+				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x - 1) + tm->width * (y + 1)].type) {
+					bl = 0;
+				}
+				else {
+					bl = 1;
+				}
+			}
+			// bottom right
+			if (ValidNeighbor(tm, x, y, x + 1, y + 1) && b && r) {
+				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x + 1) + tm->width * (y + 1)].type) {
+					br = 0;
+				}
+				else {
+					br = 1;
+				}
+			}
+
+			// now that we know which neighbors match the tile type
+			// we can determine the sub tiles
+
+			//int neighbor_index = tl + 2 * t + 4 * tr + 8 * r + 16 * br + 32 * b + 64 * bl + 128 * l;
+
+			int* subtile_0 = &(tm->tiles[x + tm->width * y].subtiles[0]);
+			int* subtile_1 = &(tm->tiles[x + tm->width * y].subtiles[1]);
+			int* subtile_2 = &(tm->tiles[x + tm->width * y].subtiles[2]);
+			int* subtile_3 = &(tm->tiles[x + tm->width * y].subtiles[3]);
+
+			// top left subtile 0
+			int index = t + 2 * tl + 4 * l;
+			
+			if (index == 0 || index == 2) {
+				*subtile_0 = (int)SubTile::TOP_LEFT;
+			}
+			else if(index == 1 || index == 3) {
+				*subtile_0 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_0 = (int)SubTile::TOP;
+			}
+			else if (index == 5) {
+				*subtile_0 = (int)SubTile::TOP_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_0 = (int)SubTile::CENTER;
+			}
+
+			// top right subtile 1
+			index = r + 2 * tr + 4 * t;
+
+			if (index == 0 || index == 2) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_1 = (int)SubTile::TOP;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_1 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_1 = (int)SubTile::CENTER;
+			}
+
+			// bottom left subtile 2
+			index = b + 2 * bl + 4 * l;
+
+			if (index == 0 || index == 2) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_2 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_2 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 5) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_2 = (int)SubTile::CENTER;
+			}
+
+			// bottom right subtile 3
+			index = r + 2 * br + 4 * b;
+
+			if (index == 0 || index == 2 || index == 3) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;
+			}
+			else if (index == 1) {
+				*subtile_3 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_3 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_3 = (int)SubTile::CENTER;
+			}
+		}
+	}
+}
+
+// end Tilemap
+// ============================================================================
 // Game Core
 
 void InitGameState(Memory* gameMemory) {
@@ -146,6 +409,9 @@ void InitGameState(Memory* gameMemory) {
 
 	if (LoadGameSettings(gs)) {
 		DebugPrint((char*)"Successfully Loaded Game Settings Json\n");
+	}
+	else {
+		DebugPrint((char*)"YO DUMMY SOMETHING BROKE\n\n\n\n\n\n\nVERY BROKEY\n");
 	}
 
 	gs->game_tick = 0;
@@ -165,13 +431,13 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[2] = CreateUIRect(0, 0, 192, (32 * 40) - (32 * 32), (32 * 30) - 192, true, 3);
 	
 	// ui button test rects
-	gs->ui_system.rects[3] = CreateUIRect(1, 500, 500, 128, 192, true, 3);
+	gs->ui_system.rects[3] = CreateUIRect(1, 500, 500, 128, 192, false, 3);
 	char* str1 = (char*)"Button 1";
 	char* str2 = (char*)"Button 2";
 	char* str3 = (char*)"Button 3";
-	gs->ui_system.rects[4] = CreateUIButton(2, 509, 509, 110, 22, true, 1, str1);
-	gs->ui_system.rects[5] = CreateUIButton(2, 509, 531, 110, 22, true, 1, str2);
-	gs->ui_system.rects[6] = CreateUIButton(2, 509, 553, 110, 22, true, 1, str3);
+	gs->ui_system.rects[4] = CreateUIButton(2, 509, 509, 110, 22, false, 1, str1);
+	gs->ui_system.rects[5] = CreateUIButton(2, 509, 531, 110, 22, false, 1, str2);
+	gs->ui_system.rects[6] = CreateUIButton(2, 509, 553, 110, 22, false, 1, str3);
 
 	// UIImage test rect
 	gs->ui_system.rects[7] = CreateUIImage(1, 9, 401, 38, 38, true, 1, 0);
@@ -201,8 +467,14 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.tiles = (Tile*)calloc(tilemap_width * tilemap_height, sizeof(Tile));
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
-			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::GRASS;
+			gs->tilemap.tiles[x + tilemap_width * y].subtiles[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtiles[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtiles[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtiles[3] = 0;
+			
+			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::NONE;
 
+			/*
 			if (10 < x && x < 15 && 10 < y && y < 17) {
 				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::WATER;
 			}
@@ -233,6 +505,7 @@ void InitGameState(Memory* gameMemory) {
 			if (x == 199 && y == 99) {
 				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MOUNTAIN;
 			}
+			*/
 		}
 	}
 
@@ -240,7 +513,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
 	gs->tilemap.units[0].type = UnitType::ARMY;
 	gs->tilemap.units[0].id = id_counter++;
-	gs->tilemap.units[0].pos_x = 3;
+	gs->tilemap.units[0].pos_x = 130;
 	gs->tilemap.units[0].pos_y = 3;
 	gs->tilemap.units[0].max_hp = 10;
 	gs->tilemap.units[0].current_hp = 10;
@@ -248,7 +521,7 @@ void InitGameState(Memory* gameMemory) {
 
 	gs->tilemap.units[1].type = UnitType::ARMY;
 	gs->tilemap.units[1].id = id_counter++;
-	gs->tilemap.units[1].pos_x = 3;
+	gs->tilemap.units[1].pos_x = 130;
 	gs->tilemap.units[1].pos_y = 4;
 	gs->tilemap.units[1].max_hp = 10;
 	gs->tilemap.units[1].current_hp = 10;
@@ -256,7 +529,7 @@ void InitGameState(Memory* gameMemory) {
 
 	gs->tilemap.units[2].type = UnitType::NAVY;
 	gs->tilemap.units[2].id = id_counter++;
-	gs->tilemap.units[2].pos_x = 13;
+	gs->tilemap.units[2].pos_x = 130;
 	gs->tilemap.units[2].pos_y = 15;
 	gs->tilemap.units[2].max_hp = 10;
 	gs->tilemap.units[2].current_hp = 10;
@@ -268,7 +541,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[14].text = gs->etm_page_buffer;
 	gs->ui_system.rects[14].text_len = strlen(gs->etm_page_buffer);
 
-	gs->editing_tilemap = { 2, 2, NULL, 0, NULL };
+	gs->editing_tilemap = { true, false, 2, 2, NULL, 0, NULL };
 	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
 	for (int i = 0; i < 4; i++) {
 		gs->editing_tilemap.tiles[i].type = (TileType)i;
@@ -548,6 +821,11 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	// end Mouse Input Controls
 	// ============================================================================
+
+	if (keyReleased(key.g)) {
+		CacheTileRenderingSubtiles(&(gs->tilemap));
+		DebugPrint((char*)"Cached Tile Rendering Subtiles\n");
+	}
 
 	EndTimer(CT_GAME_UPDATE);
 }

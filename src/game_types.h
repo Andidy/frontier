@@ -39,9 +39,16 @@ enum class TileType {
 
 struct Tile {
 	TileType type;
+
+	//	Subtile Layout:
+	//	0, 1,
+	//	2, 3	
+	int subtiles[4];
 };
 
 struct Tilemap {
+	bool wrap_horz;
+	bool wrap_vert;
 	int32_t width;
 	int32_t height;
 	Tile* tiles;

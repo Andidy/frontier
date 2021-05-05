@@ -186,6 +186,8 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 	}
 }
 
+// ============================================================================
+
 TilemapRenderer::TilemapRenderer() {}
 
 TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap) {
