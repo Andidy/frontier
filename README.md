@@ -8,6 +8,7 @@ I believe the technique I will use is known as "Wang Blob Tiles"
 ![Preview of Wang Blob Tiles](./screenshots/wang_blob_example.png)
 
 And here I've added a way to have multiple variants of the subtiles which construct the Wang Blob Tile graphics.
+You can see some of the subtile variants along the top water edge.
 
 ![Wang Blob Tiles With Variants](./screenshots/wang_blob_with_subtile_variants.png)
 
