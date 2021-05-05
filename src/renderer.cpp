@@ -267,6 +267,40 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 	EndTimer(CT_TM_DRAW_SPRITE);
 }
 
+void TilemapRenderer::DrawSubTiles(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
+	BeginTimer(CT_TM_DRAW_SUBTILES);
+
+	// for starting corner we want the larger value
+	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
+	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
+	// for ending corner we want the smaller value
+	int32_t end_x = (world_x + (tile_width / 2) * tile_scale < view_x + view_w) ? world_x + (tile_width / 2) * tile_scale : view_x + view_w;
+	int32_t end_y = (world_y + (tile_width / 2) * tile_scale < view_y + view_h) ? world_y + (tile_width / 2) * tile_scale : view_y + view_h;
+
+	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
+	uint32_t* sprite_buffer = (uint32_t*)texture_atlas->buffer;
+
+	int32_t tex_atlas_off_x = tex_atlas_x * (tile_width / 2);
+	int32_t tex_atlas_off_y = tex_atlas_y * (tile_height / 2);
+
+	for (int y = start_y; y < end_y; y++) {
+		for (int x = start_x; x < end_x; x++) {
+			int32_t viewport_x = (x - view_x);
+			int32_t viewport_y = (y - view_y);
+
+			if (viewport_y < view_bitmap.height && viewport_x < view_bitmap.width) {
+				int32_t pixel_x = ((x - world_x) / tile_scale + tex_atlas_off_x);
+				int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
+				uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
+
+				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+			}
+		}
+	}
+
+	EndTimer(CT_TM_DRAW_SUBTILES);
+}
+
 void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	BeginTimer(CT_TM_DRAW_TILEMAP);
 
@@ -280,19 +314,25 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
-			TileType type = tilemap->tiles[x + tilemap->width * y].type;
-			switch (type) {
+			Tile tile = tilemap->tiles[x + tilemap->width * y];
+			switch (tile.type) {
 				case TileType::NONE: 
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
 				} break;
 				case TileType::GRASS:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
 				} break;
 				case TileType::WATER:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
 				} break;
 				case TileType::MOUNTAIN:
 				{

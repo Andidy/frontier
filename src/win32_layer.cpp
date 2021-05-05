@@ -832,6 +832,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						snprintf(buffer, 256, "\tTM::DrawSprite Cycles: %I64u, Calls: %I64d\n", cycles, calls);
 						DebugPrint(buffer);
 
+						cycles = global_cycle_counter.cycles[CT_TM_DRAW_SUBTILES];
+						calls = global_cycle_counter.times_called[CT_TM_DRAW_SUBTILES];
+						snprintf(buffer, 256, "\tTM::DrawSubtiles Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
 						cycles = global_cycle_counter.cycles[CT_UI_DRAW_RECT];
 						calls = global_cycle_counter.times_called[CT_UI_DRAW_RECT];
 						snprintf(buffer, 256, "\tDrawUIRect Cycles: %I64u, Calls: %I64d\n", cycles, calls);
