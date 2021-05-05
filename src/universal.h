@@ -25,6 +25,7 @@ void DebugPrint(char* str);
 
 enum CycleType {
 	CT_GAME_UPDATE,
+	CT_CACHE_SUBTILES,
 	CT_DRAW_PIXEL,
 	CT_DRAW_RECT,
 	CT_DRAW_SPRITE,

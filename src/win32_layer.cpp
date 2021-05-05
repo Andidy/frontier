@@ -792,17 +792,34 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Timers
 				{
-					int32_t enable_timer_printouts = 0;
-					if (enable_timer_printouts) {
+					int32_t enable_game_timer_printouts = 0;
+					if (enable_game_timer_printouts) {
 						char buffer[256];
 						uint64_t cycles = 0;
 						int64_t calls = 0;
-						snprintf(buffer, 256, "--- Begin Timer Print Outs ---\n");
+						snprintf(buffer, 256, "--- Begin Game Timer Print Outs ---\n");
 						DebugPrint(buffer);
 
 						cycles = global_cycle_counter.cycles[CT_GAME_UPDATE];
 						calls = global_cycle_counter.times_called[CT_GAME_UPDATE];
 						snprintf(buffer, 256, "\tGame Update Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
+						cycles = global_cycle_counter.cycles[CT_CACHE_SUBTILES];
+						calls = global_cycle_counter.times_called[CT_CACHE_SUBTILES];
+						snprintf(buffer, 256, "\tCache Subtiles Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
+						snprintf(buffer, 256, "--- End Game Timer Print Outs ---\n");
+						DebugPrint(buffer);
+					}
+					
+					int32_t enable_render_timer_printouts = 0;
+					if (enable_render_timer_printouts) {
+						char buffer[256];
+						uint64_t cycles = 0;
+						int64_t calls = 0;
+						snprintf(buffer, 256, "--- Begin Render Timer Print Outs ---\n");
 						DebugPrint(buffer);
 
 						cycles = global_cycle_counter.cycles[CT_TM_DRAW_TILEMAP];
@@ -840,10 +857,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						snprintf(buffer, 256, "\tDrawSpriteMag Cycles: %I64u, Calls: %I64d\n", cycles, calls);
 						DebugPrint(buffer);
 
-						snprintf(buffer, 256, "--- End Timer Print Outs ---\n");
+						snprintf(buffer, 256, "--- End Render Timer Print Outs ---\n");
 						DebugPrint(buffer);
 					}
-					
+
 					// clear cycle counter at end of frame
 					for (int i = 0; i < 1024; i++) {
 						global_cycle_counter.start_cycles[i] = 0;

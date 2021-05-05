@@ -212,6 +212,8 @@ enum class SubTile {
 	Params: the tilemap we want to cache the results of
 */
 void CacheTileRenderingSubtiles(Tilemap* tm) {
+	BeginTimer(CT_CACHE_SUBTILES);
+	
 	for (int y = 0; y < tm->height; y++) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
@@ -396,6 +398,7 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 		}
 	}
+	EndTimer(CT_CACHE_SUBTILES);
 }
 
 // end Tilemap
