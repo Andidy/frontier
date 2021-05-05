@@ -322,17 +322,17 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				} break;
 				case TileType::GRASS:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], 0, &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
 				} break;
 				case TileType::WATER:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], 0, &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
 				} break;
 				case TileType::MOUNTAIN:
 				{

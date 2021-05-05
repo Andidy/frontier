@@ -217,6 +217,12 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 	for (int y = 0; y < tm->height; y++) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
+			// cache subtile variant based on tile position & noise
+			for (int i = 0; i < 4; i++) {
+				tm->tiles[x+tm->width*y].subtile_variants[i] = ((int)(fabsf(noise((f64)x, (f64)y)) * 1000.0f)) % 4;
+			}
+
+			// cache subtile type
 
 			int tl = 0;
 			int t = 0;
@@ -475,6 +481,11 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].subtiles[2] = 0;
 			gs->tilemap.tiles[x + tilemap_width * y].subtiles[3] = 0;
 			
+			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[3] = 0;
+
 			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::NONE;
 
 			/*
