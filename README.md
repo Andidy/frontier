@@ -20,9 +20,9 @@ I believe the technique I will use is known as "Wang Blob Tiles"
 - Unit Combat: https://youtu.be/89JbdbfRlow
 - Tilemap Editing: https://youtu.be/sTUpxr7p5C8
 - Tilemap Editing with Different Tilesets: https://youtu.be/KST4Q0XWDps
+- Wang Blob Tiles for pretty transitions between tile types: https://youtu.be/zu53zhWPZ2Y
 
 ## Goals (in no particular order):
-- Wang Blob Tiles to improve graphics
 - Transparency Support for graphics
 - Improvements to UI Text Layout
 - Color in UI Text
