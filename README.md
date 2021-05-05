@@ -5,6 +5,8 @@ A game engine for Retro-style strategy games.
 Currently Working On: Improving Graphics by creating a system which places suitable graphics in a tile based on the tile's neighbors. 
 I believe the technique I will use is known as "Wang Blob Tiles"
 
+![Preview of Wang Blob Tiles](./screenshots/wang_blob_example.png)
+
 ## Features:
  - Software Rendered
  - Camera Movment and Zoom levels.
