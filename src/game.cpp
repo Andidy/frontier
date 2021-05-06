@@ -223,7 +223,6 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// cache subtile type
-
 			int tl = 0;
 			int t = 0;
 			int tr = 0;
@@ -487,39 +486,6 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[3] = 0;
 
 			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::NONE;
-
-			/*
-			if (10 < x && x < 15 && 10 < y && y < 17) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::WATER;
-			}
-
-			if (x == 4 && 3 < y && y < 6) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MOUNTAIN;
-			}
-
-			if (x == 5 && 3 < y && y < 6) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MINE;
-			}
-
-			if (x == 16 && y == 3) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::FORT;
-			}
-
-			if (15 < x && x < 19 && 3 < y && y < 6) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::HOUSE;
-			}
-
-			if (x == 18 && 5 < y && y < 15) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::RAIL;
-			}
-
-			if (x == 100 && y == 99) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::WATER;
-			}
-			if (x == 199 && y == 99) {
-				gs->tilemap.tiles[x + tilemap_width * y].type = TileType::MOUNTAIN;
-			}
-			*/
 		}
 	}
 
