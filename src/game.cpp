@@ -219,7 +219,7 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
 			for (int i = 0; i < 4; i++) {
-				tm->tiles[x+tm->width*y].subtile_variants[i] = ((int)(fabsf(noise((f64)x, (f64)y)) * 1000.0f)) % 4;
+				tm->tiles[x + tm->width * y].subtile_variants[i] = (7907 * rand()) % 4;
 			}
 
 			// cache subtile type
