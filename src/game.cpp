@@ -277,43 +277,43 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 			else {
 				b = 1;
 			}
-			// corners only matter if both adjacent sides are solid so we do additional checks first
 
+			// corners only matter if both adjacent sides are solid so we do additional checks
 			// top left
-			if (ValidNeighbor(tm, x, y, x - 1, y - 1) && t && l) {
-				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x - 1) + tm->width * (y - 1)].type) {
-					tl = 0;
-				}
-				else {
+			if (ValidNeighbor(tm, x, y, x - 1, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y - 1)].type) {
 					tl = 1;
 				}
 			}
+			else {
+				tl = 1;
+			}
 			// top right
-			if (ValidNeighbor(tm, x, y, x + 1, y - 1) && t && r) {
-				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x + 1) + tm->width * (y - 1)].type) {
-					tr = 0;
-				}
-				else {
+			if (ValidNeighbor(tm, x, y, x + 1, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y - 1)].type) {
 					tr = 1;
 				}
 			}
+			else {
+				tr = 1;
+			}
 			// bottom left
-			if (ValidNeighbor(tm, x, y, x - 1, y + 1) && b && l) {
-				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x - 1) + tm->width * (y + 1)].type) {
-					bl = 0;
-				}
-				else {
+			if (ValidNeighbor(tm, x, y, x - 1, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y + 1)].type) {
 					bl = 1;
 				}
 			}
+			else {
+				bl = 1;
+			}
 			// bottom right
-			if (ValidNeighbor(tm, x, y, x + 1, y + 1) && b && r) {
-				if (tm->tiles[x + tm->width * y].type != tm->tiles[(x + 1) + tm->width * (y + 1)].type) {
-					br = 0;
-				}
-				else {
+			if (ValidNeighbor(tm, x, y, x + 1, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y + 1)].type) {
 					br = 1;
 				}
+			}
+			else {
+				br = 1;
 			}
 
 			// now that we know which neighbors match the tile type
@@ -386,10 +386,10 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 			// bottom right subtile 3
 			index = r + 2 * br + 4 * b;
 
-			if (index == 0 || index == 2 || index == 3) {
+			if (index == 0 || index == 2) {
 				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;
 			}
-			else if (index == 1) {
+			else if (index == 1 || index == 3) {
 				*subtile_3 = (int)SubTile::BOTTOM;
 			}
 			else if (index == 4 || index == 6) {
