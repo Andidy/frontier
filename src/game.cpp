@@ -149,11 +149,6 @@ bool ValidNeighbor(Tilemap* tm, int32_t x, int32_t y, int32_t nx, int32_t ny) {
 	int width = tm->width;
 	int height = tm->height;
 
-	//assert(0 <= x && x < width);
-	//assert(0 <= y && y < height);
-	//assert(0 <= nx && nx < width);
-	//assert(0 <= ny && ny < height);
-
 	if (!(0 <= x && x < width)) {
 		return false;
 	}
