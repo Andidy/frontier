@@ -491,7 +491,7 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	// ============================================================================
 	// init cycle counter
-	for (int i = 0; i < 1024; i++) {
+	for (int i = 0; i < CT_NUM_CYCLE_TYPES; i++) {
 		global_cycle_counter.start_cycles[i] = 0;
 		global_cycle_counter.cycles[i] = 0;
 		global_cycle_counter.times_called[i] = 0;
@@ -867,7 +867,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 
 					// clear cycle counter at end of frame
-					for (int i = 0; i < 1024; i++) {
+					for (int i = 0; i < CT_NUM_CYCLE_TYPES; i++) {
 						global_cycle_counter.start_cycles[i] = 0;
 						global_cycle_counter.cycles[i] = 0;
 						global_cycle_counter.times_called[i] = 0;

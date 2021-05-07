@@ -38,9 +38,9 @@ enum CycleType {
 };
 
 struct CycleCounter {
-	uint64_t start_cycles[1024];
-	uint64_t cycles[1024];
-	int64_t times_called[1024];
+	uint64_t start_cycles[CT_NUM_CYCLE_TYPES];
+	uint64_t cycles[CT_NUM_CYCLE_TYPES];
+	int64_t times_called[CT_NUM_CYCLE_TYPES];
 };
 
 void BeginTimer(CycleType type);
