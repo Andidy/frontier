@@ -3,7 +3,7 @@
 
 #include "universal.h"
 
-#include "game_types.h"
+#include "game.h"
 
 struct Color {
 	uchar b;
@@ -60,5 +60,7 @@ struct TilemapRenderer {
 	void DrawSubTiles(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawTilemap(Tilemap* tilemap);
 };
+
+void CacheTileRenderingSubtiles(Tilemap* tm);
 
 #endif

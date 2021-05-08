@@ -384,3 +384,246 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 
 	EndTimer(CT_TM_DRAW_TILEMAP);
 }
+
+enum class SubTile {
+	TOP_LEFT,
+	TOP,
+	TOP_RIGHT,
+	LEFT,
+	CENTER,
+	RIGHT,
+	BOTTOM_LEFT,
+	BOTTOM,
+	BOTTOM_RIGHT,
+	TOP_LEFT_INVERSE,
+	TOP_RIGHT_INVERSE,
+	BOTTOM_LEFT_INVERSE,
+	BOTTOM_RIGHT_INVERSE,
+	NUM_SUBTILES
+};
+
+/*
+	Blue noise pulled from provided bitmap. If x or y exceeds dimensions of the
+	texture than we wrap to the other side of the texture.
+	params: x,y where to sample from, bitmap the bluenoise texture.
+*/
+int BlueNoise(int32_t x, int32_t y) {
+	x %= blue_noise_tex.width;
+	y %= blue_noise_tex.height;
+
+	int result = blue_noise_tex.buffer[x + blue_noise_tex.width * y];
+	return result;
+}
+
+/*
+	Cache the wang blob adjacency decisions to determine tile graphics.
+	Params: the tilemap we want to cache the results of
+*/
+void CacheTileRenderingSubtiles(Tilemap* tm) {
+	BeginTimer(CT_CACHE_SUBTILES);
+
+	const f32 E = 0.0001f;
+
+	for (int y = 0; y < tm->height; y++) {
+		for (int x = 0; x < tm->width; x++) {
+			// current tile is at x, y
+			// cache subtile variant based on tile position & noise
+			int num_subtile_variants = 3;
+
+			if (tm->tiles[x + tm->width * y].fixed_set) {
+				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[0] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[1] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[2] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[3] = result;
+			}
+			else {
+				tm->tiles[x + tm->width * y].subtile_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+			}
+
+			// cache subtile type
+			int tl = 0;
+			int t = 0;
+			int tr = 0;
+			int l = 0;
+			int r = 0;
+			int bl = 0;
+			int b = 0;
+			int br = 0;
+			// check if neighbors are valid, we assume invalid neighbors
+			// are matching the tile type
+
+			// Neighbor deltas:
+			// -1, -1 | 0, -1 | +1, -1
+			// -------+-------+-------
+			// -1,  0 | 0,  0 | +1,  0
+			// -------+-------+-------
+			// -1, +1 | 0, +1 | +1, +1
+
+			// top
+			if (ValidNeighbor(tm, x, y, x, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x)+tm->width * (y - 1)].type) {
+					t = 1;
+				}
+			}
+			else {
+				t = 1;
+			}
+			// left
+			if (ValidNeighbor(tm, x, y, x - 1, y)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y)].type) {
+					l = 1;
+				}
+			}
+			else {
+				l = 1;
+			}
+			// right
+			if (ValidNeighbor(tm, x, y, x + 1, y)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y)].type) {
+					r = 1;
+				}
+			}
+			else {
+				r = 1;
+			}
+			// bottom
+			if (ValidNeighbor(tm, x, y, x, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x)+tm->width * (y + 1)].type) {
+					b = 1;
+				}
+			}
+			else {
+				b = 1;
+			}
+
+			// corners only matter if both adjacent sides are solid so we do additional checks
+			// top left
+			if (ValidNeighbor(tm, x, y, x - 1, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y - 1)].type) {
+					tl = 1;
+				}
+			}
+			else {
+				tl = 1;
+			}
+			// top right
+			if (ValidNeighbor(tm, x, y, x + 1, y - 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y - 1)].type) {
+					tr = 1;
+				}
+			}
+			else {
+				tr = 1;
+			}
+			// bottom left
+			if (ValidNeighbor(tm, x, y, x - 1, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y + 1)].type) {
+					bl = 1;
+				}
+			}
+			else {
+				bl = 1;
+			}
+			// bottom right
+			if (ValidNeighbor(tm, x, y, x + 1, y + 1)) {
+				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y + 1)].type) {
+					br = 1;
+				}
+			}
+			else {
+				br = 1;
+			}
+
+			// now that we know which neighbors match the tile type
+			// we can determine the sub tiles
+
+			//int neighbor_index = tl + 2 * t + 4 * tr + 8 * r + 16 * br + 32 * b + 64 * bl + 128 * l;
+
+			int* subtile_0 = &(tm->tiles[x + tm->width * y].subtiles[0]);
+			int* subtile_1 = &(tm->tiles[x + tm->width * y].subtiles[1]);
+			int* subtile_2 = &(tm->tiles[x + tm->width * y].subtiles[2]);
+			int* subtile_3 = &(tm->tiles[x + tm->width * y].subtiles[3]);
+
+			// top left subtile 0
+			int index = t + 2 * tl + 4 * l;
+
+			if (index == 0 || index == 2) {
+				*subtile_0 = (int)SubTile::TOP_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_0 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_0 = (int)SubTile::TOP;
+			}
+			else if (index == 5) {
+				*subtile_0 = (int)SubTile::TOP_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_0 = (int)SubTile::CENTER;
+			}
+
+			// top right subtile 1
+			index = r + 2 * tr + 4 * t;
+
+			if (index == 0 || index == 2) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_1 = (int)SubTile::TOP;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_1 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_1 = (int)SubTile::CENTER;
+			}
+
+			// bottom left subtile 2
+			index = b + 2 * bl + 4 * l;
+
+			if (index == 0 || index == 2) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_2 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_2 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 5) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_2 = (int)SubTile::CENTER;
+			}
+
+			// bottom right subtile 3
+			index = r + 2 * br + 4 * b;
+
+			if (index == 0 || index == 2) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_3 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_3 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_3 = (int)SubTile::CENTER;
+			}
+		}
+	}
+	EndTimer(CT_CACHE_SUBTILES);
+}
