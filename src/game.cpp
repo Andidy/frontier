@@ -1,6 +1,7 @@
 #include "game.h"
 
 extern CycleCounter global_cycle_counter;
+extern Bitmap blue_noise_tex;
 
 // ============================================================================
 // UI System
@@ -183,19 +184,37 @@ enum class SubTile {
 };
 
 /*
+	Blue noise pulled from provided bitmap. If x or y exceeds dimensions of the
+	texture than we wrap to the other side of the texture.
+	params: x,y where to sample from, bitmap the bluenoise texture.
+*/
+int BlueNoise(int32_t x, int32_t y) {
+	x %= blue_noise_tex.width;
+	y %= blue_noise_tex.height;
+	
+	int result = blue_noise_tex.buffer[x + blue_noise_tex.width * y];
+	return result;
+}
+
+/*
 	Cache the wang blob adjacency decisions to determine tile graphics.
 	Params: the tilemap we want to cache the results of
 */
 void CacheTileRenderingSubtiles(Tilemap* tm) {
 	BeginTimer(CT_CACHE_SUBTILES);
 	
+	const f32 E = 0.0001f;
+
 	for (int y = 0; y < tm->height; y++) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
-			for (int i = 0; i < 4; i++) {
-				tm->tiles[x + tm->width * y].subtile_variants[i] = (7907 * rand()) % 4;
-			}
+			int num_subtile_variants = 4;
+			
+			tm->tiles[x + tm->width * y].subtile_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+			tm->tiles[x + tm->width * y].subtile_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+			tm->tiles[x + tm->width * y].subtile_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+			tm->tiles[x + tm->width * y].subtile_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
 
 			// cache subtile type
 			int tl = 0;

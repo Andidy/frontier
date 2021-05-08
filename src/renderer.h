@@ -12,15 +12,6 @@ struct Color {
 	uchar a;
 };
 
-/*
-	Bitmap coordinate system is (0, 0) = top left, (width, height) = bottom left
-*/
-struct Bitmap {
-	uchar* buffer;
-	int32_t width;
-	int32_t height;
-};
-
 bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color);
 bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color color);
 bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite);
@@ -30,6 +21,7 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 
 struct TextureAtlas {
 	int32_t num_anim_frames;
+	int32_t num_subtile_variants;
 	Bitmap* frames;
 };
 
@@ -57,6 +49,9 @@ struct TilemapRenderer {
 	// Textures for the renderer to use
 	int32_t num_tex_atlases;
 	TextureAtlas* tex_atlases;
+
+	int32_t num_tex_atlases_json;
+	TextureAtlas* tex_atlases_json;
 
 	TilemapRenderer();
 	TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap);

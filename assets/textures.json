@@ -1,0 +1,12 @@
+[
+  {
+    "name": "cliff_grass",
+    "animation_frames": 1,
+    "subtile_variants": 1
+  },
+  {
+    "name": "beach_water",
+    "animation_frames": 4,
+    "subtile_variants": 4
+  }
+]

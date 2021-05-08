@@ -361,6 +361,14 @@ void PermanentResourceAllocator::FreeBackingBuffer() {
 
 // end Memory
 // ============================================================================
+// Graphics
+
+// this is a blue noise texture to be used by anyone that needs it. It should
+// not be modified after loading.
+Bitmap blue_noise_tex;
+
+// end Graphics
+// ============================================================================
 
 void DebugPrint(char* str) {
 	OutputDebugStringA(str);
@@ -530,6 +538,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 	// done loading settings
 	// ============================================================================
 
+	{
+		int w, h, n;
+		uchar* buf = stbi_load("assets/blue_noise.png", &w, &h, &n, 1);
+		blue_noise_tex.buffer = buf;
+		blue_noise_tex.width = w;
+		blue_noise_tex.height = h;
+		blue_noise_tex.bpp = 1;
+	}	
+
 	WNDCLASS window_class = {};
 	window_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	window_class.lpfnWndProc = win32_WindowCallback;
@@ -570,18 +587,55 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitGameState(&gameMemory);
 
-			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height };
+			Bitmap viewport = { (uchar*)globalBackBuffer.memory, globalBackBuffer.width, globalBackBuffer.height, 4 };
 			
 			int32_t game_viewport_width = 32 * 32;
 			int32_t game_viewport_height = 32 * 24;
 
-			Bitmap game_viewport = { NULL, 0, 0 };
-			game_viewport.buffer = (uchar*)calloc(4 * game_viewport_width * game_viewport_height, sizeof(uchar));
+			Bitmap game_viewport = { NULL, 0, 0, 0 };
 			game_viewport.width = game_viewport_width;
 			game_viewport.height = game_viewport_height;
+			game_viewport.bpp = 4;
+			game_viewport.buffer = (uchar*)calloc(game_viewport.bpp * game_viewport.width * game_viewport.height, sizeof(uchar));
 
-			TilemapRenderer tilemap_renderer(32, 32, 1, 0, 0, game_viewport_width, game_viewport_height, 4, 0.25f, game_viewport);
+			TilemapRenderer tilemap_renderer(32, 32, 1, 0, 0, game_viewport.width, game_viewport.height, 4, 0.25f, game_viewport);
 			
+			// testing
+			{
+				debug_ReadFileResult texture_defines = debug_ReadFile((char*)"assets/textures.json");
+				json11::Json textures_json = json11::Json::parse((char*)texture_defines.data, json_err_str);
+
+				int num_tex_atlases = 0;
+				while (textures_json[num_tex_atlases].is_object()) {
+					num_tex_atlases += 1;
+				}
+
+				tilemap_renderer.num_tex_atlases_json = num_tex_atlases;
+				tilemap_renderer.tex_atlases_json = (TextureAtlas*)calloc(num_tex_atlases, sizeof(TextureAtlas));
+
+				char buffer[256];
+				int w = 0, h = 0, n = 0;
+				for (int i = 0; i < num_tex_atlases; i++) {
+					std::string file_name = textures_json[i]["name"].string_value();
+					tilemap_renderer.tex_atlases_json[i].num_anim_frames = textures_json[i]["animation_frames"].int_value();
+					tilemap_renderer.tex_atlases_json[i].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
+
+					tilemap_renderer.tex_atlases_json[i].frames = (Bitmap*)calloc(tilemap_renderer.tex_atlases_json[i].num_anim_frames, sizeof(Bitmap));
+
+					for (int j = 0; j < tilemap_renderer.tex_atlases_json[i].num_anim_frames; j++) {
+						snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+						uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+						tilemap_renderer.tex_atlases_json[i].frames[j].buffer = buf;
+						tilemap_renderer.tex_atlases_json[i].frames[j].width = w;
+						tilemap_renderer.tex_atlases_json[i].frames[j].height = h;
+						tilemap_renderer.tex_atlases_json[i].frames[j].bpp = 4;
+						CorrectSTBILoadMemoryLayout(buf, w, h);
+					}
+				}
+			}
+
+
+
 			// Generate storage pattern for texture atlases
 			{
 				FILE* file;
@@ -632,20 +686,22 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tas[i].frames[j].buffer = buf;
 						tas[i].frames[j].width = w;
 						tas[i].frames[j].height = h;
+						tas[i].frames[j].bpp = 4;
 						CorrectSTBILoadMemoryLayout(buf, w, h);
 					}
 				}
 			}
 
-			Bitmap editing_tm_viewport = { NULL, 0, 0 };
+			Bitmap editing_tm_viewport = { NULL, 0, 0, 0 };
 			editing_tm_viewport.width = 64;
 			editing_tm_viewport.height = 64;
-			editing_tm_viewport.buffer = (uchar*)calloc(4 * 64 * 64, sizeof(uchar));
-			TilemapRenderer editing_tilemap_renderer(32, 32, 1, 0, 0, 64, 64, 4, 0.25f, editing_tm_viewport);
+			editing_tm_viewport.bpp = 4;
+			editing_tm_viewport.buffer = (uchar*)calloc(editing_tm_viewport.bpp * editing_tm_viewport.width * editing_tm_viewport.height, sizeof(uchar));
+			TilemapRenderer editing_tilemap_renderer(32, 32, 1, 0, 0, editing_tm_viewport.width, editing_tm_viewport.height, 4, 0.25f, editing_tm_viewport);
 			editing_tilemap_renderer.num_tex_atlases = tilemap_renderer.num_tex_atlases;
 			editing_tilemap_renderer.tex_atlases = tilemap_renderer.tex_atlases;
 
-			Bitmap font = { NULL, 0, 0 };
+			Bitmap font = { NULL, 0, 0, 0 };
 			// load font
 			{
 				int w = 0, h = 0, n = 0;
@@ -653,6 +709,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				font.buffer = buf;
 				font.width = w;
 				font.height = h;
+				font.bpp = 4;
 			}
 
 			const int32_t MAX_UI_IMAGE_BITMAPS = 1;
@@ -663,6 +720,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				ui_image_bitmaps[0].buffer = buf;
 				ui_image_bitmaps[0].width = w;
 				ui_image_bitmaps[0].height = h;
+				ui_image_bitmaps[0].bpp = 4;
 				CorrectSTBILoadMemoryLayout(buf, w, h);
 			}
 

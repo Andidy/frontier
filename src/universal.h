@@ -77,6 +77,20 @@ typedef PermanentResourceAllocator FrameAllocator;
 
 // end Memory
 // ============================================================================
+// Graphics
+
+// Bitmap coordinate system is (0, 0) = top left, (width, height) = bottom left
+// buffer is pointer to bitmap memory, width/height are in pixels
+// bpp is bytes per pixel
+struct Bitmap {
+	uchar* buffer;
+	int32_t width;
+	int32_t height;
+	int32_t bpp;
+};
+
+// end Graphics
+// ============================================================================
 // Input
 
 struct ButtonState {

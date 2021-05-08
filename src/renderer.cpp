@@ -1,6 +1,7 @@
 #include "renderer.h"
 
 extern CycleCounter global_cycle_counter;
+extern Bitmap blue_noise_tex;
 
 /*
 	Fixes that stbi_load loads in rgba order instead of argb.
@@ -38,7 +39,7 @@ void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
 */
 bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 	BeginTimer(CT_DRAW_PIXEL);
-	if (x < 0 || x > bitmap->width || y < 0 || y > bitmap->height) {
+	if (x < 0 || x > bitmap->width || y < 0 || y > bitmap->height || bitmap->bpp != 4) {
 		return false;
 	}
 	
@@ -61,7 +62,7 @@ bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color color) {
 	BeginTimer(CT_DRAW_RECT);
 	if (x < 0 || (x + w) > bitmap->width || y < 0 || (y + h) > bitmap->height ||
-		w < 0 || h < 0) {
+		w < 0 || h < 0 || bitmap->bpp != 4) {
 		return false;
 	}
 
@@ -84,7 +85,8 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 */
 bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 	BeginTimer(CT_DRAW_SPRITE);
-	if (x < 0 || (x+sprite->width) > bitmap->width || y < 0 || (y+sprite->height) > bitmap->height) {
+	if (x < 0 || (x+sprite->width) > bitmap->width || y < 0 || (y+sprite->height) > bitmap->height ||
+		bitmap->bpp != 4 || sprite->bpp != 4) {
 		return false;
 	}
 
@@ -108,7 +110,8 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 */
 bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bitmap* sprite) {
 	BeginTimer(CT_DRAW_SPRITE_MAG);
-	if (x < 0 || (x + scale * sprite->width) > bitmap->width || y < 0 || (y + scale * sprite->height) > bitmap->height) {
+	if (x < 0 || (x + scale * sprite->width) > bitmap->width || y < 0 || (y + scale * sprite->height) > bitmap->height ||
+		bitmap->bpp != 4 || sprite->bpp != 4) {
 		return false;
 	}
 
@@ -201,6 +204,7 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, in
 	view_bitmap.buffer = bitmap.buffer;
 	view_bitmap.width = bitmap.width;
 	view_bitmap.height = bitmap.height;
+	view_bitmap.bpp = bitmap.bpp;
 	animation_frame = 0;
 	animation_max_frames = anim_max_frames;
 	animation_frame_time = 0;
@@ -221,7 +225,7 @@ void TilemapRenderer::ResizeViewport(int width, int height) {
 	view_w = width;
 	view_h = height;
 
-	view_bitmap.buffer = (uchar*)malloc(sizeof(uchar) * 4 * width * height);
+	view_bitmap.buffer = (uchar*)calloc(view_bitmap.bpp * width * height, sizeof(uchar));
 	view_bitmap.width = width;
 	view_bitmap.height = height;
 }
@@ -236,7 +240,7 @@ void TilemapRenderer::ResizeViewport(int width, int height) {
 */
 void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
 	BeginTimer(CT_TM_DRAW_SPRITE);
-	
+
 	// for starting corner we want the larger value
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
 	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
@@ -270,15 +274,15 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 void TilemapRenderer::DrawSubTiles(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
 	BeginTimer(CT_TM_DRAW_SUBTILES);
 
+	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
+	uint32_t* sprite_buffer = (uint32_t*)texture_atlas->buffer;
+	
 	// for starting corner we want the larger value
 	int32_t start_x = (world_x >= view_x) ? world_x : view_x;
 	int32_t start_y = (world_y >= view_y) ? world_y : view_y;
 	// for ending corner we want the smaller value
 	int32_t end_x = (world_x + (tile_width / 2) * tile_scale < view_x + view_w) ? world_x + (tile_width / 2) * tile_scale : view_x + view_w;
 	int32_t end_y = (world_y + (tile_width / 2) * tile_scale < view_y + view_h) ? world_y + (tile_width / 2) * tile_scale : view_y + view_h;
-
-	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
-	uint32_t* sprite_buffer = (uint32_t*)texture_atlas->buffer;
 
 	int32_t tex_atlas_off_x = tex_atlas_x * (tile_width / 2);
 	int32_t tex_atlas_off_y = tex_atlas_y * (tile_height / 2);
@@ -322,17 +326,17 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				} break;
 				case TileType::GRASS:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases[5].frames[animation_frame % tex_atlases[5].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
 				} break;
 				case TileType::WATER:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases[4].frames[animation_frame % tex_atlases[4].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
 				} break;
 				case TileType::MOUNTAIN:
 				{
