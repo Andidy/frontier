@@ -867,7 +867,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						calls = global_cycle_counter.times_called[CT_CACHE_SUBTILES];
 						snprintf(buffer, 256, "\tCache Subtiles Cycles: %I64u, Calls: %I64d\n", cycles, calls);
 						DebugPrint(buffer);
-
+						
 						snprintf(buffer, 256, "--- End Game Timer Print Outs ---\n");
 						DebugPrint(buffer);
 					}

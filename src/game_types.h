@@ -45,6 +45,7 @@ struct Tile {
 	//	2, 3	
 	int subtiles[4];
 	int subtile_variants[4];
+	bool fixed_set;
 };
 
 struct Tilemap {

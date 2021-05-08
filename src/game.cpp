@@ -209,13 +209,22 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
-			int num_subtile_variants = 4;
+			int num_subtile_variants = 3;
 			
-			tm->tiles[x + tm->width * y].subtile_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
-			tm->tiles[x + tm->width * y].subtile_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
-			tm->tiles[x + tm->width * y].subtile_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
-			tm->tiles[x + tm->width * y].subtile_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
-
+			if (tm->tiles[x + tm->width * y].fixed_set) {
+				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[0] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[1] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[2] = result;
+				tm->tiles[x + tm->width * y].subtile_variants[3] = result;
+			}
+			else {
+				tm->tiles[x + tm->width * y].subtile_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].subtile_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+			}
+			
 			// cache subtile type
 			int tl = 0;
 			int t = 0;
@@ -480,6 +489,7 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[3] = 0;
 
 			gs->tilemap.tiles[x + tilemap_width * y].type = TileType::NONE;
+			gs->tilemap.tiles[x + tilemap_width * y].fixed_set = true;
 		}
 	}
 
@@ -513,12 +523,21 @@ void InitGameState(Memory* gameMemory) {
 	gs->etm_page = 0;
 	_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
 	gs->ui_system.rects[14].text = gs->etm_page_buffer;
-	gs->ui_system.rects[14].text_len = strlen(gs->etm_page_buffer);
+	gs->ui_system.rects[14].text_len = (int)strlen(gs->etm_page_buffer);
 
 	gs->editing_tilemap = { true, false, 2, 2, NULL, 0, NULL };
 	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
 	for (int i = 0; i < 4; i++) {
 		gs->editing_tilemap.tiles[i].type = (TileType)i;
+		gs->editing_tilemap.tiles[i].subtiles[0] = 0;
+		gs->editing_tilemap.tiles[i].subtiles[1] = 0;
+		gs->editing_tilemap.tiles[i].subtiles[2] = 0;
+		gs->editing_tilemap.tiles[i].subtiles[3] = 0;
+		gs->editing_tilemap.tiles[i].subtile_variants[0] = 0;
+		gs->editing_tilemap.tiles[i].subtile_variants[1] = 0;
+		gs->editing_tilemap.tiles[i].subtile_variants[2] = 0;
+		gs->editing_tilemap.tiles[i].subtile_variants[3] = 0;
+		gs->editing_tilemap.tiles[i].fixed_set = true;
 	}
 }
 
@@ -620,7 +639,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			// Handle the click in the game window
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];	
 			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
 			
 			// get id of unit in clicked tile if any
 			int32_t clicked_unit = -1;
@@ -682,7 +701,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			if (ui_rect_clicked == 12 || ui_rect_clicked == 13) {
 				_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
 				gs->ui_system.rects[14].text = gs->etm_page_buffer;
-				gs->ui_system.rects[14].text_len = strlen(gs->etm_page_buffer);
+				gs->ui_system.rects[14].text_len = (int)strlen(gs->etm_page_buffer);
 
 				int base = 4 * gs->etm_page;
 				for (int i = 0; i < 4; i++) {
@@ -729,7 +748,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];
 			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, gs->x, gs->y, 32, 32, &tile_x, &tile_y);
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
 
 			// get id of unit in clicked tile if any
 			int32_t clicked_unit = -1;
@@ -764,6 +783,12 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			else {
 				// we didn't click a unit, so we are editing the map
 				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].type = gs->etm_tile_type;
+				if ((int)gs->etm_tile_type >= 4 || (int)gs->etm_tile_type == 0) {
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = true;
+				}
+				else {
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = false;
+				}
 			}
 		}
 	}

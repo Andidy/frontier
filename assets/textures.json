@@ -8,5 +8,10 @@
     "name": "beach_water",
     "animation_frames": 4,
     "subtile_variants": 4
+  },
+  {
+    "name": "debug",
+    "animation_frames": 1,
+    "subtile_variants": 3
   }
 ]
