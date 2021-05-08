@@ -835,7 +835,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 									tilemap_renderer.view_y = (int32_t)gs->y;
 									tilemap_renderer.tile_scale = gs->s;
 
-									CacheTileRenderingSubtiles(&gs->tilemap);
+									tilemap_renderer.CacheTileRenderingSubtiles(&gs->tilemap);
 
 									tilemap_renderer.DrawTilemap(&(gs->tilemap));
 									DrawSprite(&viewport, r.x, r.y, &(tilemap_renderer.view_bitmap));

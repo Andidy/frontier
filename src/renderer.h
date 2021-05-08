@@ -59,8 +59,7 @@ struct TilemapRenderer {
 	void DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawSubTiles(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawTilemap(Tilemap* tilemap);
+	void CacheTileRenderingSubtiles(Tilemap* tm);
 };
-
-void CacheTileRenderingSubtiles(Tilemap* tm);
 
 #endif

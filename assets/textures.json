@@ -2,7 +2,7 @@
   {
     "name": "cliff_grass",
     "animation_frames": 1,
-    "subtile_variants": 1
+    "subtile_variants": 4
   },
   {
     "name": "beach_water",

@@ -419,7 +419,7 @@ int BlueNoise(int32_t x, int32_t y) {
 	Cache the wang blob adjacency decisions to determine tile graphics.
 	Params: the tilemap we want to cache the results of
 */
-void CacheTileRenderingSubtiles(Tilemap* tm) {
+void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 	BeginTimer(CT_CACHE_SUBTILES);
 
 	const f32 E = 0.0001f;
@@ -428,7 +428,25 @@ void CacheTileRenderingSubtiles(Tilemap* tm) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
-			int num_subtile_variants = 3;
+			int num_subtile_variants = 1;
+
+			TileType type = tm->tiles[x + tm->width * y].type;
+			switch (type) {
+				case TileType::NONE:
+				{
+					num_subtile_variants = tex_atlases_json[2].num_subtile_variants;
+				} break;
+				case TileType::GRASS:
+				{
+					num_subtile_variants = tex_atlases_json[0].num_subtile_variants;
+				} break;
+				case TileType::WATER:
+				{
+					num_subtile_variants = tex_atlases_json[1].num_subtile_variants;
+				} break;
+				default:
+					break;
+			}
 
 			if (tm->tiles[x + tm->width * y].fixed_set) {
 				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
