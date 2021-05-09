@@ -451,25 +451,9 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 		for (int x = 0; x < tm->width; x++) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
-			int num_subtile_variants = 1;
 
 			TileTerrain type = tm->tiles[x + tm->width * y].terrain;
-			switch (type) {
-				case TileTerrain::DEBUG:
-				{
-					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
-				} break;
-				case TileTerrain::GRASS:
-				{
-					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
-				} break;
-				case TileTerrain::WATER:
-				{
-					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
-				} break;
-				default:
-					break;
-			}
+			int num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
 
 			if (tm->tiles[x + tm->width * y].fixed_set) {
 				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
