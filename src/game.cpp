@@ -634,17 +634,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				} break;
 				default: break;
 				}
-				
-				/*
-				if ((int)gs->etm_tile_type >= 4 || (int)gs->etm_tile_type == 0) {
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = true;
-				}
-				else {
-					
-				}
-				*/
 			}
-			
 		}
 	}
 	if (keyPressed(mouse.right)) {
