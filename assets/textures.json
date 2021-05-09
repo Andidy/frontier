@@ -1,17 +1,23 @@
 [
   {
+    "name": "debug",
+    "type": 0,
+    "index": 1,
+    "animation_frames": 1,
+    "subtile_variants": 3
+  },
+  {
     "name": "cliff_grass",
+    "type": 0,
+    "index": 2,
     "animation_frames": 1,
     "subtile_variants": 4
   },
   {
     "name": "beach_water",
+    "type": 0,
+    "index": 4,
     "animation_frames": 4,
     "subtile_variants": 4
-  },
-  {
-    "name": "debug",
-    "animation_frames": 1,
-    "subtile_variants": 3
   }
 ]

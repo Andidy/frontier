@@ -610,6 +610,102 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					num_tex_atlases += 1;
 				}
 
+				//tilemap_renderer.num_tex_atlases_json = num_tex_atlases;
+				//tilemap_renderer.tex_atlases_json = (TextureAtlas*)calloc(num_tex_atlases, sizeof(TextureAtlas));
+
+				char buffer[256];
+				int w = 0, h = 0, n = 0;
+				for (int i = 0; i < num_tex_atlases; i++) {
+					std::string file_name = textures_json[i]["name"].string_value();
+					int type = textures_json[i]["type"].int_value();
+					int index = textures_json[i]["index"].int_value();
+
+					// determine which texture atlas array we are placing the texture atlas into
+					if (type == 0) {
+						int num_anim_frames = textures_json[i]["animation_frames"].int_value();
+						tilemap_renderer.terrain_atlases[index].num_anim_frames = num_anim_frames;
+						tilemap_renderer.terrain_atlases[index].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
+
+						tilemap_renderer.terrain_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
+
+						for (int j = 0; j < num_anim_frames; j++) {
+							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+							tilemap_renderer.terrain_atlases[index].frames[j].buffer = buf;
+							tilemap_renderer.terrain_atlases[index].frames[j].width = w;
+							tilemap_renderer.terrain_atlases[index].frames[j].height = h;
+							tilemap_renderer.terrain_atlases[index].frames[j].bpp = 4;
+							CorrectSTBILoadMemoryLayout(buf, w, h);
+						}
+					}
+					else if (type == 1) {
+						int num_anim_frames = textures_json[i]["animation_frames"].int_value();
+						tilemap_renderer.feature_atlases[index].num_anim_frames = num_anim_frames;
+						tilemap_renderer.feature_atlases[index].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
+
+						tilemap_renderer.feature_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
+
+						for (int j = 0; j < num_anim_frames; j++) {
+							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+							tilemap_renderer.feature_atlases[index].frames[j].buffer = buf;
+							tilemap_renderer.feature_atlases[index].frames[j].width = w;
+							tilemap_renderer.feature_atlases[index].frames[j].height = h;
+							tilemap_renderer.feature_atlases[index].frames[j].bpp = 4;
+							CorrectSTBILoadMemoryLayout(buf, w, h);
+						}
+					}
+					else if (type == 2) {
+						int num_anim_frames = textures_json[i]["animation_frames"].int_value();
+						tilemap_renderer.structure_atlases[index].num_anim_frames = num_anim_frames;
+						tilemap_renderer.structure_atlases[index].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
+
+						tilemap_renderer.structure_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
+
+						for (int j = 0; j < num_anim_frames; j++) {
+							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+							tilemap_renderer.structure_atlases[index].frames[j].buffer = buf;
+							tilemap_renderer.structure_atlases[index].frames[j].width = w;
+							tilemap_renderer.structure_atlases[index].frames[j].height = h;
+							tilemap_renderer.structure_atlases[index].frames[j].bpp = 4;
+							CorrectSTBILoadMemoryLayout(buf, w, h);
+						}
+					}
+					else if (type == 3) {
+						int num_anim_frames = textures_json[i]["animation_frames"].int_value();
+						tilemap_renderer.unit_atlases[index].num_anim_frames = num_anim_frames;
+						tilemap_renderer.unit_atlases[index].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
+
+						tilemap_renderer.unit_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
+
+						for (int j = 0; j < num_anim_frames; j++) {
+							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+							tilemap_renderer.unit_atlases[index].frames[j].buffer = buf;
+							tilemap_renderer.unit_atlases[index].frames[j].width = w;
+							tilemap_renderer.unit_atlases[index].frames[j].height = h;
+							tilemap_renderer.unit_atlases[index].frames[j].bpp = 4;
+							CorrectSTBILoadMemoryLayout(buf, w, h);
+						}
+					}
+					else {
+						// error case
+						DebugPrint((char*)"Yo dawg something broke in the json texture atlas loading for the tile terrain, features, and structures\n");
+					}
+				}
+			}
+
+			// json testing
+			{
+				debug_ReadFileResult texture_defines = debug_ReadFile((char*)"assets/textures.json");
+				json11::Json textures_json = json11::Json::parse((char*)texture_defines.data, json_err_str);
+
+				int num_tex_atlases = 0;
+				while (textures_json[num_tex_atlases].is_object()) {
+					num_tex_atlases += 1;
+				}
+
 				tilemap_renderer.num_tex_atlases_json = num_tex_atlases;
 				tilemap_renderer.tex_atlases_json = (TextureAtlas*)calloc(num_tex_atlases, sizeof(TextureAtlas));
 

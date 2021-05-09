@@ -247,7 +247,7 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[2] = 0;
 			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[3] = 0;
 
-			gs->tilemap.tiles[x + tilemap_width * y].terrain = TileTerrain::NONE;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain = TileTerrain::DEBUG;
 			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
 			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructure::NONE;
 			gs->tilemap.tiles[x + tilemap_width * y].fixed_set = true;
@@ -548,18 +548,21 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				gs->ui_system.rects[9].text = gs->unit_info_buffer;
 				gs->ui_system.rects[9].text_len = len;
 			}
-			/*
+			
 			else {
 				// we didn't click a unit, so we are editing the map
-				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = gs->etm_tile_type;
+				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::GRASS;
+				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = false;
+				/*
 				if ((int)gs->etm_tile_type >= 4 || (int)gs->etm_tile_type == 0) {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = true;
 				}
 				else {
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = false;
+					
 				}
+				*/
 			}
-			*/
+			
 		}
 	}
 	if (keyPressed(mouse.right)) {

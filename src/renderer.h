@@ -53,11 +53,24 @@ struct TilemapRenderer {
 	int32_t num_tex_atlases_json;
 	TextureAtlas* tex_atlases_json;
 
+	static const int32_t num_terrain_atlases = (int)TileTerrain::NUM_TYPES;
+	TextureAtlas terrain_atlases[num_terrain_atlases];
+	static const int32_t num_feature_atlases = (int)TileFeature::NUM_TYPES;
+	TextureAtlas feature_atlases[num_feature_atlases];
+	static const int32_t num_structure_atlases = (int)TileStructure::NUM_TYPES;
+	TextureAtlas structure_atlases[num_structure_atlases];
+	static const int32_t num_unit_atlases = (int)UnitType::NUM_TYPES;
+	TextureAtlas unit_atlases[num_unit_atlases];
+
 	TilemapRenderer();
 	TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, int v_y, int v_w, int v_h, int anim_max_frames, f32 anim_frame_time, Bitmap bitmap);
 	void ResizeViewport(int width, int height);
 	void DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawSubTile(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
+	void DrawSubTiles(int32_t x, int32_t y, int* subtiles, int* variants, Bitmap* texture_atlas);
+	Bitmap* GetTerrainAtlas(TileTerrain type);
+	Bitmap* GetFeatureAtlas(TileFeature type);
+	Bitmap* GetStructureAtlas(TileStructure type);
 	void DrawTilemap(Tilemap* tilemap);
 	void CacheTileRenderingSubtiles(Tilemap* tm);
 };

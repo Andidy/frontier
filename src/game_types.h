@@ -7,8 +7,9 @@
 // Tilemap
 
 enum class UnitType {
-	ARMY,
-	NAVY,
+	ARMY = 1,
+	NAVY = 2,
+
 	NUM_TYPES
 };
 
@@ -27,15 +28,13 @@ struct Unit {
 
 enum class TileTerrain {
 	NONE = 0,
-	GRASS = 1,
-	WATER = 2,
-	MOUNTAIN,
-	HOUSE,
-	FORT,
-	MINE,
-	RAIL,
-	WALLS,
-	
+	DEBUG = 1,
+	GRASS = 2,
+	GRASS_CLIFF = 3,
+	WATER = 4,
+	DESERT = 5,
+	SNOW = 6,
+
 	NUM_TYPES
 };
 

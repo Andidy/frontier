@@ -305,6 +305,36 @@ void TilemapRenderer::DrawSubTile(int32_t world_x, int32_t world_y, int32_t tex_
 	EndTimer(CT_TM_DRAW_SUBTILES);
 }
 
+void TilemapRenderer::DrawSubTiles(int32_t x, int32_t y, int* subtiles, int* variants, Bitmap* texture_atlas) {
+	int32_t scaled_tile_width = tile_width * tile_scale;
+	int32_t scaled_tile_height = tile_height * tile_scale;
+
+	int32_t x1 = x * scaled_tile_width;
+	int32_t x2 = x * scaled_tile_width + (scaled_tile_width / 2);
+	int32_t y1 = y * scaled_tile_height;
+	int32_t y2 = y * scaled_tile_height + (scaled_tile_height / 2);
+
+	DrawSubTile(x1, y1, subtiles[0], variants[0], texture_atlas);
+	DrawSubTile(x2, y1, subtiles[1], variants[1], texture_atlas);
+	DrawSubTile(x1, y2, subtiles[2], variants[2], texture_atlas);
+	DrawSubTile(x2, y2, subtiles[3], variants[3], texture_atlas);
+}
+
+Bitmap* TilemapRenderer::GetTerrainAtlas(TileTerrain type) {
+	int index = (int)type;
+	return &terrain_atlases[index].frames[animation_frame % terrain_atlases[index].num_anim_frames];
+}
+
+Bitmap* TilemapRenderer::GetFeatureAtlas(TileFeature type) {
+	int index = (int)type;
+	return &feature_atlases[index].frames[animation_frame % feature_atlases[index].num_anim_frames];
+}
+
+Bitmap* TilemapRenderer::GetStructureAtlas(TileStructure type) {
+	int index = (int)type;
+	return &structure_atlases[index].frames[animation_frame % structure_atlases[index].num_anim_frames];
+}
+
 void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	BeginTimer(CT_TM_DRAW_TILEMAP);
 
@@ -320,28 +350,20 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 		for (int x = start_x; x <= end_x; x++) {
 			Tile tile = tilemap->tiles[x + tilemap->width * y];
 			switch (tile.terrain) {
-				case TileTerrain::NONE: 
+				case TileTerrain::DEBUG: 
 				{
 					// DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
+					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
 				} break;
 				case TileTerrain::GRASS:
 				{
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
 				} break;
 				case TileTerrain::WATER:
 				{
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
 				} break;
+				/*
 				case TileTerrain::MOUNTAIN:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
@@ -362,6 +384,7 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
+				*/
 				default: break;
 			}
 		}
@@ -432,17 +455,17 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 
 			TileTerrain type = tm->tiles[x + tm->width * y].terrain;
 			switch (type) {
-				case TileTerrain::NONE:
+				case TileTerrain::DEBUG:
 				{
-					num_subtile_variants = tex_atlases_json[2].num_subtile_variants;
+					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
 				} break;
 				case TileTerrain::GRASS:
 				{
-					num_subtile_variants = tex_atlases_json[0].num_subtile_variants;
+					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
 				} break;
 				case TileTerrain::WATER:
 				{
-					num_subtile_variants = tex_atlases_json[1].num_subtile_variants;
+					num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
 				} break;
 				default:
 					break;
