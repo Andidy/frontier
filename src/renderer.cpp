@@ -349,44 +349,7 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
 			Tile tile = tilemap->tiles[x + tilemap->width * y];
-			switch (tile.terrain) {
-				case TileTerrain::DEBUG: 
-				{
-					// DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
-					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
-				} break;
-				case TileTerrain::GRASS:
-				{
-					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
-				} break;
-				case TileTerrain::WATER:
-				{
-					DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
-				} break;
-				/*
-				case TileTerrain::MOUNTAIN:
-				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
-				} break;
-				case TileTerrain::HOUSE:
-				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
-				} break;
-				case TileTerrain::FORT:
-				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
-				} break;
-				case TileTerrain::MINE:
-				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
-				} break;
-				case TileTerrain::RAIL:
-				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
-				} break;
-				*/
-				default: break;
-			}
+			DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
 		}
 	}
 
