@@ -271,7 +271,7 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 	EndTimer(CT_TM_DRAW_SPRITE);
 }
 
-void TilemapRenderer::DrawSubTiles(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
+void TilemapRenderer::DrawSubTile(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas) {
 	BeginTimer(CT_TM_DRAW_SUBTILES);
 
 	uint32_t* bitmap_buffer = (uint32_t*)view_bitmap.buffer;
@@ -319,46 +319,46 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
 			Tile tile = tilemap->tiles[x + tilemap->width * y];
-			switch (tile.type) {
-				case TileType::NONE: 
+			switch (tile.terrain) {
+				case TileTerrain::NONE: 
 				{
 					// DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[2].frames[animation_frame % tex_atlases_json[2].num_anim_frames]);
 				} break;
-				case TileType::GRASS:
+				case TileTerrain::GRASS:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[0].frames[animation_frame % tex_atlases_json[0].num_anim_frames]);
 				} break;
-				case TileType::WATER:
+				case TileTerrain::WATER:
 				{
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
-					DrawSubTiles(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height, tile.subtiles[0], tile.subtile_variants[0], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height, tile.subtiles[1], tile.subtile_variants[1], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width, y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[2], tile.subtile_variants[2], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
+					DrawSubTile(x * scaled_tile_width + (scaled_tile_width / 2), y * scaled_tile_height + (scaled_tile_height / 2), tile.subtiles[3], tile.subtile_variants[3], &tex_atlases_json[1].frames[animation_frame % tex_atlases_json[1].num_anim_frames]);
 				} break;
-				case TileType::MOUNTAIN:
+				case TileTerrain::MOUNTAIN:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[0].frames[animation_frame % tex_atlases[0].num_anim_frames]);
 				} break;
-				case TileType::HOUSE:
+				case TileTerrain::HOUSE:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
-				case TileType::FORT:
+				case TileTerrain::FORT:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
-				case TileType::MINE:
+				case TileTerrain::MINE:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
-				case TileType::RAIL:
+				case TileTerrain::RAIL:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &tex_atlases[1].frames[animation_frame % tex_atlases[1].num_anim_frames]);
 				} break;
@@ -430,17 +430,17 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			// cache subtile variant based on tile position & noise
 			int num_subtile_variants = 1;
 
-			TileType type = tm->tiles[x + tm->width * y].type;
+			TileTerrain type = tm->tiles[x + tm->width * y].terrain;
 			switch (type) {
-				case TileType::NONE:
+				case TileTerrain::NONE:
 				{
 					num_subtile_variants = tex_atlases_json[2].num_subtile_variants;
 				} break;
-				case TileType::GRASS:
+				case TileTerrain::GRASS:
 				{
 					num_subtile_variants = tex_atlases_json[0].num_subtile_variants;
 				} break;
-				case TileType::WATER:
+				case TileTerrain::WATER:
 				{
 					num_subtile_variants = tex_atlases_json[1].num_subtile_variants;
 				} break;
@@ -483,7 +483,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 
 			// top
 			if (ValidNeighbor(tm, x, y, x, y - 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x)+tm->width * (y - 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y - 1)].terrain) {
 					t = 1;
 				}
 			}
@@ -492,7 +492,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// left
 			if (ValidNeighbor(tm, x, y, x - 1, y)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y)].terrain) {
 					l = 1;
 				}
 			}
@@ -501,7 +501,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// right
 			if (ValidNeighbor(tm, x, y, x + 1, y)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y)].terrain) {
 					r = 1;
 				}
 			}
@@ -510,7 +510,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// bottom
 			if (ValidNeighbor(tm, x, y, x, y + 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x)+tm->width * (y + 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y + 1)].terrain) {
 					b = 1;
 				}
 			}
@@ -521,7 +521,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			// corners only matter if both adjacent sides are solid so we do additional checks
 			// top left
 			if (ValidNeighbor(tm, x, y, x - 1, y - 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y - 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y - 1)].terrain) {
 					tl = 1;
 				}
 			}
@@ -530,7 +530,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// top right
 			if (ValidNeighbor(tm, x, y, x + 1, y - 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y - 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y - 1)].terrain) {
 					tr = 1;
 				}
 			}
@@ -539,7 +539,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// bottom left
 			if (ValidNeighbor(tm, x, y, x - 1, y + 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x - 1) + tm->width * (y + 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y + 1)].terrain) {
 					bl = 1;
 				}
 			}
@@ -548,7 +548,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 			// bottom right
 			if (ValidNeighbor(tm, x, y, x + 1, y + 1)) {
-				if (tm->tiles[x + tm->width * y].type == tm->tiles[(x + 1) + tm->width * (y + 1)].type) {
+				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y + 1)].terrain) {
 					br = 1;
 				}
 			}

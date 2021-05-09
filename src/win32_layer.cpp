@@ -825,10 +825,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 									DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });
 									DrawSprite(&viewport, r.x + 3 * r.line_width, r.y + 3 * r.line_width, &ui_image_bitmaps[0]);
 								} break;
-								case UIRectType::TILEMAP:
-								{
-									DrawSprite(&viewport, r.x, r.y, &tilemap_renderer.tex_atlases[gs->etm_page].frames[tilemap_renderer.animation_frame % tilemap_renderer.tex_atlases[gs->etm_page].num_anim_frames]);
-								} break;
+								//case UIRectType::TILEMAP:
+								//{
+								//	DrawSprite(&viewport, r.x, r.y, &tilemap_renderer.tex_atlases[gs->etm_page].frames[tilemap_renderer.animation_frame % tilemap_renderer.tex_atlases[gs->etm_page].num_anim_frames]);
+								//} break;
 								case UIRectType::GAME:
 								{
 									tilemap_renderer.view_x = (int32_t)gs->x;

@@ -25,20 +25,46 @@ struct Unit {
 	int32_t attack = 3;
 };
 
-enum class TileType {
-	NONE,
-	GRASS,
-	WATER,
+enum class TileTerrain {
+	NONE = 0,
+	GRASS = 1,
+	WATER = 2,
 	MOUNTAIN,
 	HOUSE,
 	FORT,
 	MINE,
 	RAIL,
+	WALLS,
+	
+	NUM_TYPES
+};
+
+enum class TileFeature {
+	NONE = 0,
+	MOUNTAIN = 1,
+	HILLS = 2,
+	FOREST = 3,
+	WOODS = 4,
+	SWAMP = 5,
+	
+	NUM_TYPES
+};
+
+enum class TileStructure {
+	NONE = 0,
+	HOUSE = 1,
+	FORT = 2,
+	MINE = 3,
+	RAIL = 4,
+	WALLS = 5,
+	
 	NUM_TYPES
 };
 
 struct Tile {
-	TileType type;
+	TileTerrain terrain;
+	TileFeature feature;
+	TileStructure structure;
 
 	//	Subtile Layout:
 	//	0, 1,
@@ -106,10 +132,12 @@ struct GameState {
 
 	Tilemap tilemap;
 
+	/*
 	Tilemap editing_tilemap;
-	TileType etm_tile_type;
+	TileTerrain etm_tile_type;
 	int32_t etm_page;
 	char etm_page_buffer[8];
+	*/
 
 	int32_t selected_unit;
 	char unit_info_buffer[256];
