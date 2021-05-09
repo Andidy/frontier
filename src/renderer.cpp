@@ -209,6 +209,27 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, in
 	animation_max_frames = anim_max_frames;
 	animation_frame_time = 0;
 	animation_max_frame_time = anim_frame_time;
+
+	for (int i = 0; i < num_terrain_atlases; i++) {
+		terrain_atlases[i].frames = NULL;
+		terrain_atlases[i].num_anim_frames = 1;
+		terrain_atlases[i].num_subtile_variants = 1;
+	}
+	for (int i = 0; i < num_feature_atlases; i++) {
+		feature_atlases[i].frames = NULL;
+		feature_atlases[i].num_anim_frames = 1;
+		feature_atlases[i].num_subtile_variants = 1;
+	}
+	for (int i = 0; i < num_structure_atlases; i++) {
+		structure_atlases[i].frames = NULL;
+		structure_atlases[i].num_anim_frames = 1;
+		structure_atlases[i].num_subtile_variants = 1;
+	}
+	for (int i = 0; i < num_unit_atlases; i++) {
+		unit_atlases[i].frames = NULL;
+		unit_atlases[i].num_anim_frames = 1;
+		unit_atlases[i].num_subtile_variants = 1;
+	}
 }
 
 /*
@@ -335,6 +356,11 @@ Bitmap* TilemapRenderer::GetStructureAtlas(TileStructure type) {
 	return &structure_atlases[index].frames[animation_frame % structure_atlases[index].num_anim_frames];
 }
 
+Bitmap* TilemapRenderer::GetUnitAtlas(UnitType type) {
+	int index = (int)type;
+	return &unit_atlases[index].frames[animation_frame % unit_atlases[index].num_anim_frames];
+}
+
 void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	BeginTimer(CT_TM_DRAW_TILEMAP);
 
@@ -349,7 +375,9 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
 			Tile tile = tilemap->tiles[x + tilemap->width * y];
-			DrawSubTiles(x, y, tile.subtiles, tile.subtile_variants, GetTerrainAtlas(tile.terrain));
+			if (tile.terrain != TileTerrain::NONE) DrawSubTiles(x, y, tile.terrain_subtiles, tile.terrain_variants, GetTerrainAtlas(tile.terrain));
+			if (tile.feature != TileFeature::NONE) DrawSubTiles(x, y, tile.feature_subtiles, tile.feature_variants, GetFeatureAtlas(tile.feature));
+			if (tile.structure != TileStructure::NONE) DrawSubTiles(x, y, tile.structure_subtiles, tile.structure_variants, GetStructureAtlas(tile.structure));
 		}
 	}
 
@@ -415,32 +443,59 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			// current tile is at x, y
 			// cache subtile variant based on tile position & noise
 
-			TileTerrain type = tm->tiles[x + tm->width * y].terrain;
-			int num_subtile_variants = terrain_atlases[(int)type].num_subtile_variants;
+			int type = (int)tm->tiles[x + tm->width * y].terrain;
+			int num_terrain_variants = terrain_atlases[type].num_subtile_variants;
+			type = (int)tm->tiles[x + tm->width * y].feature;
+			int num_feature_variants = feature_atlases[type].num_subtile_variants;
+			type = (int)tm->tiles[x + tm->width * y].structure;
+			int num_structure_variants = structure_atlases[type].num_subtile_variants;
 
-			if (tm->tiles[x + tm->width * y].fixed_set) {
-				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
-				tm->tiles[x + tm->width * y].subtile_variants[0] = result;
-				tm->tiles[x + tm->width * y].subtile_variants[1] = result;
-				tm->tiles[x + tm->width * y].subtile_variants[2] = result;
-				tm->tiles[x + tm->width * y].subtile_variants[3] = result;
+			if (tm->tiles[x + tm->width * y].terrain_variant_fixed) {
+				int result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_terrain_variants - E));
+				tm->tiles[x + tm->width * y].terrain_variants[0] = result;
+				tm->tiles[x + tm->width * y].terrain_variants[1] = result;
+				tm->tiles[x + tm->width * y].terrain_variants[2] = result;
+				tm->tiles[x + tm->width * y].terrain_variants[3] = result;
+				
+				result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
+				tm->tiles[x + tm->width * y].feature_variants[0] = result;
+				tm->tiles[x + tm->width * y].feature_variants[1] = result;
+				tm->tiles[x + tm->width * y].feature_variants[2] = result;
+				tm->tiles[x + tm->width * y].feature_variants[3] = result;
+				
+				result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_structure_variants - E));
+				tm->tiles[x + tm->width * y].structure_variants[0] = result;
+				tm->tiles[x + tm->width * y].structure_variants[1] = result;
+				tm->tiles[x + tm->width * y].structure_variants[2] = result;
+				tm->tiles[x + tm->width * y].structure_variants[3] = result;
 			}
 			else {
-				tm->tiles[x + tm->width * y].subtile_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
-				tm->tiles[x + tm->width * y].subtile_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_subtile_variants - E));
-				tm->tiles[x + tm->width * y].subtile_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
-				tm->tiles[x + tm->width * y].subtile_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_subtile_variants - E));
+				tm->tiles[x + tm->width * y].terrain_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_terrain_variants - E));
+				tm->tiles[x + tm->width * y].terrain_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_terrain_variants - E));
+				tm->tiles[x + tm->width * y].terrain_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_terrain_variants - E));
+				tm->tiles[x + tm->width * y].terrain_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_terrain_variants - E));
+
+				tm->tiles[x + tm->width * y].feature_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
+				tm->tiles[x + tm->width * y].feature_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
+				tm->tiles[x + tm->width * y].feature_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_feature_variants - E));
+				tm->tiles[x + tm->width * y].feature_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_feature_variants - E));
+				
+				tm->tiles[x + tm->width * y].structure_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_structure_variants - E));
+				tm->tiles[x + tm->width * y].structure_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_structure_variants - E));
+				tm->tiles[x + tm->width * y].structure_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_structure_variants - E));
+				tm->tiles[x + tm->width * y].structure_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_structure_variants - E));
 			}
 
 			// cache subtile type
-			int tl = 0;
-			int t = 0;
-			int tr = 0;
-			int l = 0;
-			int r = 0;
-			int bl = 0;
-			int b = 0;
-			int br = 0;
+			// index 0 = terrain, 1 = feature, 2 = structure
+			int tl[3] = { 0, 0, 0 };
+			int t[3] = { 0, 0, 0 };
+			int tr[3] = { 0, 0, 0 };
+			int l[3] = { 0, 0, 0 };
+			int r[3] = { 0, 0, 0 };
+			int bl[3] = { 0, 0, 0 };
+			int b[3] = { 0, 0, 0 };
+			int br[3] = { 0, 0, 0 };
 			// check if neighbors are valid, we assume invalid neighbors
 			// are matching the tile type
 
@@ -454,90 +509,152 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			// top
 			if (ValidNeighbor(tm, x, y, x, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y - 1)].terrain) {
-					t = 1;
+					t[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x)+tm->width * (y - 1)].feature) {
+					t[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x)+tm->width * (y - 1)].structure) {
+					t[2] = 1;
 				}
 			}
 			else {
-				t = 1;
+				t[0] = 1;
+				t[1] = 1;
+				t[2] = 1;
 			}
 			// left
 			if (ValidNeighbor(tm, x, y, x - 1, y)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y)].terrain) {
-					l = 1;
+					l[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y)].feature) {
+					l[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y)].structure) {
+					l[2] = 1;
 				}
 			}
 			else {
-				l = 1;
+				l[0] = 1;
+				l[1] = 1;
+				l[2] = 1;
 			}
 			// right
 			if (ValidNeighbor(tm, x, y, x + 1, y)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y)].terrain) {
-					r = 1;
+					r[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y)].feature) {
+					r[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y)].structure) {
+					r[2] = 1;
 				}
 			}
 			else {
-				r = 1;
+				r[0] = 1;
+				r[1] = 1;
+				r[2] = 1;
 			}
 			// bottom
 			if (ValidNeighbor(tm, x, y, x, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y + 1)].terrain) {
-					b = 1;
+					b[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x)+tm->width * (y + 1)].feature) {
+					b[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x)+tm->width * (y + 1)].structure) {
+					b[2] = 1;
 				}
 			}
 			else {
-				b = 1;
+				b[0] = 1;
+				b[1] = 1;
+				b[2] = 1;
 			}
 
 			// corners only matter if both adjacent sides are solid so we do additional checks
 			// top left
 			if (ValidNeighbor(tm, x, y, x - 1, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y - 1)].terrain) {
-					tl = 1;
+					tl[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y - 1)].feature) {
+					tl[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y - 1)].structure) {
+					tl[2] = 1;
 				}
 			}
 			else {
-				tl = 1;
+				tl[0] = 1;
+				tl[1] = 1;
+				tl[2] = 1;
 			}
 			// top right
 			if (ValidNeighbor(tm, x, y, x + 1, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y - 1)].terrain) {
-					tr = 1;
+					tr[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y - 1)].feature) {
+					tr[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y - 1)].structure) {
+					tr[2] = 1;
 				}
 			}
 			else {
-				tr = 1;
+				tr[0] = 1;
+				tr[1] = 1;
+				tr[2] = 1;
 			}
 			// bottom left
 			if (ValidNeighbor(tm, x, y, x - 1, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y + 1)].terrain) {
-					bl = 1;
+					bl[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y + 1)].feature) {
+					bl[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y + 1)].structure) {
+					bl[2] = 1;
 				}
 			}
 			else {
-				bl = 1;
+				bl[0] = 1;
+				bl[1] = 1;
+				bl[2] = 1;
 			}
 			// bottom right
 			if (ValidNeighbor(tm, x, y, x + 1, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y + 1)].terrain) {
-					br = 1;
+					br[0] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y + 1)].feature) {
+					br[1] = 1;
+				}
+				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y + 1)].structure) {
+					br[2] = 1;
 				}
 			}
 			else {
-				br = 1;
+				br[0] = 1;
+				br[1] = 1;
+				br[2] = 1;
 			}
 
 			// now that we know which neighbors match the tile type
 			// we can determine the sub tiles
 
-			//int neighbor_index = tl + 2 * t + 4 * tr + 8 * r + 16 * br + 32 * b + 64 * bl + 128 * l;
-
-			int* subtile_0 = &(tm->tiles[x + tm->width * y].subtiles[0]);
-			int* subtile_1 = &(tm->tiles[x + tm->width * y].subtiles[1]);
-			int* subtile_2 = &(tm->tiles[x + tm->width * y].subtiles[2]);
-			int* subtile_3 = &(tm->tiles[x + tm->width * y].subtiles[3]);
+			int* subtile_0 = &(tm->tiles[x + tm->width * y].terrain_subtiles[0]);
+			int* subtile_1 = &(tm->tiles[x + tm->width * y].terrain_subtiles[1]);
+			int* subtile_2 = &(tm->tiles[x + tm->width * y].terrain_subtiles[2]);
+			int* subtile_3 = &(tm->tiles[x + tm->width * y].terrain_subtiles[3]);
 
 			// top left subtile 0
-			int index = t + 2 * tl + 4 * l;
+			int index = t[0] + 2 * tl[0] + 4 * l[0];
 
 			if (index == 0 || index == 2) {
 				*subtile_0 = (int)SubTile::TOP_LEFT;
@@ -556,7 +673,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// top right subtile 1
-			index = r + 2 * tr + 4 * t;
+			index = r[0] + 2 * tr[0] + 4 * t[0];
 
 			if (index == 0 || index == 2) {
 				*subtile_1 = (int)SubTile::TOP_RIGHT;
@@ -575,7 +692,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// bottom left subtile 2
-			index = b + 2 * bl + 4 * l;
+			index = b[0] + 2 * bl[0] + 4 * l[0];
 
 			if (index == 0 || index == 2) {
 				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
@@ -594,7 +711,171 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// bottom right subtile 3
-			index = r + 2 * br + 4 * b;
+			index = r[0] + 2 * br[0] + 4 * b[0];
+
+			if (index == 0 || index == 2) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_3 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_3 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_3 = (int)SubTile::CENTER;
+			}
+
+			// now the features
+			subtile_0 = &(tm->tiles[x + tm->width * y].feature_subtiles[0]);
+			subtile_1 = &(tm->tiles[x + tm->width * y].feature_subtiles[1]);
+			subtile_2 = &(tm->tiles[x + tm->width * y].feature_subtiles[2]);
+			subtile_3 = &(tm->tiles[x + tm->width * y].feature_subtiles[3]);
+
+			// top left subtile 0
+			index = t[1] + 2 * tl[1] + 4 * l[1];
+
+			if (index == 0 || index == 2) {
+				*subtile_0 = (int)SubTile::TOP_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_0 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_0 = (int)SubTile::TOP;
+			}
+			else if (index == 5) {
+				*subtile_0 = (int)SubTile::TOP_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_0 = (int)SubTile::CENTER;
+			}
+
+			// top right subtile 1
+			index = r[1] + 2 * tr[1] + 4 * t[1];
+
+			if (index == 0 || index == 2) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_1 = (int)SubTile::TOP;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_1 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_1 = (int)SubTile::CENTER;
+			}
+
+			// bottom left subtile 2
+			index = b[1] + 2 * bl[1] + 4 * l[1];
+
+			if (index == 0 || index == 2) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_2 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_2 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 5) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_2 = (int)SubTile::CENTER;
+			}
+
+			// bottom right subtile 3
+			index = r[1] + 2 * br[1] + 4 * b[1];
+
+			if (index == 0 || index == 2) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_3 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_3 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_3 = (int)SubTile::BOTTOM_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_3 = (int)SubTile::CENTER;
+			}
+
+			// now the structures
+			subtile_0 = &(tm->tiles[x + tm->width * y].structure_subtiles[0]);
+			subtile_1 = &(tm->tiles[x + tm->width * y].structure_subtiles[1]);
+			subtile_2 = &(tm->tiles[x + tm->width * y].structure_subtiles[2]);
+			subtile_3 = &(tm->tiles[x + tm->width * y].structure_subtiles[3]);
+
+			// top left subtile 0
+			index = t[2] + 2 * tl[2] + 4 * l[2];
+
+			if (index == 0 || index == 2) {
+				*subtile_0 = (int)SubTile::TOP_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_0 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_0 = (int)SubTile::TOP;
+			}
+			else if (index == 5) {
+				*subtile_0 = (int)SubTile::TOP_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_0 = (int)SubTile::CENTER;
+			}
+
+			// top right subtile 1
+			index = r[2] + 2 * tr[2] + 4 * t[2];
+
+			if (index == 0 || index == 2) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_1 = (int)SubTile::TOP;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_1 = (int)SubTile::RIGHT;
+			}
+			else if (index == 5) {
+				*subtile_1 = (int)SubTile::TOP_RIGHT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_1 = (int)SubTile::CENTER;
+			}
+
+			// bottom left subtile 2
+			index = b[2] + 2 * bl[2] + 4 * l[2];
+
+			if (index == 0 || index == 2) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
+			}
+			else if (index == 1 || index == 3) {
+				*subtile_2 = (int)SubTile::LEFT;
+			}
+			else if (index == 4 || index == 6) {
+				*subtile_2 = (int)SubTile::BOTTOM;
+			}
+			else if (index == 5) {
+				*subtile_2 = (int)SubTile::BOTTOM_LEFT_INVERSE;
+			}
+			else if (index == 7) {
+				*subtile_2 = (int)SubTile::CENTER;
+			}
+
+			// bottom right subtile 3
+			index = r[2] + 2 * br[2] + 4 * b[2];
 
 			if (index == 0 || index == 2) {
 				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;

@@ -71,6 +71,7 @@ struct TilemapRenderer {
 	Bitmap* GetTerrainAtlas(TileTerrain type);
 	Bitmap* GetFeatureAtlas(TileFeature type);
 	Bitmap* GetStructureAtlas(TileStructure type);
+	Bitmap* GetUnitAtlas(UnitType type);
 	void DrawTilemap(Tilemap* tilemap);
 	void CacheTileRenderingSubtiles(Tilemap* tm);
 };

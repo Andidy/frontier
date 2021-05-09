@@ -526,7 +526,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 	json11::Json json = json11::Json::parse((char*)settings_file.data, json_err_str);
 
 	// bool fullscreen = json["fullscreen"].bool_value();
-
 	client_width = json["window_width"].int_value();
 	client_height = json["window_height"].int_value();
 
@@ -609,10 +608,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				while (textures_json[num_tex_atlases].is_object()) {
 					num_tex_atlases += 1;
 				}
-
-				//tilemap_renderer.num_tex_atlases_json = num_tex_atlases;
-				//tilemap_renderer.tex_atlases_json = (TextureAtlas*)calloc(num_tex_atlases, sizeof(TextureAtlas));
-
+				
 				char buffer[256];
 				int w = 0, h = 0, n = 0;
 				for (int i = 0; i < num_tex_atlases; i++) {
@@ -729,8 +725,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					}
 				}
 			}
-
-
 
 			// Generate storage pattern for texture atlases
 			{

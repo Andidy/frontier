@@ -237,20 +237,48 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.tiles = (Tile*)calloc(tilemap_width * tilemap_height, sizeof(Tile));
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
-			gs->tilemap.tiles[x + tilemap_width * y].subtiles[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtiles[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtiles[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtiles[3] = 0;
-			
-			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].subtile_variants[3] = 0;
-
 			gs->tilemap.tiles[x + tilemap_width * y].terrain = TileTerrain::DEBUG;
+
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[3] = 0;
+			
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_variants[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_variants[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_variants[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_variants[3] = 0;
+
+			gs->tilemap.tiles[x + tilemap_width * y].terrain_variant_fixed = true;
+
 			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
+
+			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[3] = 0;
+
+			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[3] = 0;
+
+			gs->tilemap.tiles[x + tilemap_width * y].feature_variant_fixed = true;
+
 			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructure::NONE;
-			gs->tilemap.tiles[x + tilemap_width * y].fixed_set = true;
+			
+			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[3] = 0;
+
+			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[0] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[1] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[2] = 0;
+			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[3] = 0;
+
+			gs->tilemap.tiles[x + tilemap_width * y].structure_variant_fixed = true;
+
 		}
 	}
 
@@ -552,7 +580,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			else {
 				// we didn't click a unit, so we are editing the map
 				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::GRASS;
-				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = false;
+				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
 				/*
 				if ((int)gs->etm_tile_type >= 4 || (int)gs->etm_tile_type == 0) {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = true;
@@ -594,12 +622,54 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	// end Mouse Input Controls
 	// ============================================================================
 
-	/*
-	if (keyReleased(key.g)) {
-		//CacheTileRenderingSubtiles(&(gs->tilemap));
-		DebugPrint((char*)"Cached Tile Rendering Subtiles\n");
+	if (keyReleased(key.j)) {
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::GRASS;
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+		}
 	}
-	*/
+	if (keyReleased(key.k)) {
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::WATER;
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+		}
+	}
+	if (keyReleased(key.l)) {
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = TileStructure::RAIL;
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure_variant_fixed = true;
+		}
+	}
+	if (keyReleased(key.i)) {
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::DEBUG;
+			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = true;
+		}
+	}
 
 	EndTimer(CT_GAME_UPDATE);
 }

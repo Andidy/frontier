@@ -68,9 +68,17 @@ struct Tile {
 	//	Subtile Layout:
 	//	0, 1,
 	//	2, 3	
-	int subtiles[4];
-	int subtile_variants[4];
-	bool fixed_set;
+	int terrain_subtiles[4];
+	int terrain_variants[4];
+	bool terrain_variant_fixed;
+
+	int feature_subtiles[4];
+	int feature_variants[4];
+	bool feature_variant_fixed;
+
+	int structure_subtiles[4];
+	int structure_variants[4];
+	bool structure_variant_fixed;
 };
 
 struct Tilemap {
