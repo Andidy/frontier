@@ -222,13 +222,19 @@ void InitGameState(Memory* gameMemory) {
 	// Tilemap for map editing
 	gs->ui_system.rects[11] = CreateUITilemap(1, 9, 192+22+9, 64, 64, true);
 
-	// buttons for switching the editing tilemap
+	// buttons for switching between tile terrain, feature, and structure
 	gs->ui_system.rects[12] = CreateUIButton(1, 9, 192 + 9, 15, 22, true, 1, (char*)"<");
 	gs->ui_system.rects[13] = CreateUIButton(1, 9+75, 192 + 9, 15, 22, true, 1, (char*)">");
 
-	// text for showing which page we are on for editing tilemap
+	// text for showing whether we have terrain, feature, or structure
 	gs->ui_system.rects[14] = CreateUIText(1, 9 + 15, 192 + 9, 60, 22, true);
 
+	// buttons for switching between tile types within the categories
+	gs->ui_system.rects[15] = CreateUIButton(1, 9, 192 + 31, 15, 22, true, 1, (char*)"<");
+	gs->ui_system.rects[16] = CreateUIButton(1, 9 + 75, 192 + 31, 15, 22, true, 1, (char*)">");
+
+	// text for showing tile type index
+	gs->ui_system.rects[17] = CreateUIText(1, 9 + 15, 192 + 31, 60, 22, true);
 
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
@@ -308,13 +314,18 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
 
+	gs->edit_type = 0;
+	_itoa_s(gs->edit_type, gs->edit_type_buffer, 10);
+	gs->ui_system.rects[14].text = gs->edit_type_buffer;
+	gs->ui_system.rects[14].text_len = (int)strlen(gs->edit_type_buffer);
+
+	gs->edit_index = 0;
+	_itoa_s(gs->edit_index, gs->edit_index_buffer, 10);
+	gs->ui_system.rects[17].text = gs->edit_index_buffer;
+	gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
+
 	/*
 	gs->etm_tile_type = TileTerrain::NONE;
-	gs->etm_page = 0;
-	_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
-	gs->ui_system.rects[14].text = gs->etm_page_buffer;
-	gs->ui_system.rects[14].text_len = (int)strlen(gs->etm_page_buffer);
-
 	gs->editing_tilemap = { true, false, 2, 2, NULL, 0, NULL };
 	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
 	for (int i = 0; i < 4; i++) {
@@ -480,29 +491,57 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			DebugPrint(buffer);
 		}
 		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::BUTTON) {
-			/*
+			
 			if (ui_rect_clicked == 12) {
 				// left arrow for editing tilemap
-				gs->etm_page -= 1;
-				if (gs->etm_page < 0) gs->etm_page = 0;
+				gs->edit_type -= 1;
+				if (gs->edit_type < 0) gs->edit_type = 0;
 			}
 			else if (ui_rect_clicked == 13) {
 				// right arrow for editing tilemap
-				gs->etm_page += 1;
-				if (gs->etm_page > 1) gs->etm_page = 1;
+				gs->edit_type += 1;
+				if (gs->edit_type > 2) gs->edit_type = 2;
 			}
 			
 			if (ui_rect_clicked == 12 || ui_rect_clicked == 13) {
-				_itoa_s(gs->etm_page, gs->etm_page_buffer, 10);
-				gs->ui_system.rects[14].text = gs->etm_page_buffer;
-				gs->ui_system.rects[14].text_len = (int)strlen(gs->etm_page_buffer);
+				switch (gs->edit_type) {
+				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
+				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
+				case 2: if (gs->edit_index >= (int)TileStructure::NUM_TYPES) gs->edit_index = (int)TileStructure::NUM_TYPES - 1; break;
+				default: break;
+				}
 
-				int base = 4 * gs->etm_page;
-				for (int i = 0; i < 4; i++) {
-					gs->editing_tilemap.tiles[i].terrain = (TileTerrain)(base + i);
+				_itoa_s(gs->edit_type, gs->edit_type_buffer, 10);
+				gs->ui_system.rects[14].text = gs->edit_type_buffer;
+				gs->ui_system.rects[14].text_len = (int)strlen(gs->edit_type_buffer);
+
+				_itoa_s(gs->edit_index, gs->edit_index_buffer, 10);
+				gs->ui_system.rects[17].text = gs->edit_index_buffer;
+				gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
+			}
+			
+			if (ui_rect_clicked == 15) {
+				// left arrow for editing tilemap
+				gs->edit_index -= 1;
+				if (gs->edit_index < 0) gs->edit_index = 0;
+			}
+			else if (ui_rect_clicked == 16) {
+				// right arrow for editing tilemap
+				gs->edit_index += 1;
+				switch (gs->edit_type) {
+				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
+				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
+				case 2: if (gs->edit_index >= (int)TileStructure::NUM_TYPES) gs->edit_index = (int)TileStructure::NUM_TYPES - 1; break;
+				default: break;
 				}
 			}
-			*/
+
+			if (ui_rect_clicked == 15 || ui_rect_clicked == 16) {
+				_itoa_s(gs->edit_index, gs->edit_index_buffer, 10);
+				gs->ui_system.rects[17].text = gs->edit_index_buffer;
+				gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
+			}
+
 			snprintf(buffer, 256, "Button \"%s\" Pressed\n", gs->ui_system.rects[ui_rect_clicked].text);
 			DebugPrint(buffer);
 		}
@@ -579,8 +618,23 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			
 			else {
 				// we didn't click a unit, so we are editing the map
-				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::GRASS;
-				gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+
+				switch (gs->edit_type) {
+				case 0: {
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = (TileTerrain)gs->edit_index;
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+				} break;
+				case 1: {
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature_variant_fixed = false;
+				} break;
+				case 2: {
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure_variant_fixed = false;
+				} break;
+				default: break;
+				}
+				
 				/*
 				if ((int)gs->etm_tile_type >= 4 || (int)gs->etm_tile_type == 0) {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].fixed_set = true;
