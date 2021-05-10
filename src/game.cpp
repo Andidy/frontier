@@ -258,33 +258,7 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].terrain_variant_fixed = true;
 
 			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
-
-			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_subtiles[3] = 0;
-
-			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].feature_variants[3] = 0;
-
-			gs->tilemap.tiles[x + tilemap_width * y].feature_variant_fixed = true;
-
 			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructure::NONE;
-			
-			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_subtiles[3] = 0;
-
-			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[0] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[1] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[2] = 0;
-			gs->tilemap.tiles[x + tilemap_width * y].structure_variants[3] = 0;
-
-			gs->tilemap.tiles[x + tilemap_width * y].structure_variant_fixed = true;
-
 		}
 	}
 
@@ -323,26 +297,6 @@ void InitGameState(Memory* gameMemory) {
 	_itoa_s(gs->edit_index, gs->edit_index_buffer, 10);
 	gs->ui_system.rects[17].text = gs->edit_index_buffer;
 	gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
-
-	/*
-	gs->etm_tile_type = TileTerrain::NONE;
-	gs->editing_tilemap = { true, false, 2, 2, NULL, 0, NULL };
-	gs->editing_tilemap.tiles = (Tile*)calloc(2 * 2, sizeof(Tile));
-	for (int i = 0; i < 4; i++) {
-		gs->editing_tilemap.tiles[i].terrain = (TileTerrain)i;
-		gs->editing_tilemap.tiles[i].feature = (TileFeature)0;
-		gs->editing_tilemap.tiles[i].structure = (TileStructure)0;
-		gs->editing_tilemap.tiles[i].subtiles[0] = 0;
-		gs->editing_tilemap.tiles[i].subtiles[1] = 0;
-		gs->editing_tilemap.tiles[i].subtiles[2] = 0;
-		gs->editing_tilemap.tiles[i].subtiles[3] = 0;
-		gs->editing_tilemap.tiles[i].subtile_variants[0] = 0;
-		gs->editing_tilemap.tiles[i].subtile_variants[1] = 0;
-		gs->editing_tilemap.tiles[i].subtile_variants[2] = 0;
-		gs->editing_tilemap.tiles[i].subtile_variants[3] = 0;
-		gs->editing_tilemap.tiles[i].fixed_set = true;
-	}
-	*/
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -545,16 +499,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			snprintf(buffer, 256, "Button \"%s\" Pressed\n", gs->ui_system.rects[ui_rect_clicked].text);
 			DebugPrint(buffer);
 		}
-		/*
-		else if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::TILEMAP) {
-			// Handle the click in the tilemap
-			UIRect r = gs->ui_system.rects[ui_rect_clicked];
-			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, 0, 0, 32, 32, &tile_x, &tile_y);
-			
-			gs->etm_tile_type = gs->editing_tilemap.tiles[tile_x + gs->editing_tilemap.width * tile_y].terrain;
-		}
-		*/
 	}
 	if (keyPressed(mouse.left)) {
 		char buffer[256];
@@ -626,11 +570,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				} break;
 				case 1: {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature_variant_fixed = false;
 				} break;
 				case 2: {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure_variant_fixed = false;
 				} break;
 				default: break;
 				}
@@ -666,7 +608,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	// end Mouse Input Controls
 	// ============================================================================
 
-	if (keyReleased(key.j)) {
+	if (keyReleased(key.z)) {
 		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
 
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
@@ -678,7 +620,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
 		}
 	}
-	if (keyReleased(key.k)) {
+	if (keyReleased(key.x)) {
 		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
 
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
@@ -690,19 +632,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
 		}
 	}
-	if (keyReleased(key.l)) {
-		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
-
-		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
-			UIRect r = gs->ui_system.rects[ui_rect_clicked];
-			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
-
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = TileStructure::RAIL;
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure_variant_fixed = true;
-		}
-	}
-	if (keyReleased(key.i)) {
+	if (keyReleased(key.c)) {
 		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
 
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {

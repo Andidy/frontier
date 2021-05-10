@@ -19,5 +19,12 @@
     "index": 4,
     "animation_frames": 4,
     "subtile_variants": 4
+  },
+  {
+    "name": "farm_structures",
+    "type": 2,
+    "index": 0,
+    "animation_frames": 1,
+    "subtile_variants": 1
   }
 ]

@@ -51,11 +51,9 @@ enum class TileFeature {
 
 enum class TileStructure {
 	NONE = 0,
-	HOUSE = 1,
-	FORT = 2,
-	MINE = 3,
-	RAIL = 4,
-	WALLS = 5,
+	FARMHOUSE = 1,
+	FIELD = 2,
+	ORCHARD = 3,
 	
 	NUM_TYPES
 };
@@ -72,13 +70,13 @@ struct Tile {
 	int terrain_variants[4];
 	bool terrain_variant_fixed;
 
-	int feature_subtiles[4];
-	int feature_variants[4];
-	bool feature_variant_fixed;
+	//int feature_subtiles[4];
+	//int feature_variants[4];
+	//bool feature_variant_fixed;
 
-	int structure_subtiles[4];
-	int structure_variants[4];
-	bool structure_variant_fixed;
+	//int structure_subtiles[4];
+	//int structure_variants[4];
+	//bool structure_variant_fixed;
 };
 
 struct Tilemap {

@@ -375,9 +375,31 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 	for (int y = start_y; y <= end_y; y++) {
 		for (int x = start_x; x <= end_x; x++) {
 			Tile tile = tilemap->tiles[x + tilemap->width * y];
-			if (tile.terrain != TileTerrain::NONE) DrawSubTiles(x, y, tile.terrain_subtiles, tile.terrain_variants, GetTerrainAtlas(tile.terrain));
-			if (tile.feature != TileFeature::NONE) DrawSubTiles(x, y, tile.feature_subtiles, tile.feature_variants, GetFeatureAtlas(tile.feature));
-			if (tile.structure != TileStructure::NONE) DrawSubTiles(x, y, tile.structure_subtiles, tile.structure_variants, GetStructureAtlas(tile.structure));
+			if (tile.terrain != TileTerrain::NONE) { 
+				DrawSubTiles(x, y, tile.terrain_subtiles, tile.terrain_variants, GetTerrainAtlas(tile.terrain));
+			}
+			else {
+				DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[0]);
+			}
+			//if (tile.feature != TileFeature::NONE) {
+			//
+			//}
+			switch (tile.structure) {
+				case TileStructure::NONE: break;
+				case TileStructure::FARMHOUSE:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 0, &structure_atlases[0].frames[0]);
+				} break;
+				case TileStructure::FIELD:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &structure_atlases[0].frames[0]);
+				} break;
+				case TileStructure::ORCHARD:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[0]);
+				} break;
+				default: break;
+			}
 		}
 	}
 
@@ -457,6 +479,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 				tm->tiles[x + tm->width * y].terrain_variants[2] = result;
 				tm->tiles[x + tm->width * y].terrain_variants[3] = result;
 				
+				/*
 				result = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
 				tm->tiles[x + tm->width * y].feature_variants[0] = result;
 				tm->tiles[x + tm->width * y].feature_variants[1] = result;
@@ -468,6 +491,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 				tm->tiles[x + tm->width * y].structure_variants[1] = result;
 				tm->tiles[x + tm->width * y].structure_variants[2] = result;
 				tm->tiles[x + tm->width * y].structure_variants[3] = result;
+				*/
 			}
 			else {
 				tm->tiles[x + tm->width * y].terrain_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_terrain_variants - E));
@@ -475,6 +499,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 				tm->tiles[x + tm->width * y].terrain_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_terrain_variants - E));
 				tm->tiles[x + tm->width * y].terrain_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_terrain_variants - E));
 
+				/*
 				tm->tiles[x + tm->width * y].feature_variants[0] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
 				tm->tiles[x + tm->width * y].feature_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_feature_variants - E));
 				tm->tiles[x + tm->width * y].feature_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_feature_variants - E));
@@ -484,6 +509,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 				tm->tiles[x + tm->width * y].structure_variants[1] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 0) / 256.0f) * ((f32)num_structure_variants - E));
 				tm->tiles[x + tm->width * y].structure_variants[2] = (int)floorf(((f32)BlueNoise(2 * x + 0, 2 * y + 1) / 256.0f) * ((f32)num_structure_variants - E));
 				tm->tiles[x + tm->width * y].structure_variants[3] = (int)floorf(((f32)BlueNoise(2 * x + 1, 2 * y + 1) / 256.0f) * ((f32)num_structure_variants - E));
+				*/
 			}
 
 			// cache subtile type
@@ -729,6 +755,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 				*subtile_3 = (int)SubTile::CENTER;
 			}
 
+			/*
 			// now the features
 			subtile_0 = &(tm->tiles[x + tm->width * y].feature_subtiles[0]);
 			subtile_1 = &(tm->tiles[x + tm->width * y].feature_subtiles[1]);
@@ -892,6 +919,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			else if (index == 7) {
 				*subtile_3 = (int)SubTile::CENTER;
 			}
+			*/
 		}
 	}
 	EndTimer(CT_CACHE_SUBTILES);
