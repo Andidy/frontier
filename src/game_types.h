@@ -122,14 +122,28 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 18;
+	static const int32_t NUM_RECTS = 22;
 	UIRect rects[NUM_RECTS];
 };
 
 // End UI System
 // ============================================================================
+// Gameplay Resources
+
+enum class Resource {
+	NONE = 0,
+	WHEAT = 1,
+	APPLES = 2,
+	MONEY = 3,
+
+	NUM_TYPES
+};
+
+// end Gameplay Resources
+// ============================================================================
 
 struct GameState {
+	bool frame_ticked;
 	int64_t game_tick;
 	int32_t tick_rate;
 	f32 tick_timer;
@@ -159,6 +173,11 @@ struct GameState {
 	int32_t window_height;
 
 	UISystem ui_system;
+
+	char temp_buffer[8];
+	char resource_names_buffer[4][16];
+	char resource_counts_buffer[4][256];
+	int resources[(int)Resource::NUM_TYPES];
 };
 
 #endif

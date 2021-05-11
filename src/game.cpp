@@ -184,6 +184,7 @@ void InitGameState(Memory* gameMemory) {
 		DebugPrint((char*)"YO DUMMY SOMETHING BROKE\n\n\n\n\n\n\nVERY BROKEY\n");
 	}
 
+	gs->frame_ticked = false;
 	gs->game_tick = 0;
 	gs->tick_rate = 1;
 	gs->tick_timer = 0.0f;
@@ -236,6 +237,17 @@ void InitGameState(Memory* gameMemory) {
 	// text for showing tile type index
 	gs->ui_system.rects[17] = CreateUIText(1, 9 + 15, 192 + 31, 60, 22, true);
 
+	// resource counters
+	strncpy_s(gs->resource_names_buffer[(int)Resource::NONE], 16, (char*)"NONE", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::WHEAT], 16, (char*)"Wheat", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::APPLES], 16, (char*)"Apples", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::MONEY], 16, (char*)"Money", _TRUNCATE);
+
+	gs->ui_system.rects[18] = CreateUIText(1, 9, 53, 100, 16, true);
+	gs->ui_system.rects[19] = CreateUIText(1, 9, 53+16, 100, 16, true);
+	gs->ui_system.rects[20] = CreateUIText(1, 9, 53+32, 100, 16, true);
+	gs->ui_system.rects[21] = CreateUIText(1, 9, 53+48, 100, 16, true);
+
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
 	int num_units = gs->tilemap.num_units;
@@ -243,7 +255,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.tiles = (Tile*)calloc(tilemap_width * tilemap_height, sizeof(Tile));
 	for (int y = 0; y < tilemap_height; y++) {
 		for (int x = 0; x < tilemap_width; x++) {
-			gs->tilemap.tiles[x + tilemap_width * y].terrain = TileTerrain::DEBUG;
+			gs->tilemap.tiles[x + tilemap_width * y].terrain = TileTerrain::NONE;
 
 			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[0] = 0;
 			gs->tilemap.tiles[x + tilemap_width * y].terrain_subtiles[1] = 0;
@@ -297,6 +309,26 @@ void InitGameState(Memory* gameMemory) {
 	_itoa_s(gs->edit_index, gs->edit_index_buffer, 10);
 	gs->ui_system.rects[17].text = gs->edit_index_buffer;
 	gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
+
+	gs->resources[0] = 0;
+	snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
+	gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
+	gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
+
+	gs->resources[1] = 0;
+	snprintf(gs->resource_counts_buffer[1], 256, "%s: %d", gs->resource_names_buffer[1], gs->resources[1]);
+	gs->ui_system.rects[19].text = gs->resource_counts_buffer[1];
+	gs->ui_system.rects[19].text_len = (int)strlen(gs->resource_counts_buffer[1]);
+	
+	gs->resources[2] = 0;
+	snprintf(gs->resource_counts_buffer[2], 256, "%s: %d", gs->resource_names_buffer[2], gs->resources[2]);
+	gs->ui_system.rects[20].text = gs->resource_counts_buffer[2];
+	gs->ui_system.rects[20].text_len = (int)strlen(gs->resource_counts_buffer[2]);
+
+	gs->resources[3] = 0;
+	snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
+	gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
+	gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -352,6 +384,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	if (gs->tick_timer > (1000.0f / (f32)gs->tick_rate)) {
 		gs->tick_timer = 0.0f;
 		gs->game_tick += 1;
+		gs->frame_ticked = true;
+	}
+	else {
+		gs->frame_ticked = false;
 	}
 
 	if (keyReleased(key.one)) {
@@ -644,6 +680,49 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = true;
 		}
 	}
+
+	// ========================================================================
+	// Resource extraction
+
+	if (gs->frame_ticked) {
+		for (int i = 0; i < gs->tilemap.width * gs->tilemap.height; i++) {
+			Tile tile = gs->tilemap.tiles[i];
+			switch (tile.structure) {
+				case TileStructure::FARMHOUSE:
+				{
+					gs->resources[(int)Resource::MONEY] += 1;
+				} break;
+				case TileStructure::FIELD:
+				{
+					gs->resources[(int)Resource::WHEAT] += 1;
+				} break;
+				case TileStructure::ORCHARD:
+				{
+					gs->resources[(int)Resource::APPLES] += 1;
+				} break;
+				default: break;
+			}
+		}
+
+		snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
+		gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
+		gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
+
+		snprintf(gs->resource_counts_buffer[1], 256, "%s: %d", gs->resource_names_buffer[1], gs->resources[1]);
+		gs->ui_system.rects[19].text = gs->resource_counts_buffer[1];
+		gs->ui_system.rects[19].text_len = (int)strlen(gs->resource_counts_buffer[1]);
+
+		snprintf(gs->resource_counts_buffer[2], 256, "%s: %d", gs->resource_names_buffer[2], gs->resources[2]);
+		gs->ui_system.rects[20].text = gs->resource_counts_buffer[2];
+		gs->ui_system.rects[20].text_len = (int)strlen(gs->resource_counts_buffer[2]);
+
+		snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
+		gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
+		gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
+	}
+	
+	// end Resource extraction
+	// ========================================================================
 
 	EndTimer(CT_GAME_UPDATE);
 }
