@@ -44,7 +44,9 @@ bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color) {
 	}
 	
 	uint32_t* buffer = (uint32_t*)bitmap->buffer;
-	buffer[x + bitmap->width * y] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
+	if (color.a) {
+		buffer[x + bitmap->width * y] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
+	}
 
 	EndTimer(CT_DRAW_PIXEL);
 	return true;
@@ -69,7 +71,9 @@ bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color 
 	uint32_t* buffer = (uint32_t*)bitmap->buffer;
 	for (int i = 0; i < h; i++) {
 		for (int j = 0; j < w; j++) {
-			buffer[(x+j) + bitmap->width * (y+i)] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
+			if (color.a) {
+				buffer[(x + j) + bitmap->width * (y + i)] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
+			}
 		}
 	}
 
@@ -94,7 +98,11 @@ bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite) {
 	uint32_t* sprite_buffer = (uint32_t*)sprite->buffer;
 	for (int i = 0; i < sprite->height; i++) {
 		for (int j = 0; j < sprite->width; j++) {
-			bitmap_buffer[(x+j) + bitmap->width * (y+i)] = sprite_buffer[j + sprite->width * i];
+			uint32_t pixel = sprite_buffer[j + sprite->width * i];
+			uchar alpha = (uchar)(pixel >> 24);
+			if (alpha) {
+				bitmap_buffer[(x + j) + bitmap->width * (y + i)] = pixel;
+			}
 		}
 	}
 
@@ -121,7 +129,10 @@ bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bi
 		for (int j = 0; j < sprite->width; j++) {
 			uint32_t pixel = sprite_buffer[j + sprite->width * i];
 			for (int k = 0; k < scale * scale; k++) {
-				bitmap_buffer[(x + k % scale + j * scale) + bitmap->width * (y + k / scale + i * scale)] = pixel;	
+				uchar alpha = (uchar)(pixel >> 24);
+				if (alpha) {
+					bitmap_buffer[(x + k % scale + j * scale) + bitmap->width * (y + k / scale + i * scale)] = pixel;
+				}
 			}
 		}
 	}
@@ -183,7 +194,10 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 			for (int i = 0; i < character_width; i++) {
 				int pixel_x = i + offset_x;
 				int pixel_y = j + offset_y;
-				viewport_buffer[(cursor_x+i) + viewport->width * (cursor_y+j)] = font_buffer[pixel_x + font->width * pixel_y];
+				uint32_t pixel = font_buffer[pixel_x + font->width * pixel_y];
+				if ((uchar)(pixel >> 24)) {
+					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = ;
+				}
 			}
 		}
 		cursor_x += character_width;
@@ -236,7 +250,7 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 				uchar g = (uchar)(pixel >> 8);
 				uchar b = (uchar)(pixel >> 16);
 				uchar a = (uchar)(pixel >> 24);
-				if (r || g || b) {
+				if (a && (r || g || b)) {
 					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
 				}
 			}
@@ -290,7 +304,8 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 				uchar r = (uchar)pixel;
 				uchar g = (uchar)(pixel >> 8);
 				uchar b = (uchar)(pixel >> 16);
-				if (r || g || b) {
+				uchar a = (uchar)(pixel >> 24);
+				if (a && (r || g || b)) {
 					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = (text_color.b | text_color.g << 8 | text_color.r << 16 | text_color.a << 24);
 				}
 				else {
