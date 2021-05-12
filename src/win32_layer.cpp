@@ -919,6 +919,21 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						snprintf(buffer, 256, "\tDrawUIRect Cycles: %I64u, Calls: %I64d\n", cycles, calls);
 						DebugPrint(buffer);
 
+						cycles = global_cycle_counter.cycles[CT_UI_DRAW_TEXT];
+						calls = global_cycle_counter.times_called[CT_UI_DRAW_TEXT];
+						snprintf(buffer, 256, "\tDrawUIText Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
+						cycles = global_cycle_counter.cycles[CT_UI_DRAW_TEXT_COLOR];
+						calls = global_cycle_counter.times_called[CT_UI_DRAW_TEXT_COLOR];
+						snprintf(buffer, 256, "\tDrawUIText (With Color) Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
+						cycles = global_cycle_counter.cycles[CT_UI_DRAW_TEXT_COLOR_BACKGROUND];
+						calls = global_cycle_counter.times_called[CT_UI_DRAW_TEXT_COLOR_BACKGROUND];
+						snprintf(buffer, 256, "\tDrawUIText (With Text and Background color)Cycles: %I64u, Calls: %I64d\n", cycles, calls);
+						DebugPrint(buffer);
+
 						cycles = global_cycle_counter.cycles[CT_DRAW_PIXEL];
 						calls = global_cycle_counter.times_called[CT_DRAW_PIXEL];
 						snprintf(buffer, 256, "\tDrawPixel Cycles: %I64u, Calls: %I64d\n", cycles, calls);

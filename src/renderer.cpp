@@ -144,6 +144,7 @@ void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t h
 }
 
 void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font) {
+	BeginTimer(CT_UI_DRAW_TEXT);
 	const int character_width = 9;
 	const int character_height = 16;
 
@@ -187,9 +188,11 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 		}
 		cursor_x += character_width;
 	}
+	EndTimer(CT_UI_DRAW_TEXT);
 }
 
 void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color color) {
+	BeginTimer(CT_UI_DRAW_TEXT_COLOR);
 	const int character_width = 9;
 	const int character_height = 16;
 
@@ -240,9 +243,11 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 		}
 		cursor_x += character_width;
 	}
+	EndTimer(CT_UI_DRAW_TEXT_COLOR);
 }
 
 void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color text_color, Color background_color) {
+	BeginTimer(CT_UI_DRAW_TEXT_COLOR_BACKGROUND);
 	const int character_width = 9;
 	const int character_height = 16;
 
@@ -295,6 +300,7 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 		}
 		cursor_x += character_width;
 	}
+	EndTimer(CT_UI_DRAW_TEXT_COLOR_BACKGROUND);
 }
 
 // ============================================================================
