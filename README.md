@@ -16,10 +16,12 @@ You can see some of the subtile variants along the top water edge.
  - Software Rendered
  - Camera Movment and Zoom levels.
  - Viewport Clipping (game map elements outside of the game window are not drawn)
- - UI Elements : Rectangles, Images, ASCII Text, Buttons, Tilemaps, Game Window
+ - Transparency (by discarding pixels with 0 in alpha channel)
+ - UI Elements : Rectangles, Images, ASCII Text (w/ text and background coloring), Buttons, Tilemaps, Game Window
  - Game Map Editing
  - Unit Movement, Attacking, State Menu
  - Program & Game Settings loaded from Json
+ - Cycle Counters for performance analysis
  
 ### Feature Showcases:
 - Software Rendering & Camera Movement: https://youtu.be/LpRilZxemBQ
@@ -30,9 +32,7 @@ You can see some of the subtile variants along the top water edge.
 - Wang Blob Tiles for pretty transitions between tile types: https://youtu.be/zu53zhWPZ2Y
 
 ## Goals (in no particular order):
-- Transparency Support for graphics
 - Improvements to UI Text Layout
-- Color in UI Text
 - Game Map Saving & Loading
 - Unit Saving & Loading
 - Unit Placement
