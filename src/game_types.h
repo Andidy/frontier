@@ -54,7 +54,8 @@ enum class TileStructure {
 	FARMHOUSE = 1,
 	FIELD = 2,
 	ORCHARD = 3,
-	
+	TEST = 4,
+
 	NUM_TYPES
 };
 

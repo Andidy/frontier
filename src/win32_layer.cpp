@@ -599,7 +599,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			TilemapRenderer tilemap_renderer(32, 32, 1, 0, 0, game_viewport.width, game_viewport.height, 4, 0.25f, game_viewport);
 			
-			// testing
+			// load background_grid texture
+			{
+				int w = 0, h = 0, n = 0;
+				uchar* buf = stbi_load("assets/background_grid.png", &w, &h, &n, 4);
+				tilemap_renderer.background_grid.buffer = buf;
+				tilemap_renderer.background_grid.width = w;
+				tilemap_renderer.background_grid.height = h;
+				tilemap_renderer.background_grid.bpp = 4;
+			}
+
+			// Loading texture atlases
 			{
 				debug_ReadFileResult texture_defines = debug_ReadFile((char*)"assets/textures.json");
 				json11::Json textures_json = json11::Json::parse((char*)texture_defines.data, json_err_str);
@@ -625,7 +635,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tilemap_renderer.terrain_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
 
 						for (int j = 0; j < num_anim_frames; j++) {
-							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							snprintf(buffer, 256, "assets/%s_%d.png", file_name.c_str(), j);
 							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
 							tilemap_renderer.terrain_atlases[index].frames[j].buffer = buf;
 							tilemap_renderer.terrain_atlases[index].frames[j].width = w;
@@ -642,7 +652,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tilemap_renderer.feature_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
 
 						for (int j = 0; j < num_anim_frames; j++) {
-							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							snprintf(buffer, 256, "assets/%s_%d.png", file_name.c_str(), j);
 							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
 							tilemap_renderer.feature_atlases[index].frames[j].buffer = buf;
 							tilemap_renderer.feature_atlases[index].frames[j].width = w;
@@ -659,8 +669,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tilemap_renderer.structure_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
 
 						for (int j = 0; j < num_anim_frames; j++) {
-							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
-							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
+							snprintf(buffer, 256, "assets/%s_%d.png", file_name.c_str(), j);
+							uchar* buf = stbi_load(buffer, &w, &h, &n, 0);
 							tilemap_renderer.structure_atlases[index].frames[j].buffer = buf;
 							tilemap_renderer.structure_atlases[index].frames[j].width = w;
 							tilemap_renderer.structure_atlases[index].frames[j].height = h;
@@ -676,7 +686,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						tilemap_renderer.unit_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
 
 						for (int j = 0; j < num_anim_frames; j++) {
-							snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
+							snprintf(buffer, 256, "assets/%s_%d.png", file_name.c_str(), j);
 							uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
 							tilemap_renderer.unit_atlases[index].frames[j].buffer = buf;
 							tilemap_renderer.unit_atlases[index].frames[j].width = w;
@@ -692,110 +702,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 			}
 
-			// json testing
-			{
-				debug_ReadFileResult texture_defines = debug_ReadFile((char*)"assets/textures.json");
-				json11::Json textures_json = json11::Json::parse((char*)texture_defines.data, json_err_str);
-
-				int num_tex_atlases = 0;
-				while (textures_json[num_tex_atlases].is_object()) {
-					num_tex_atlases += 1;
-				}
-
-				tilemap_renderer.num_tex_atlases_json = num_tex_atlases;
-				tilemap_renderer.tex_atlases_json = (TextureAtlas*)calloc(num_tex_atlases, sizeof(TextureAtlas));
-
-				char buffer[256];
-				int w = 0, h = 0, n = 0;
-				for (int i = 0; i < num_tex_atlases; i++) {
-					std::string file_name = textures_json[i]["name"].string_value();
-					tilemap_renderer.tex_atlases_json[i].num_anim_frames = textures_json[i]["animation_frames"].int_value();
-					tilemap_renderer.tex_atlases_json[i].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
-
-					tilemap_renderer.tex_atlases_json[i].frames = (Bitmap*)calloc(tilemap_renderer.tex_atlases_json[i].num_anim_frames, sizeof(Bitmap));
-
-					for (int j = 0; j < tilemap_renderer.tex_atlases_json[i].num_anim_frames; j++) {
-						snprintf(buffer, 256, "assets/%s_%d.bmp", file_name.c_str(), j);
-						uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
-						tilemap_renderer.tex_atlases_json[i].frames[j].buffer = buf;
-						tilemap_renderer.tex_atlases_json[i].frames[j].width = w;
-						tilemap_renderer.tex_atlases_json[i].frames[j].height = h;
-						tilemap_renderer.tex_atlases_json[i].frames[j].bpp = 4;
-						CorrectSTBILoadMemoryLayout(buf, w, h);
-					}
-				}
-			}
-
-			// Generate storage pattern for texture atlases
-			{
-				FILE* file;
-				errno_t err;
-				char buffer[256];
-				int w = 0, h = 0, n = 0;
-
-				// figure out how many texture atlases we have
-				for (int i = 0; i < INT_MAX; i++) {
-					snprintf(buffer, 256, "assets/ta_%d_0.bmp", i);
-					if ((err = fopen_s(&file, buffer, "r"))) {
-						// failed to find ta_i so we are done
-						tilemap_renderer.num_tex_atlases = i;
-						break;
-					}
-					else {
-						// successfully found ta_i now we count the anim frames
-						fclose(file);
-					}
-				}
-
-				// allocate the texture atlases
-				tilemap_renderer.tex_atlases = (TextureAtlas*)calloc(tilemap_renderer.num_tex_atlases, sizeof(TextureAtlas));
-				TextureAtlas* tas = tilemap_renderer.tex_atlases;
-
-				// figure out how many animation frames per atlas
-				for (int i = 0; i < tilemap_renderer.num_tex_atlases; i++) {
-					for (int j = 0; j < INT_MAX; j++) {
-						snprintf(buffer, 256, "assets/ta_%d_%d.bmp", i, j);
-						if ((err = fopen_s(&file, buffer, "r"))) {
-							// failed to open ta_i_anim_j so there's no more frames
-							tas[i].num_anim_frames = j;
-							break;
-						}
-						else {
-							// successfully found ta_i_anim_j keep counting
-							continue;
-						}
-					}
-				}
-
-				// load the frames
-				for (int i = 0; i < tilemap_renderer.num_tex_atlases; i++) {
-					tas[i].frames = (Bitmap*)calloc(tas[i].num_anim_frames, sizeof(Bitmap));
-					for (int j = 0; j < tas[i].num_anim_frames; j++) {
-						snprintf(buffer, 256, "assets/ta_%d_%d.bmp", i, j);
-						uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
-						tas[i].frames[j].buffer = buf;
-						tas[i].frames[j].width = w;
-						tas[i].frames[j].height = h;
-						tas[i].frames[j].bpp = 4;
-						CorrectSTBILoadMemoryLayout(buf, w, h);
-					}
-				}
-			}
-
 			Bitmap editing_tm_viewport = { NULL, 0, 0, 0 };
 			editing_tm_viewport.width = 64;
 			editing_tm_viewport.height = 64;
 			editing_tm_viewport.bpp = 4;
 			editing_tm_viewport.buffer = (uchar*)calloc(editing_tm_viewport.bpp * editing_tm_viewport.width * editing_tm_viewport.height, sizeof(uchar));
 			TilemapRenderer editing_tilemap_renderer(32, 32, 1, 0, 0, editing_tm_viewport.width, editing_tm_viewport.height, 4, 0.25f, editing_tm_viewport);
-			editing_tilemap_renderer.num_tex_atlases = tilemap_renderer.num_tex_atlases;
-			editing_tilemap_renderer.tex_atlases = tilemap_renderer.tex_atlases;
 
 			Bitmap font = { NULL, 0, 0, 0 };
 			// load font
 			{
 				int w = 0, h = 0, n = 0;
-				uchar* buf = stbi_load("assets/font.bmp", &w, &h, &n, 4);
+				uchar* buf = stbi_load("assets/font.png", &w, &h, &n, 4);
 				font.buffer = buf;
 				font.width = w;
 				font.height = h;

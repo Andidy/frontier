@@ -18,7 +18,7 @@ void CorrectSTBILoadMemoryLayout(void* memory, int32_t width, int32_t height) {
 			uchar a = (uchar)(temp >> 24);
 
 			// super basic transparency (magenta = transparent)
-			if (r == 255 && g == 255 && b == 255 && a == 0) {
+			if (a == 0) {
 				a = 0;
 			}
 			else {
@@ -285,7 +285,10 @@ void TilemapRenderer::DrawSprite(int32_t world_x, int32_t world_y, int32_t tex_a
 				int32_t pixel_y = ((y - world_y) / tile_scale + tex_atlas_off_y);
 				uint32_t pixel = sprite_buffer[pixel_x + texture_atlas->width * pixel_y];
 
-				bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+				uchar alpha = (uchar)(pixel >> 24);
+				if(alpha){
+					bitmap_buffer[viewport_x + view_bitmap.width * viewport_y] = pixel;
+				}
 			}
 		}
 	}
@@ -379,7 +382,7 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				DrawSubTiles(x, y, tile.terrain_subtiles, tile.terrain_variants, GetTerrainAtlas(tile.terrain));
 			}
 			else {
-				DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &tex_atlases[0].frames[0]);
+				DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &background_grid);
 			}
 			//if (tile.feature != TileFeature::NONE) {
 			//
@@ -398,11 +401,16 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[0]);
 				} break;
+				case TileStructure::TEST:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[0]);
+				} break;
 				default: break;
 			}
 		}
 	}
 
+	/*
 	for (int i = 0; i < tilemap->num_units; i++) {
 		Unit* unit = &(tilemap->units[i]);
 		switch (unit->type) {
@@ -417,7 +425,7 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 			default: break;
 		}
 	}
-
+	*/
 	EndTimer(CT_TM_DRAW_TILEMAP);
 }
 

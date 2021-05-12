@@ -47,11 +47,7 @@ struct TilemapRenderer {
 	f32 animation_max_frame_time;
 
 	// Textures for the renderer to use
-	int32_t num_tex_atlases;
-	TextureAtlas* tex_atlases;
-
-	int32_t num_tex_atlases_json;
-	TextureAtlas* tex_atlases_json;
+	Bitmap background_grid;
 
 	static const int32_t num_terrain_atlases = (int)TileTerrain::NUM_TYPES;
 	TextureAtlas terrain_atlases[num_terrain_atlases];
