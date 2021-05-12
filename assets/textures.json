@@ -21,6 +21,13 @@
     "subtile_variants": 4
   },
   {
+    "name": "desert",
+    "type": 0,
+    "index": 5,
+    "animation_frames": 1,
+    "subtile_variants": 1
+  },
+  {
     "name": "farm_structures",
     "type": 2,
     "index": 0,

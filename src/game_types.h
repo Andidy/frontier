@@ -33,7 +33,6 @@ enum class TileTerrain {
 	GRASS_CLIFF = 3,
 	WATER = 4,
 	DESERT = 5,
-	SNOW = 6,
 
 	NUM_TYPES
 };
