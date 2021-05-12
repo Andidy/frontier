@@ -98,6 +98,8 @@ struct Tilemap {
 enum class UIRectType {
 	BOX,
 	TEXT,
+	COLORED_TEXT,
+	COLORED_TEXT_BACKGROUND,
 	IMAGE,
 	BUTTON,
 	TILEMAP,
@@ -118,12 +120,14 @@ struct UIRect {
 	
 	int32_t text_len;
 	char* text;
+	Color text_color;
+	Color background_color;
 
 	int32_t bitmap_index;
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 22;
+	static const int32_t NUM_RECTS = 24;
 	UIRect rects[NUM_RECTS];
 };
 

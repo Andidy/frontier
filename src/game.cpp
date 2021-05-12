@@ -248,6 +248,21 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[20] = CreateUIText(1, 9, 53+32, 100, 16, true);
 	gs->ui_system.rects[21] = CreateUIText(1, 9, 53+48, 100, 16, true);
 
+	// testing colored text and colored text with background
+	gs->ui_system.rects[22] = CreateUIText(1, 400, 9, 100, 16, true);
+	gs->ui_system.rects[22].text_color = {255, 125, 50, 255};
+	gs->ui_system.rects[22].type = UIRectType::COLORED_TEXT;
+	char* test1 = (char*)"testing colored text";
+	gs->ui_system.rects[22].text = test1;
+	gs->ui_system.rects[22].text_len = strlen(test1);
+	gs->ui_system.rects[23] = CreateUIText(1, 400, 25, 100, 16, true);
+	gs->ui_system.rects[23].text_color = { 255, 255, 50, 255 };
+	gs->ui_system.rects[23].background_color = { 50, 50, 50, 255 };
+	gs->ui_system.rects[23].type = UIRectType::COLORED_TEXT_BACKGROUND;
+	char* test2 = (char*)"testing colored text with a background color";
+	gs->ui_system.rects[23].text = test2;
+	gs->ui_system.rects[23].text_len = strlen(test2);
+
 	int tilemap_width = gs->tilemap.width;
 	int tilemap_height = gs->tilemap.height;
 	int num_units = gs->tilemap.num_units;

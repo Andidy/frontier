@@ -79,6 +79,14 @@ typedef PermanentResourceAllocator FrameAllocator;
 // ============================================================================
 // Graphics
 
+// Color defines a color with bgra values in range 0-255
+struct Color {
+	uchar b;
+	uchar g;
+	uchar r;
+	uchar a;
+};
+
 // Bitmap coordinate system is (0, 0) = top left, (width, height) = bottom left
 // buffer is pointer to bitmap memory, width/height are in pixels
 // bpp is bytes per pixel

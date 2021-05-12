@@ -5,19 +5,14 @@
 
 #include "game.h"
 
-struct Color {
-	uchar b;
-	uchar g;
-	uchar r;
-	uchar a;
-};
-
 bool DrawPixel(Bitmap* bitmap, int32_t x, int32_t y, Color color);
 bool DrawRect(Bitmap* bitmap, int32_t x, int32_t y, int32_t w, int32_t h, Color color);
 bool DrawSprite(Bitmap* bitmap, int32_t x, int32_t y, Bitmap* sprite);
 bool DrawSpriteMagnified(Bitmap* bitmap, int32_t x, int32_t y, int32_t scale, Bitmap* sprite);
 void DrawUIRect(Bitmap* viewport, int32_t x, int32_t y, int32_t width, int32_t height, int32_t line_width, Color background_color, Color line_color);
 void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font);
+void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color color);
+void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color text_color, Color background_color);
 
 struct TextureAtlas {
 	int32_t num_anim_frames;

@@ -829,6 +829,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 									{
 										DrawUIText(&viewport, r.x, r.y, r.text, r.text_len, &font);
 									} break;
+									case UIRectType:: COLORED_TEXT:
+									{
+										DrawUIText(&viewport, r.x, r.y, r.text, r.text_len, &font, r.text_color);
+									} break;
+									case UIRectType:: COLORED_TEXT_BACKGROUND:
+									{
+										DrawUIText(&viewport, r.x, r.y, r.text, r.text_len, &font, r.text_color, r.background_color);
+									} break;
 									case UIRectType::IMAGE:
 									{
 										DrawUIRect(&viewport, r.x, r.y, r.w, r.h, r.line_width, { 50, 50, 50, 255 }, { 200, 205, 207, 255 });

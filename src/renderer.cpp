@@ -189,6 +189,114 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 	}
 }
 
+void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color color) {
+	const int character_width = 9;
+	const int character_height = 16;
+
+	int font_chars_width = font->width / character_width;
+	//int font_chars_height = font->height / character_width;
+
+	int32_t start_cursor_x = x;
+	int32_t start_cursor_y = y;
+
+	int32_t cursor_x = start_cursor_x;
+	int32_t cursor_y = start_cursor_y;
+
+	uint32_t* viewport_buffer = (uint32_t*)viewport->buffer;
+	uint32_t* font_buffer = (uint32_t*)font->buffer;
+
+	for (int i = 0; i < text_len; i++) {
+		char c = text[i];
+
+		// handle \t
+		if (c == 9) {
+			cursor_x += character_width * 4;
+			continue;
+		}
+		// handle \n
+		if (c == 10) {
+			cursor_x = start_cursor_x;
+			cursor_y += character_height;
+			continue;
+		}
+
+		int char_x = c % font_chars_width;
+		int char_y = c / font_chars_width;
+		int offset_x = char_x * character_width;
+		int offset_y = char_y * character_height;
+		for (int j = 0; j < character_height; j++) {
+			for (int i = 0; i < character_width; i++) {
+				int pixel_x = i + offset_x;
+				int pixel_y = j + offset_y;
+				uint32_t pixel = font_buffer[pixel_x + font->width * pixel_y];
+				uchar r = (uchar)pixel;
+				uchar g = (uchar)(pixel >> 8);
+				uchar b = (uchar)(pixel >> 16);
+				uchar a = (uchar)(pixel >> 24);
+				if (r || g || b) {
+					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = (color.b | color.g << 8 | color.r << 16 | color.a << 24);
+				}
+			}
+		}
+		cursor_x += character_width;
+	}
+}
+
+void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text_len, Bitmap* font, Color text_color, Color background_color) {
+	const int character_width = 9;
+	const int character_height = 16;
+
+	int font_chars_width = font->width / character_width;
+	//int font_chars_height = font->height / character_width;
+
+	int32_t start_cursor_x = x;
+	int32_t start_cursor_y = y;
+
+	int32_t cursor_x = start_cursor_x;
+	int32_t cursor_y = start_cursor_y;
+
+	uint32_t* viewport_buffer = (uint32_t*)viewport->buffer;
+	uint32_t* font_buffer = (uint32_t*)font->buffer;
+
+	for (int i = 0; i < text_len; i++) {
+		char c = text[i];
+
+		// handle \t
+		if (c == 9) {
+			cursor_x += character_width * 4;
+			continue;
+		}
+		// handle \n
+		if (c == 10) {
+			cursor_x = start_cursor_x;
+			cursor_y += character_height;
+			continue;
+		}
+
+		int char_x = c % font_chars_width;
+		int char_y = c / font_chars_width;
+		int offset_x = char_x * character_width;
+		int offset_y = char_y * character_height;
+		for (int j = 0; j < character_height; j++) {
+			for (int i = 0; i < character_width; i++) {
+				int pixel_x = i + offset_x;
+				int pixel_y = j + offset_y;
+				uint32_t pixel = font_buffer[pixel_x + font->width * pixel_y];
+				uchar r = (uchar)pixel;
+				uchar g = (uchar)(pixel >> 8);
+				uchar b = (uchar)(pixel >> 16);
+				if (r || g || b) {
+					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = (text_color.b | text_color.g << 8 | text_color.r << 16 | text_color.a << 24);
+				}
+				else {
+					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = (background_color.b | background_color.g << 8 | background_color.r << 16 | background_color.a << 24);
+				}
+			}
+		}
+		cursor_x += character_width;
+	}
+}
+
 // ============================================================================
 
 TilemapRenderer::TilemapRenderer() {}
