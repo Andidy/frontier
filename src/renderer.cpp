@@ -196,7 +196,7 @@ void DrawUIText(Bitmap* viewport, int32_t x, int32_t y, char* text, int32_t text
 				int pixel_y = j + offset_y;
 				uint32_t pixel = font_buffer[pixel_x + font->width * pixel_y];
 				if ((uchar)(pixel >> 24)) {
-					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = ;
+					viewport_buffer[(cursor_x + i) + viewport->width * (cursor_y + j)] = pixel;
 				}
 			}
 		}
