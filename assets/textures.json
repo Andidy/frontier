@@ -26,5 +26,12 @@
     "index": 0,
     "animation_frames": 1,
     "subtile_variants": 1
+  },
+  {
+    "name": "units",
+    "type": 3,
+    "index": 0,
+    "animation_frames": 1,
+    "subtile_variants": 1
   }
 ]

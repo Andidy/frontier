@@ -278,7 +278,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
 	gs->tilemap.units[0].type = UnitType::ARMY;
 	gs->tilemap.units[0].id = id_counter++;
-	gs->tilemap.units[0].pos_x = 130;
+	gs->tilemap.units[0].pos_x = 10;
 	gs->tilemap.units[0].pos_y = 3;
 	gs->tilemap.units[0].max_hp = 10;
 	gs->tilemap.units[0].current_hp = 10;
@@ -286,7 +286,7 @@ void InitGameState(Memory* gameMemory) {
 
 	gs->tilemap.units[1].type = UnitType::ARMY;
 	gs->tilemap.units[1].id = id_counter++;
-	gs->tilemap.units[1].pos_x = 130;
+	gs->tilemap.units[1].pos_x = 11;
 	gs->tilemap.units[1].pos_y = 4;
 	gs->tilemap.units[1].max_hp = 10;
 	gs->tilemap.units[1].current_hp = 10;
@@ -294,7 +294,7 @@ void InitGameState(Memory* gameMemory) {
 
 	gs->tilemap.units[2].type = UnitType::NAVY;
 	gs->tilemap.units[2].id = id_counter++;
-	gs->tilemap.units[2].pos_x = 130;
+	gs->tilemap.units[2].pos_x = 10;
 	gs->tilemap.units[2].pos_y = 15;
 	gs->tilemap.units[2].max_hp = 10;
 	gs->tilemap.units[2].current_hp = 10;

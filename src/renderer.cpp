@@ -391,41 +391,40 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				case TileStructure::NONE: break;
 				case TileStructure::FARMHOUSE:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 0, &structure_atlases[0].frames[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
 				case TileStructure::FIELD:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &structure_atlases[0].frames[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
 				case TileStructure::ORCHARD:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
 				case TileStructure::TEST:
 				{
-					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[0]);
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
 				default: break;
 			}
 		}
 	}
 
-	/*
 	for (int i = 0; i < tilemap->num_units; i++) {
 		Unit* unit = &(tilemap->units[i]);
 		switch (unit->type) {
 			case UnitType::ARMY: 
 			{
-				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 0, 0, &tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]);
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 0, 0, &unit_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 			} break;
 			case UnitType::NAVY:
 			{
-				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 1, 0, &tex_atlases[2].frames[animation_frame % tex_atlases[2].num_anim_frames]);
+				DrawSprite(unit->pos_x * scaled_tile_width, unit->pos_y * scaled_tile_height, 1, 0, &unit_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 			} break;
 			default: break;
 		}
 	}
-	*/
+	
 	EndTimer(CT_TM_DRAW_TILEMAP);
 }
 
