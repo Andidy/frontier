@@ -53,8 +53,8 @@ enum class TileStructure {
 	FARMHOUSE = 1,
 	FIELD = 2,
 	ORCHARD = 3,
-	TEST = 4,
 
+	TEST,
 	NUM_TYPES
 };
 
@@ -152,6 +152,8 @@ struct GameState {
 	int32_t tick_rate;
 	f32 tick_timer;
 	char debug_text_buffer[256];
+
+	bool load_textures;
 
 	Tilemap tilemap;
 

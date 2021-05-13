@@ -189,6 +189,8 @@ void InitGameState(Memory* gameMemory) {
 	gs->tick_rate = 1;
 	gs->tick_timer = 0.0f;
 
+	gs->load_textures = false;
+
 	gs->x = 0;
 	gs->y = 0;
 	gs->s = 1;
@@ -350,11 +352,18 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	BeginTimer(CT_GAME_UPDATE);
 	GameState* gs = (GameState*)gameMemory->data;
 
-	// ========================================================================
-	// Camera Update
-
 	KeyboardState key = gameInput->keyboard;
 	MouseState mouse = gameInput->mouse;
+
+	// ========================================================================
+	// Check if we need to reload textures
+
+	if (keyReleased(key.p)) {
+		gs->load_textures = true;
+	}
+
+	// ========================================================================
+	// Camera Update
 
 	const f32 speed = 1.0f;
 	if (keyDown(key.a)) {
