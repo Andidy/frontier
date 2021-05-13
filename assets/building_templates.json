@@ -1,0 +1,30 @@
+[
+  {
+    "_name": "Farmhouse",
+    "ENUM": 1,
+    "RESOURCES_PRODUCED": [[3,1]],
+    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "TICKS_TO_BUILD": 1
+  },
+  {
+    "_name": "Field",
+    "ENUM": 2,
+    "RESOURCES_PRODUCED": [[1,5]],
+    "RESOURCES_COST_TO_BUILD": [[4,1]],
+    "TICKS_TO_BUILD": 5
+  },
+  {
+    "_name": "Orchard",
+    "ENUM": 3,
+    "RESOURCES_PRODUCED": [[2,2]],
+    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "TICKS_TO_BUILD": 10
+  },
+  {
+    "_name": "Woodcutter",
+    "ENUM": 4,
+    "RESOURCES_PRODUCED": [[4,10]],
+    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "TICKS_TO_BUILD": 2
+  }
+]

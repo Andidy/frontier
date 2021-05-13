@@ -325,6 +325,42 @@ bool LoadGameSettings(GameState* gs) {
 	return load_success;
 }
 
+void LoadBuildingTemplates(GameState* gs) {
+	debug_ReadFileResult file = debug_ReadFile((char*)"assets/building_templates.json");
+	if (file.data != NULL && file.size >= 0) {
+		std::string json_err_str;
+		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
+
+		int num_templates = 0;
+		while (json[num_templates].is_object()) {
+			num_templates += 1;
+		}
+
+		for (int i = 0; i < num_templates; i++) {
+			int index = json[i]["ENUM"].int_value();
+			gs->building_templates[index].type = (TileStructure)index;
+
+			int num_resources = json[i]["RESOURCES_PRODUCED"].array_items().size();
+			gs->building_templates[index].resources_produced = (Resource*)calloc(num_resources, sizeof(Resource));
+			gs->building_templates[index].production_amounts = (int*)calloc(num_resources, sizeof(int));
+			for (int j = 0; j < num_resources; j++) {
+				gs->building_templates[index].resources_produced[j] = (Resource)(json[i]["RESOURCES_PRODUCED"][j][0].int_value());
+				gs->building_templates[index].production_amounts[j] = (int)(json[i]["RESOURCES_PRODUCED"][j][1].int_value());
+			}
+
+			num_resources = json[i]["RESOURCES_COST_TO_BUILD"].array_items().size();
+			gs->building_templates[index].resources_to_build = (Resource*)calloc(num_resources, sizeof(Resource));
+			gs->building_templates[index].build_amounts = (int*)calloc(num_resources, sizeof(int));
+			for (int j = 0; j < num_resources; j++) {
+				gs->building_templates[index].resources_to_build[j] = (Resource)(json[i]["RESOURCES_COST_TO_BUILD"][j][0].int_value());
+				gs->building_templates[index].build_amounts[j] = (int)(json[i]["RESOURCES_COST_TO_BUILD"][j][1].int_value());
+			}
+
+			gs->building_templates[index].ticks_to_build = json[i]["TICKS_TO_BUILD"].int_value();
+		}
+	}
+}
+
 void LoadTextures(TilemapRenderer* tilemap_renderer) {
 	debug_ReadFileResult texture_defines = debug_ReadFile((char*)"assets/textures.json");
 	std::string json_err_str;
@@ -738,6 +774,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			}
 
 			GameState* gs = (GameState*)gameMemory.data;
+
+			LoadBuildingTemplates(gs);
 
 			while (win32_running) {
 				// Timing

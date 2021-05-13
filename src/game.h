@@ -8,6 +8,7 @@
 #include "game_types.h"
 
 bool LoadGameSettings(GameState* gs);
+void LoadBuildingTemplates(GameState* gs);
 
 bool ValidNeighbor(Tilemap* tm, int32_t x, int32_t y, int32_t nx, int32_t ny);
 

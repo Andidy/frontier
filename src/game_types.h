@@ -4,7 +4,21 @@
 #include "universal.h"
 
 // ============================================================================
-// Tilemap
+// Gameplay Resources
+
+enum class Resource {
+	NONE = 0,
+	WHEAT = 1,
+	APPLES = 2,
+	MONEY = 3,
+	WOOD = 4,
+
+	NUM_TYPES
+};
+
+// end Gameplay Resources
+// ============================================================================
+// Gameplay Unit
 
 enum class UnitType {
 	ARMY = 1,
@@ -25,6 +39,10 @@ struct Unit {
 	int32_t current_hp = 10;
 	int32_t attack = 3;
 };
+
+// end Gameplay Unit
+// ============================================================================
+// Tilemap
 
 enum class TileTerrain {
 	NONE = 0,
@@ -58,6 +76,16 @@ enum class TileStructure {
 
 	TEST,
 	NUM_TYPES
+};
+
+struct BuildingTemplate {
+	TileStructure type;
+	
+	Resource* resources_produced;
+	int* production_amounts;
+	Resource* resources_to_build;
+	int* build_amounts;
+	int ticks_to_build;
 };
 
 struct Tile {
@@ -134,20 +162,6 @@ struct UISystem {
 
 // End UI System
 // ============================================================================
-// Gameplay Resources
-
-enum class Resource {
-	NONE = 0,
-	WHEAT = 1,
-	APPLES = 2,
-	MONEY = 3,
-	WOOD = 4,
-
-	NUM_TYPES
-};
-
-// end Gameplay Resources
-// ============================================================================
 
 struct GameState {
 	bool frame_ticked;
@@ -160,11 +174,7 @@ struct GameState {
 
 	Tilemap tilemap;
 
-	/*
-	Tilemap editing_tilemap;
-	TileTerrain etm_tile_type;
-	int32_t etm_page;
-	*/
+	BuildingTemplate building_templates[(int)TileStructure::NUM_TYPES];
 
 	char edit_type_buffer[8];
 	char edit_index_buffer[8];
