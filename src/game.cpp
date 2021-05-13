@@ -673,45 +673,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 
 	// end Mouse Input Controls
-	// ============================================================================
-
-	if (keyReleased(key.z)) {
-		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
-
-		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
-			UIRect r = gs->ui_system.rects[ui_rect_clicked];
-			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
-
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::GRASS;
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
-		}
-	}
-	if (keyReleased(key.x)) {
-		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
-
-		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
-			UIRect r = gs->ui_system.rects[ui_rect_clicked];
-			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
-
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::WATER;
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
-		}
-	}
-	if (keyReleased(key.c)) {
-		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
-
-		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
-			UIRect r = gs->ui_system.rects[ui_rect_clicked];
-			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
-
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = TileTerrain::DEBUG;
-			gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = true;
-		}
-	}
-
 	// ========================================================================
 	// Resource extraction
 
