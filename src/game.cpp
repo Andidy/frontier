@@ -349,7 +349,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
 	gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
 
-	gs->resources[4] = 0;
+	gs->resources[4] = 10;
 	snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
 	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
 	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
@@ -640,6 +640,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				} break;
 				case 2: {
 					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
+
+					// buildings cost resources
+					gs->resources[(int)Resource::WOOD] -= 10;
 				} break;
 				default: break;
 				}
