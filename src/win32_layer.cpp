@@ -341,6 +341,7 @@ void LoadBuildingTemplates(GameState* gs) {
 			gs->building_templates[index].type = (TileStructure)index;
 
 			int num_resources = json[i]["RESOURCES_PRODUCED"].array_items().size();
+			gs->building_templates[index].num_produced_resources = num_resources;
 			gs->building_templates[index].resources_produced = (Resource*)calloc(num_resources, sizeof(Resource));
 			gs->building_templates[index].production_amounts = (int*)calloc(num_resources, sizeof(int));
 			for (int j = 0; j < num_resources; j++) {
@@ -349,6 +350,7 @@ void LoadBuildingTemplates(GameState* gs) {
 			}
 
 			num_resources = json[i]["RESOURCES_COST_TO_BUILD"].array_items().size();
+			gs->building_templates[index].num_build_resources = num_resources;
 			gs->building_templates[index].resources_to_build = (Resource*)calloc(num_resources, sizeof(Resource));
 			gs->building_templates[index].build_amounts = (int*)calloc(num_resources, sizeof(int));
 			for (int j = 0; j < num_resources; j++) {

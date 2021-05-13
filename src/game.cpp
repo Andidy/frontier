@@ -330,26 +330,27 @@ void InitGameState(Memory* gameMemory) {
 	gs->ui_system.rects[17].text_len = (int)strlen(gs->edit_index_buffer);
 
 	gs->resources[0] = 0;
+	gs->resources[1] = 10;
+	gs->resources[2] = 10;
+	gs->resources[3] = 100;
+	gs->resources[4] = 100;
+
 	snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
 	gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
 	gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
 
-	gs->resources[1] = 0;
 	snprintf(gs->resource_counts_buffer[1], 256, "%s: %d", gs->resource_names_buffer[1], gs->resources[1]);
 	gs->ui_system.rects[19].text = gs->resource_counts_buffer[1];
 	gs->ui_system.rects[19].text_len = (int)strlen(gs->resource_counts_buffer[1]);
 	
-	gs->resources[2] = 0;
 	snprintf(gs->resource_counts_buffer[2], 256, "%s: %d", gs->resource_names_buffer[2], gs->resources[2]);
 	gs->ui_system.rects[20].text = gs->resource_counts_buffer[2];
 	gs->ui_system.rects[20].text_len = (int)strlen(gs->resource_counts_buffer[2]);
 
-	gs->resources[3] = 0;
 	snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
 	gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
 	gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
 
-	gs->resources[4] = 10;
 	snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
 	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
 	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
@@ -631,20 +632,36 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				// we didn't click a unit, so we are editing the map
 
 				switch (gs->edit_type) {
-				case 0: {
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = (TileTerrain)gs->edit_index;
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
-				} break;
-				case 1: {
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
-				} break;
-				case 2: {
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
+					case 0: {
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = (TileTerrain)gs->edit_index;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+					} break;
+					case 1: {
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
+					} break;
+					case 2: {
+						bool enough_resources = true;
+						int num_resources = gs->building_templates[gs->edit_index].num_build_resources;
 
-					// buildings cost resources
-					gs->resources[(int)Resource::WOOD] -= 10;
-				} break;
-				default: break;
+						for (int i = 0; i < num_resources; i++) {
+							Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
+							int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
+							if (gs->resources[(int)current_resource] < current_resource_cost) {
+								enough_resources = false;
+								break;
+							}
+						}
+
+						if (enough_resources) {
+							for (int i = 0; i < num_resources; i++) {
+								Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
+								int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
+								gs->resources[(int)current_resource] -= current_resource_cost;
+							}
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
+						}
+					} break;
+					default: break;
 				}
 			}
 		}
@@ -682,47 +699,35 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	if (gs->frame_ticked) {
 		for (int i = 0; i < gs->tilemap.width * gs->tilemap.height; i++) {
 			Tile tile = gs->tilemap.tiles[i];
-			switch (tile.structure) {
-				case TileStructure::FARMHOUSE:
-				{
-					gs->resources[(int)Resource::MONEY] += 1;
-				} break;
-				case TileStructure::FIELD:
-				{
-					gs->resources[(int)Resource::WHEAT] += 1;
-				} break;
-				case TileStructure::ORCHARD:
-				{
-					gs->resources[(int)Resource::APPLES] += 1;
-				} break;
-				case TileStructure::WOODCUTTER:
-				{
-					gs->resources[(int)Resource::WOOD] += 1;
-				} break;
-				default: break;
+			
+			int num_resources = gs->building_templates[(int)tile.structure].num_build_resources;
+			for (int i = 0; i < num_resources; i++) {
+				Resource current_resource = gs->building_templates[(int)tile.structure].resources_produced[i];
+				int current_resource_production = gs->building_templates[(int)tile.structure].production_amounts[i];
+				gs->resources[(int)current_resource] += current_resource_production;
 			}
 		}
-
-		snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
-		gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
-		gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
-
-		snprintf(gs->resource_counts_buffer[1], 256, "%s: %d", gs->resource_names_buffer[1], gs->resources[1]);
-		gs->ui_system.rects[19].text = gs->resource_counts_buffer[1];
-		gs->ui_system.rects[19].text_len = (int)strlen(gs->resource_counts_buffer[1]);
-
-		snprintf(gs->resource_counts_buffer[2], 256, "%s: %d", gs->resource_names_buffer[2], gs->resources[2]);
-		gs->ui_system.rects[20].text = gs->resource_counts_buffer[2];
-		gs->ui_system.rects[20].text_len = (int)strlen(gs->resource_counts_buffer[2]);
-
-		snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
-		gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
-		gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
-
-		snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
-		gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
-		gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
 	}
+	
+	snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
+	gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
+	gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
+
+	snprintf(gs->resource_counts_buffer[1], 256, "%s: %d", gs->resource_names_buffer[1], gs->resources[1]);
+	gs->ui_system.rects[19].text = gs->resource_counts_buffer[1];
+	gs->ui_system.rects[19].text_len = (int)strlen(gs->resource_counts_buffer[1]);
+
+	snprintf(gs->resource_counts_buffer[2], 256, "%s: %d", gs->resource_names_buffer[2], gs->resources[2]);
+	gs->ui_system.rects[20].text = gs->resource_counts_buffer[2];
+	gs->ui_system.rects[20].text_len = (int)strlen(gs->resource_counts_buffer[2]);
+
+	snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
+	gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
+	gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
+
+	snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
+	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
+	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
 	
 	// end Resource extraction
 	// ========================================================================
