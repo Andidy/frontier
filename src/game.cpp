@@ -244,11 +244,13 @@ void InitGameState(Memory* gameMemory) {
 	strncpy_s(gs->resource_names_buffer[(int)Resource::WHEAT], 16, (char*)"Wheat", _TRUNCATE);
 	strncpy_s(gs->resource_names_buffer[(int)Resource::APPLES], 16, (char*)"Apples", _TRUNCATE);
 	strncpy_s(gs->resource_names_buffer[(int)Resource::MONEY], 16, (char*)"Money", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::WOOD], 16, (char*)"Wood", _TRUNCATE);
 
 	gs->ui_system.rects[18] = CreateUIText(1, 9, 53, 100, 16, true);
 	gs->ui_system.rects[19] = CreateUIText(1, 9, 53+16, 100, 16, true);
 	gs->ui_system.rects[20] = CreateUIText(1, 9, 53+32, 100, 16, true);
 	gs->ui_system.rects[21] = CreateUIText(1, 9, 53+48, 100, 16, true);
+	gs->ui_system.rects[24] = CreateUIText(1, 9, 53+64, 100, 16, true);
 
 	// testing colored text and colored text with background
 	gs->ui_system.rects[22] = CreateUIText(1, 400, 9, 100, 16, true);
@@ -346,6 +348,11 @@ void InitGameState(Memory* gameMemory) {
 	snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
 	gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
 	gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
+
+	gs->resources[4] = 0;
+	snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
+	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
+	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -724,6 +731,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				{
 					gs->resources[(int)Resource::APPLES] += 1;
 				} break;
+				case TileStructure::WOODCUTTER:
+				{
+					gs->resources[(int)Resource::WOOD] += 1;
+				} break;
 				default: break;
 			}
 		}
@@ -743,6 +754,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		snprintf(gs->resource_counts_buffer[3], 256, "%s: %d", gs->resource_names_buffer[3], gs->resources[3]);
 		gs->ui_system.rects[21].text = gs->resource_counts_buffer[3];
 		gs->ui_system.rects[21].text_len = (int)strlen(gs->resource_counts_buffer[3]);
+
+		snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
+		gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
+		gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
 	}
 	
 	// end Resource extraction

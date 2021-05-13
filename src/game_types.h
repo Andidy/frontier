@@ -54,6 +54,8 @@ enum class TileStructure {
 	FIELD = 2,
 	ORCHARD = 3,
 
+	WOODCUTTER = 4,
+
 	TEST,
 	NUM_TYPES
 };
@@ -126,7 +128,7 @@ struct UIRect {
 };
 
 struct UISystem {
-	static const int32_t NUM_RECTS = 24;
+	static const int32_t NUM_RECTS = 25;
 	UIRect rects[NUM_RECTS];
 };
 
@@ -139,6 +141,7 @@ enum class Resource {
 	WHEAT = 1,
 	APPLES = 2,
 	MONEY = 3,
+	WOOD = 4,
 
 	NUM_TYPES
 };
@@ -181,8 +184,8 @@ struct GameState {
 	UISystem ui_system;
 
 	char temp_buffer[8];
-	char resource_names_buffer[4][16];
-	char resource_counts_buffer[4][256];
+	char resource_names_buffer[(int)Resource::NUM_TYPES][16];
+	char resource_counts_buffer[(int)Resource::NUM_TYPES][256];
 	int resources[(int)Resource::NUM_TYPES];
 };
 

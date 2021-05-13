@@ -530,6 +530,10 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
+				case TileStructure::WOODCUTTER:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
 				case TileStructure::TEST:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
