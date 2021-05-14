@@ -78,12 +78,20 @@ enum class TileStructure {
 	NUM_TYPES
 };
 
+struct ResourceAmount {
+	Resource resource;
+	int amount;
+};
+
 struct BuildingTemplate {
 	TileStructure type;
 	
 	int num_produced_resources;
 	Resource* resources_produced;
 	int* production_amounts;
+
+	int* num_materials;
+	ResourceAmount** production_requirements;
 
 	int num_build_resources;
 	Resource* resources_to_build;
