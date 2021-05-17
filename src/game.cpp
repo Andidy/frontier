@@ -700,21 +700,25 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		for (int i = 0; i < gs->tilemap.width * gs->tilemap.height; i++) {
 			Tile tile = gs->tilemap.tiles[i];
 			
-			int num_resources = gs->building_templates[(int)tile.structure].num_produced_resources;
-			for (int i = 0; i < num_resources; i++) {
-				Resource current_resource = gs->building_templates[(int)tile.structure].resources_produced[i];
-				int current_resource_production = gs->building_templates[(int)tile.structure].production_amounts[i];
-				gs->resources[(int)current_resource] += current_resource_production;
-				
-				int num_materials = gs->building_templates[(int)tile.structure].num_materials[i];
-				for (int j = 0; j < num_materials; j++) {
-					Resource r = gs->building_templates[(int)tile.structure].production_requirements[i][j].resource;
-					gs->resources[(int)r] -= gs->building_templates[(int)tile.structure].production_requirements[i][j].amount;
+			if (tile.structure != TileStructure::NONE) {
+				int num_resources = gs->building_templates[(int)tile.structure].num_produced_resources;
+				for (int i = 0; i < num_resources; i++) {
+					Resource current_resource = gs->building_templates[(int)tile.structure].resources_produced[i];
+					int current_resource_production = gs->building_templates[(int)tile.structure].production_amounts[i];
+					gs->resources[(int)current_resource] += current_resource_production;
+
+					int num_materials = gs->building_templates[(int)tile.structure].num_materials[i];
+					for (int j = 0; j < num_materials; j++) {
+						Resource r = gs->building_templates[(int)tile.structure].production_requirements[i][j].resource;
+						gs->resources[(int)r] -= gs->building_templates[(int)tile.structure].production_requirements[i][j].amount;
+					}
 				}
 			}
 		}
 	}
 	
+
+	// update ui with new resource counts
 	snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
 	gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
 	gs->ui_system.rects[18].text_len = (int)strlen(gs->resource_counts_buffer[0]);
