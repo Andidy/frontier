@@ -7,7 +7,7 @@ extern Bitmap blue_noise_tex;
 // UI System
 
 UIRect CreateUIRect(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
@@ -23,7 +23,7 @@ UIRect CreateUIRect(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int3
 }
 
 UIRect CreateUIText(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
@@ -39,7 +39,7 @@ UIRect CreateUIText(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int3
 }
 
 UIRect CreateUIImage(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width, int bitmap_index) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
@@ -55,7 +55,7 @@ UIRect CreateUIImage(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int
 }
 
 UIRect CreateUIButton(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible, int line_width, char* text) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
@@ -71,7 +71,7 @@ UIRect CreateUIButton(int layer, int32_t pos_x, int32_t pos_y, int32_t width, in
 }
 
 UIRect CreateUITilemap(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
@@ -87,7 +87,7 @@ UIRect CreateUITilemap(int layer, int32_t pos_x, int32_t pos_y, int32_t width, i
 }
 
 UIRect CreateUIGame(int layer, int32_t pos_x, int32_t pos_y, int32_t width, int32_t height, bool visible) {
-	UIRect result;
+	UIRect result = {};
 	result.layer = layer;
 	result.x = pos_x;
 	result.y = pos_y;
