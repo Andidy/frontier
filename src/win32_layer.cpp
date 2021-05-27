@@ -338,32 +338,31 @@ void LoadBuildingTemplates(GameState* gs) {
 
 		for (int t = 0; t < num_templates; t++) {
 			int index = json[t]["ENUM"].int_value();
-			gs->building_templates[index].type = (TileStructure)index;
+			gs->building_templates[index].type = (TileStructureType)index;
 
-			int num_resources = json[t]["RESOURCES_PRODUCED"].array_items().size();
-			gs->building_templates[index].num_produced_resources = num_resources;
-			gs->building_templates[index].resources_produced = (Resource*)calloc(num_resources, sizeof(Resource));
-			gs->building_templates[index].production_amounts = (int*)calloc(num_resources, sizeof(int));
-			gs->building_templates[index].production_requirements = (ResourceAmount**)calloc(num_resources, sizeof(ResourceAmount*));
-			gs->building_templates[index].num_materials = (int*)calloc(num_resources, sizeof(int));
-			for (int r = 0; r < num_resources; r++) {
-				gs->building_templates[index].resources_produced[r] = (Resource)(json[t]["RESOURCES_PRODUCED"][r]["resource"].int_value());
-				gs->building_templates[index].production_amounts[r] = (int)(json[t]["RESOURCES_PRODUCED"][r]["amount_produced"].int_value());
+			int num_inputs = json[t]["RESOURCE_INPUT"].array_items().size();
+			gs->building_templates[index].num_inputs = num_inputs;
+			int num_outputs = json[t]["RESOURCE_OUTPUT"].array_items().size();
+			gs->building_templates[index].num_outputs = num_outputs;
 
-				int num_materials = json[t]["RESOURCES_PRODUCED"][r]["costs"].array_items().size();
-				gs->building_templates[index].num_materials[r] = num_materials;
-				gs->building_templates[index].production_requirements[r] = (ResourceAmount*)calloc(num_materials, sizeof(ResourceAmount));
-				for (int m = 0; m < num_materials; m++) {
-					gs->building_templates[index].production_requirements[r][m].resource = (Resource)json[t]["RESOURCES_PRODUCED"][r]["costs"][m][0].int_value();
-					gs->building_templates[index].production_requirements[r][m].amount = json[t]["RESOURCES_PRODUCED"][r]["costs"][m][1].int_value();
-				}
+			gs->building_templates[index].production_input = (ResourceAmount*)calloc(num_inputs, sizeof(ResourceAmount));
+			gs->building_templates[index].production_output = (ResourceAmount*)calloc(num_outputs, sizeof(ResourceAmount));
+
+			for (int r = 0; r < num_inputs; r++) {
+				gs->building_templates[index].production_input[r].resource = (Resource)(json[t]["RESOURCE_INPUT"][r][0].int_value());
+				gs->building_templates[index].production_input[r].amount = (int)(json[t]["RESOURCE_INPUT"][r][1].int_value());
 			}
 
-			num_resources = json[t]["RESOURCES_COST_TO_BUILD"].array_items().size();
-			gs->building_templates[index].num_build_resources = num_resources;
-			gs->building_templates[index].resources_to_build = (Resource*)calloc(num_resources, sizeof(Resource));
-			gs->building_templates[index].build_amounts = (int*)calloc(num_resources, sizeof(int));
-			for (int r = 0; r < num_resources; r++) {
+			for (int r = 0; r < num_outputs; r++) {
+				gs->building_templates[index].production_output[r].resource = (Resource)(json[t]["RESOURCE_OUTPUT"][r][0].int_value());
+				gs->building_templates[index].production_output[r].amount = (int)(json[t]["RESOURCE_OUTPUT"][r][1].int_value());
+			}
+
+			num_inputs = json[t]["RESOURCES_COST_TO_BUILD"].array_items().size();
+			gs->building_templates[index].num_build_resources = num_inputs;
+			gs->building_templates[index].resources_to_build = (Resource*)calloc(num_inputs, sizeof(Resource));
+			gs->building_templates[index].build_amounts = (int*)calloc(num_inputs, sizeof(int));
+			for (int r = 0; r < num_inputs; r++) {
 				gs->building_templates[index].resources_to_build[r] = (Resource)(json[t]["RESOURCES_COST_TO_BUILD"][r][0].int_value());
 				gs->building_templates[index].build_amounts[r] = (int)(json[t]["RESOURCES_COST_TO_BUILD"][r][1].int_value());
 			}

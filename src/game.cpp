@@ -289,7 +289,7 @@ void InitGameState(Memory* gameMemory) {
 			gs->tilemap.tiles[x + tilemap_width * y].terrain_variant_fixed = true;
 
 			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
-			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructure::NONE;
+			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructureType::NONE;
 		}
 	}
 
@@ -529,7 +529,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				switch (gs->edit_type) {
 				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
 				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
-				case 2: if (gs->edit_index >= (int)TileStructure::NUM_TYPES) gs->edit_index = (int)TileStructure::NUM_TYPES - 1; break;
+				case 2: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
 				default: break;
 				}
 
@@ -553,7 +553,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				switch (gs->edit_type) {
 				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
 				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
-				case 2: if (gs->edit_index >= (int)TileStructure::NUM_TYPES) gs->edit_index = (int)TileStructure::NUM_TYPES - 1; break;
+				case 2: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
 				default: break;
 				}
 			}
@@ -658,7 +658,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 								int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
 								gs->resources[(int)current_resource] -= current_resource_cost;
 							}
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructure)gs->edit_index;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
 						}
 					} break;
 					default: break;
@@ -700,17 +700,25 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		for (int i = 0; i < gs->tilemap.width * gs->tilemap.height; i++) {
 			Tile tile = gs->tilemap.tiles[i];
 			
-			if (tile.structure != TileStructure::NONE) {
-				int num_resources = gs->building_templates[(int)tile.structure].num_produced_resources;
-				for (int i = 0; i < num_resources; i++) {
-					Resource current_resource = gs->building_templates[(int)tile.structure].resources_produced[i];
-					int current_resource_production = gs->building_templates[(int)tile.structure].production_amounts[i];
-					gs->resources[(int)current_resource] += current_resource_production;
-
-					int num_materials = gs->building_templates[(int)tile.structure].num_materials[i];
-					for (int j = 0; j < num_materials; j++) {
-						Resource r = gs->building_templates[(int)tile.structure].production_requirements[i][j].resource;
-						gs->resources[(int)r] -= gs->building_templates[(int)tile.structure].production_requirements[i][j].amount;
+			if (tile.structure != TileStructureType::NONE) {
+				int num_inputs = gs->building_templates[(int)tile.structure].num_inputs;
+				bool has_enough_inputs = true;
+				for (int i = 0; i < num_inputs; i++) {
+					ResourceAmount r = gs->building_templates[(int)tile.structure].production_input[i];
+					if (gs->resources[(int)r.resource] < r.amount) {
+						has_enough_inputs = false;
+					}
+				}
+				
+				if (has_enough_inputs) {
+					for (int i = 0; i < num_inputs; i++) {
+						ResourceAmount r = gs->building_templates[(int)tile.structure].production_input[i];
+						gs->resources[(int)r.resource] -= gs->building_templates[(int)tile.structure].production_input[i].amount;
+					}
+					int num_outputs = gs->building_templates[(int)tile.structure].num_outputs;
+					for (int i = 0; i < num_outputs; i++) {
+						ResourceAmount current_resource = gs->building_templates[(int)tile.structure].production_output[i];
+						gs->resources[(int)current_resource.resource] += current_resource.amount;
 					}
 				}
 			}

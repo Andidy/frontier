@@ -483,7 +483,7 @@ Bitmap* TilemapRenderer::GetFeatureAtlas(TileFeature type) {
 	return &feature_atlases[index].frames[animation_frame % feature_atlases[index].num_anim_frames];
 }
 
-Bitmap* TilemapRenderer::GetStructureAtlas(TileStructure type) {
+Bitmap* TilemapRenderer::GetStructureAtlas(TileStructureType type) {
 	int index = (int)type;
 	return &structure_atlases[index].frames[animation_frame % structure_atlases[index].num_anim_frames];
 }
@@ -517,24 +517,24 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 			//
 			//}
 			switch (tile.structure) {
-				case TileStructure::NONE: break;
-				case TileStructure::FARMHOUSE:
+				case TileStructureType::NONE: break;
+				case TileStructureType::FARMHOUSE:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
-				case TileStructure::FIELD:
+				case TileStructureType::FIELD:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
-				case TileStructure::ORCHARD:
+				case TileStructureType::ORCHARD:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
-				case TileStructure::WOODCUTTER:
+				case TileStructureType::WOODCUTTER:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
-				case TileStructure::TEST:
+				case TileStructureType::TEST:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;

@@ -4,6 +4,16 @@
 #include "universal.h"
 
 // ============================================================================
+// Characters
+
+struct Character {
+	uint32_t id;
+
+
+};
+
+// end Characters
+// ============================================================================
 // Gameplay Resources
 
 enum class Resource {
@@ -66,7 +76,7 @@ enum class TileFeature {
 	NUM_TYPES
 };
 
-enum class TileStructure {
+enum class TileStructureType {
 	NONE = 0,
 	FARMHOUSE = 1,
 	FIELD = 2,
@@ -84,14 +94,12 @@ struct ResourceAmount {
 };
 
 struct BuildingTemplate {
-	TileStructure type;
+	TileStructureType type;
 	
-	int num_produced_resources;
-	Resource* resources_produced;
-	int* production_amounts;
-
-	int* num_materials;
-	ResourceAmount** production_requirements;
+	int num_inputs;
+	int num_outputs;
+	ResourceAmount* production_input;
+	ResourceAmount* production_output;
 
 	int num_build_resources;
 	Resource* resources_to_build;
@@ -99,10 +107,14 @@ struct BuildingTemplate {
 	int ticks_to_build;
 };
 
+struct Building {
+	TileStructureType type;
+};
+
 struct Tile {
 	TileTerrain terrain;
 	TileFeature feature;
-	TileStructure structure;
+	TileStructureType structure;
 
 	//	Subtile Layout:
 	//	0, 1,
@@ -185,7 +197,7 @@ struct GameState {
 
 	Tilemap tilemap;
 
-	BuildingTemplate building_templates[(int)TileStructure::NUM_TYPES];
+	BuildingTemplate building_templates[(int)TileStructureType::NUM_TYPES];
 
 	char edit_type_buffer[8];
 	char edit_index_buffer[8];
