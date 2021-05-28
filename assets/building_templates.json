@@ -2,58 +2,110 @@
   {
     "_name": "Farmhouse",
     "ENUM": 1,
-    "RESOURCE_INPUT":
-    [
-      [1,5],
-      [2,6]
+    "RESOURCE_INPUT": [
+      [ 1, 1 ],
+      [ 2, 1 ]
     ],
-    "RESOURCE_OUTPUT":
-    [
-      [3,1]
+    "RESOURCE_OUTPUT": [
+      [ 3, 1 ]
     ],
-    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
     "TICKS_TO_BUILD": 1
   },
   {
     "_name": "Field",
     "ENUM": 2,
-    "RESOURCE_INPUT":
-    [
-      [0,0]
+    "RESOURCE_INPUT": [
+      [ 0, 0 ]
     ],
-    "RESOURCE_OUTPUT":
-    [
-      [1,5]
+    "RESOURCE_OUTPUT": [
+      [ 1, 5 ]
     ],
-    "RESOURCES_COST_TO_BUILD": [[4,1]],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 1 ] ],
     "TICKS_TO_BUILD": 5
   },
   {
     "_name": "Orchard",
     "ENUM": 3,
-    "RESOURCE_INPUT":
-    [
-      [0,0]
+    "RESOURCE_INPUT": [
+      [ 0, 0 ]
     ],
-    "RESOURCE_OUTPUT":
-    [
-      [2,2]
+    "RESOURCE_OUTPUT": [
+      [ 2, 2 ]
     ],
-    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
     "TICKS_TO_BUILD": 10
   },
   {
     "_name": "Woodcutter",
     "ENUM": 4,
-    "RESOURCE_INPUT":
-    [
-      [1,1], [2,1], [3,1]
+    "RESOURCE_INPUT": [
+      [ 0, 0 ]
     ],
-    "RESOURCE_OUTPUT":
-    [
-      [4,10]
+    "RESOURCE_OUTPUT": [
+      [ 4, 10 ]
     ],
-    "RESOURCES_COST_TO_BUILD": [[4,10]],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
+    "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Windmill",
+    "ENUM": 5,
+    "RESOURCE_INPUT": [
+      [ 1, 1 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 5, 1 ]
+    ],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 5 ] ],
+    "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Sawmill",
+    "ENUM": 6,
+    "RESOURCE_INPUT": [
+      [ 4, 1 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 8, 2 ]
+    ],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
+    "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Bakery",
+    "ENUM": 7,
+    "RESOURCE_INPUT": [
+      [ 5, 1 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 6, 1 ]
+    ],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 5 ] ],
+    "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Brewery",
+    "ENUM": 8,
+    "RESOURCE_INPUT": [
+      [ 2, 1 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 7, 1 ]
+    ],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 5 ] ],
+    "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Quarry",
+    "ENUM": 9,
+    "RESOURCE_INPUT": [
+      [ 0, 0 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 9, 1 ]
+    ],
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
     "TICKS_TO_BUILD": 2
   }
 ]

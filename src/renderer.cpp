@@ -534,6 +534,26 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
+				case TileStructureType::SAWMILL:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
+				case TileStructureType::WINDMILL:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
+				case TileStructureType::BAKERY:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 1, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
+				case TileStructureType::BREWERY:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 0, 2, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
+				case TileStructureType::QUARRY:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 2, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
 				case TileStructureType::TEST:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);

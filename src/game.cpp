@@ -245,12 +245,22 @@ void InitGameState(Memory* gameMemory) {
 	strncpy_s(gs->resource_names_buffer[(int)Resource::APPLES], 16, (char*)"Apples", _TRUNCATE);
 	strncpy_s(gs->resource_names_buffer[(int)Resource::MONEY], 16, (char*)"Money", _TRUNCATE);
 	strncpy_s(gs->resource_names_buffer[(int)Resource::WOOD], 16, (char*)"Wood", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::PLANKS], 16, (char*)"Planks", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::STONE], 16, (char*)"Stone", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::CIDER], 16, (char*)"Cider", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::FLOUR], 16, (char*)"Flour", _TRUNCATE);
+	strncpy_s(gs->resource_names_buffer[(int)Resource::BREAD], 16, (char*)"Bread", _TRUNCATE);
 
-	gs->ui_system.rects[18] = CreateUIText(1, 9, 53, 100, 16, true);
-	gs->ui_system.rects[19] = CreateUIText(1, 9, 53+16, 100, 16, true);
-	gs->ui_system.rects[20] = CreateUIText(1, 9, 53+32, 100, 16, true);
-	gs->ui_system.rects[21] = CreateUIText(1, 9, 53+48, 100, 16, true);
-	gs->ui_system.rects[24] = CreateUIText(1, 9, 53+64, 100, 16, true);
+	gs->ui_system.rects[18] = CreateUIText(1, 9, 53, 120, 16, true);
+	gs->ui_system.rects[19] = CreateUIText(1, 9, 53+16, 120, 16, true);
+	gs->ui_system.rects[20] = CreateUIText(1, 9, 53+32, 120, 16, true);
+	gs->ui_system.rects[21] = CreateUIText(1, 9, 53+48, 120, 16, true);
+	gs->ui_system.rects[24] = CreateUIText(1, 9, 53+64, 120, 16, true);
+	gs->ui_system.rects[25] = CreateUIText(1, 9, 53+80, 120, 16, true);
+	gs->ui_system.rects[26] = CreateUIText(1, 9, 53+96, 120, 16, true);
+	gs->ui_system.rects[27] = CreateUIText(1, 9, 53+112, 120, 16, true);
+	gs->ui_system.rects[28] = CreateUIText(1, 9+120, 53, 120, 16, true);
+	gs->ui_system.rects[29] = CreateUIText(1, 9+120, 53+16, 120, 16, true);
 
 	// testing colored text and colored text with background
 	gs->ui_system.rects[22] = CreateUIText(1, 400, 9, 100, 16, true);
@@ -334,6 +344,11 @@ void InitGameState(Memory* gameMemory) {
 	gs->resources[2] = 10;
 	gs->resources[3] = 100;
 	gs->resources[4] = 100;
+	gs->resources[5] = 0;
+	gs->resources[6] = 0;
+	gs->resources[7] = 0;
+	gs->resources[8] = 0;
+	gs->resources[9] = 0;
 
 	snprintf(gs->resource_counts_buffer[0], 256, "%s: %d", gs->resource_names_buffer[0], gs->resources[0]);
 	gs->ui_system.rects[18].text = gs->resource_counts_buffer[0];
@@ -354,6 +369,26 @@ void InitGameState(Memory* gameMemory) {
 	snprintf(gs->resource_counts_buffer[4], 256, "%s: %d", gs->resource_names_buffer[4], gs->resources[4]);
 	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
 	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
+
+	snprintf(gs->resource_counts_buffer[5], 256, "%s: %d", gs->resource_names_buffer[5], gs->resources[5]);
+	gs->ui_system.rects[25].text = gs->resource_counts_buffer[5];
+	gs->ui_system.rects[25].text_len = (int)strlen(gs->resource_counts_buffer[5]);
+
+	snprintf(gs->resource_counts_buffer[6], 256, "%s: %d", gs->resource_names_buffer[6], gs->resources[6]);
+	gs->ui_system.rects[26].text = gs->resource_counts_buffer[6];
+	gs->ui_system.rects[26].text_len = (int)strlen(gs->resource_counts_buffer[6]);
+
+	snprintf(gs->resource_counts_buffer[7], 256, "%s: %d", gs->resource_names_buffer[7], gs->resources[7]);
+	gs->ui_system.rects[27].text = gs->resource_counts_buffer[7];
+	gs->ui_system.rects[27].text_len = (int)strlen(gs->resource_counts_buffer[7]);
+
+	snprintf(gs->resource_counts_buffer[8], 256, "%s: %d", gs->resource_names_buffer[8], gs->resources[8]);
+	gs->ui_system.rects[28].text = gs->resource_counts_buffer[8];
+	gs->ui_system.rects[28].text_len = (int)strlen(gs->resource_counts_buffer[8]);
+
+	snprintf(gs->resource_counts_buffer[9], 256, "%s: %d", gs->resource_names_buffer[9], gs->resources[9]);
+	gs->ui_system.rects[29].text = gs->resource_counts_buffer[9];
+	gs->ui_system.rects[29].text_len = (int)strlen(gs->resource_counts_buffer[9]);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -747,6 +782,26 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	gs->ui_system.rects[24].text = gs->resource_counts_buffer[4];
 	gs->ui_system.rects[24].text_len = (int)strlen(gs->resource_counts_buffer[4]);
 	
+	snprintf(gs->resource_counts_buffer[5], 256, "%s: %d", gs->resource_names_buffer[5], gs->resources[5]);
+	gs->ui_system.rects[25].text = gs->resource_counts_buffer[5];
+	gs->ui_system.rects[25].text_len = (int)strlen(gs->resource_counts_buffer[5]);
+
+	snprintf(gs->resource_counts_buffer[6], 256, "%s: %d", gs->resource_names_buffer[6], gs->resources[6]);
+	gs->ui_system.rects[26].text = gs->resource_counts_buffer[6];
+	gs->ui_system.rects[26].text_len = (int)strlen(gs->resource_counts_buffer[6]);
+
+	snprintf(gs->resource_counts_buffer[7], 256, "%s: %d", gs->resource_names_buffer[7], gs->resources[7]);
+	gs->ui_system.rects[27].text = gs->resource_counts_buffer[7];
+	gs->ui_system.rects[27].text_len = (int)strlen(gs->resource_counts_buffer[7]);
+
+	snprintf(gs->resource_counts_buffer[8], 256, "%s: %d", gs->resource_names_buffer[8], gs->resources[8]);
+	gs->ui_system.rects[28].text = gs->resource_counts_buffer[8];
+	gs->ui_system.rects[28].text_len = (int)strlen(gs->resource_counts_buffer[8]);
+
+	snprintf(gs->resource_counts_buffer[9], 256, "%s: %d", gs->resource_names_buffer[9], gs->resources[9]);
+	gs->ui_system.rects[29].text = gs->resource_counts_buffer[9];
+	gs->ui_system.rects[29].text_len = (int)strlen(gs->resource_counts_buffer[9]);
+
 	// end Resource extraction
 	// ========================================================================
 
