@@ -560,6 +560,9 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				} break;
 				default: break;
 			}
+			if (tile.building.construction_progress < tile.building.construction_max_time) {
+				DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 3, 0, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+			}
 		}
 	}
 
