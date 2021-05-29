@@ -2,8 +2,7 @@
 A game engine for Retro-style strategy games.
 ![Preview of Game](./screenshots/preview.png)
 
-Currently Working On: Improving Graphics by creating a system which places suitable graphics in a tile based on the tile's neighbors. 
-I believe the technique I will use is known as "Wang Blob Tiles"
+Tile Texturing using Wang 2-edge 2-corner tiles a.k.a. Wang Blob Tiles.
 
 ![Preview of Wang Blob Tiles](./screenshots/wang_blob_example.png)
 
@@ -11,6 +10,10 @@ And here I've added a way to have multiple variants of the subtiles which constr
 You can see some of the subtile variants along the top water edge.
 
 ![Wang Blob Tiles With Variants](./screenshots/wang_blob_with_subtile_variants.png)
+
+An example of a town with various buildings (textured and untextured), the yellow hatching shows a building which hasn't finished construction.
+
+![Initial Buildings and Resource Generation](./screenshots/buildings.png)
 
 ## Features:
  - Software Rendered
@@ -22,6 +25,8 @@ You can see some of the subtile variants along the top water edge.
  - Unit Movement, Attacking, State Menu
  - Program & Game Settings loaded from Json
  - Cycle Counters for performance analysis
+ - Production buildings refine resources into other resources
+ - Building templates use Json for simple building modification
  
 ### Feature Showcases:
 - Software Rendering & Camera Movement: https://youtu.be/LpRilZxemBQ
