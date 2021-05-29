@@ -43,6 +43,7 @@ struct TilemapRenderer {
 
 	// Textures for the renderer to use
 	Bitmap background_grid;
+	Bitmap path_arrows;
 
 	static const int32_t num_terrain_atlases = (int)TileTerrain::NUM_TYPES;
 	TextureAtlas terrain_atlases[num_terrain_atlases];

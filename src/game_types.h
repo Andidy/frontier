@@ -3,6 +3,76 @@
 
 #include "universal.h"
 
+enum class Direction {
+	NONE = 0,
+	NORTH = 1,
+	EAST = 2,
+	SOUTH = 3,
+	WEST = 4,
+	NUM_TYPES
+};
+
+// Expanding Queue ============================================================
+// developed based on wikipedia articles on unrolled_linked_lists and queues
+
+struct ExpandingQueueNode {
+	ExpandingQueueNode* next;
+	static const int num_slots = 4;
+	Direction slot[num_slots];
+};
+
+struct ExpandingQueue {
+	ExpandingQueueNode* front;
+	int front_offset;
+
+	ExpandingQueueNode* back;
+	int back_offset;
+
+	Pool* pool;
+
+	ExpandingQueue(Pool* pool) {
+		this->pool = pool;
+		front = (ExpandingQueueNode*)pool->Allocate();
+		front_offset = 0;
+		back = front;
+		back_offset = 0;
+	}
+
+	bool IsEmpty() {
+		return ((front == back) && (front_offset == back_offset));
+	}
+
+	void Enqueue(Direction item) {
+		back->slot[back_offset] = item;
+		back_offset += 1;
+		if (back_offset == back->num_slots) {
+			// allocate a new queue node from pool allocator
+			ExpandingQueueNode* temp = (ExpandingQueueNode*)pool->Allocate();
+
+			back_offset = 0;
+			back->next = temp;
+			back = temp;
+		}
+	}
+
+	Direction Dequeue() {
+		if (IsEmpty()) {
+			return Direction::NONE;
+		}
+		Direction temp = front->slot[front_offset];
+		front_offset += 1;
+		if (front_offset == front->num_slots) {
+			front_offset = 0;
+
+			// free the queue node front points to;
+			ExpandingQueueNode* temp_ptr = front->next;
+			pool->Free(front);
+			front = temp_ptr;
+		}
+		return temp;
+	}
+};
+
 // ============================================================================
 // Characters
 
@@ -53,6 +123,8 @@ struct Unit {
 	int32_t max_hp = 10;
 	int32_t current_hp = 10;
 	int32_t attack = 3;
+
+	ExpandingQueue path;
 };
 
 // end Gameplay Unit
@@ -222,6 +294,7 @@ struct GameState {
 	int edit_type = 0;
 	int edit_index = 0;
 
+	Pool unit_path_pool;
 	int32_t selected_unit;
 	char unit_info_buffer[256];
 

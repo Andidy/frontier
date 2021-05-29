@@ -166,7 +166,56 @@ bool ValidNeighbor(Tilemap* tm, int32_t x, int32_t y, int32_t nx, int32_t ny) {
 	return (labs(x - nx) == 1) || (labs(y-ny) == 1);
 }
 
+/*
+	Move a unit one tile based on its path
+*/
+void MoveUnit(Unit* unit) {
+	if (unit->path.IsEmpty()) {
+		return;
+	}
+	else {
+		Direction dir = unit->path.Dequeue();
+		switch (dir) {
+			case Direction::NORTH: unit->pos_y -= 1; break;
+			case Direction::SOUTH: unit->pos_y += 1; break;
+			case Direction::WEST: unit->pos_x -= 1; break;
+			case Direction::EAST: unit->pos_x += 1; break;
+			default: break;
+		}
+	}
+}
 
+/*
+	Build a path for a unit from its position to a destination
+*/
+void BuildUnitPath(Unit* unit, int32_t dest_x, int32_t dest_y) {
+	int curr_x = unit->pos_x;
+	int curr_y = unit->pos_y;
+
+	int dir_x = (curr_x <= dest_x) ? 1 : -1;
+	int dir_y = (curr_y <= dest_y) ? 1 : -1;
+
+	while (curr_x != dest_x || curr_y != dest_y) {
+		if (labs(curr_x - dest_x) > labs(curr_y - dest_y)) {
+			curr_x += dir_x;
+			if (dir_x == 1) {
+				unit->path.Enqueue(Direction::EAST);
+			}
+			else {
+				unit->path.Enqueue(Direction::WEST);
+			}
+		}
+		else {
+			curr_y += dir_y;
+			if (dir_y == 1) {
+				unit->path.Enqueue(Direction::SOUTH);
+			}
+			else {
+				unit->path.Enqueue(Direction::NORTH);
+			}
+		}
+	}
+}
 
 // end Tilemap
 // ============================================================================
@@ -175,7 +224,7 @@ bool ValidNeighbor(Tilemap* tm, int32_t x, int32_t y, int32_t nx, int32_t ny) {
 void InitGameState(Memory* gameMemory) {
 	GameState* gs = (GameState*)gameMemory->data;
 
-	gs->tilemap = { 0, 0, NULL, 0, NULL };
+	gs->tilemap = { false, false, 0, 0, NULL, 0, NULL };
 
 	if (LoadGameSettings(gs)) {
 		DebugPrint((char*)"Successfully Loaded Game Settings Json\n");
@@ -304,6 +353,8 @@ void InitGameState(Memory* gameMemory) {
 		}
 	}
 
+	gs->unit_path_pool = Pool(16, sizeof(ExpandingQueueNode));
+
 	uint32_t id_counter = 0;
 	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
 	gs->tilemap.units[0].type = UnitType::ARMY;
@@ -313,6 +364,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[0].max_hp = 10;
 	gs->tilemap.units[0].current_hp = 10;
 	gs->tilemap.units[0].attack = 3;
+	gs->tilemap.units[0].path = ExpandingQueue(&gs->unit_path_pool);
 
 	gs->tilemap.units[1].type = UnitType::ARMY;
 	gs->tilemap.units[1].id = id_counter++;
@@ -321,6 +373,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[1].max_hp = 10;
 	gs->tilemap.units[1].current_hp = 10;
 	gs->tilemap.units[1].attack = 3;
+	gs->tilemap.units[1].path = ExpandingQueue(&gs->unit_path_pool);
 
 	gs->tilemap.units[2].type = UnitType::NAVY;
 	gs->tilemap.units[2].id = id_counter++;
@@ -329,6 +382,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->tilemap.units[2].max_hp = 10;
 	gs->tilemap.units[2].current_hp = 10;
 	gs->tilemap.units[2].attack = 3;
+	gs->tilemap.units[2].path = ExpandingQueue(&gs->unit_path_pool);
 
 	gs->edit_type = 0;
 	_itoa_s(gs->edit_type, gs->edit_type_buffer, 10);
@@ -520,28 +574,23 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			else if (0 <= gs->selected_unit && gs->selected_unit < gs->tilemap.num_units) {
 				// case : have a unit selected
 				Unit* unit = &(gs->tilemap.units[gs->selected_unit]);
-				int32_t diff_x = labs(tile_x - unit->pos_x);
-				int32_t diff_y = labs(tile_y - unit->pos_y);
+				//int32_t diff_x = labs(tile_x - unit->pos_x);
+				//int32_t diff_y = labs(tile_y - unit->pos_y);
 				
-				if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (clicked_unit == -1)) {
-					// clicked tile is adjacent to selected unit's position, and no unit is in the adjacent tile
-					
-					// so we move the unit to the selected position
-					gs->tilemap.units[gs->selected_unit].pos_x = tile_x;
-					gs->tilemap.units[gs->selected_unit].pos_y = tile_y;
+				if ((clicked_unit != gs->selected_unit) && (clicked_unit != -1)) {
+					// we clicked a different unit, so we select that unit instead
+					gs->selected_unit = clicked_unit;
 				}
-				else if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (0 <= clicked_unit && clicked_unit < gs->tilemap.num_units)) {
+				else if (clicked_unit == -1) {
+					// clicked tile has no unit, so we create a path for the unit to the selected position
+					BuildUnitPath(unit, tile_x, tile_y);
+				}
+				//else if (((diff_x == 1 && (diff_y == 0 || diff_y == 1)) || (diff_y == 1 && (diff_x == 0 || diff_x == 1))) && (0 <= clicked_unit && clicked_unit < gs->tilemap.num_units)) {
 					// clicked an adjacent tile with a unit in it
 					
 					// so attack the unit
-					gs->tilemap.units[clicked_unit].current_hp -= gs->tilemap.units[gs->selected_unit].attack;
-				}
-				else if ((clicked_unit != gs->selected_unit) && (clicked_unit != -1)) {
-					// clicked tile is not adjacent, and we clicked a different unit
-
-					// so we select that unit instead
-					gs->selected_unit = clicked_unit;
-				}
+				//	gs->tilemap.units[clicked_unit].current_hp -= gs->tilemap.units[gs->selected_unit].attack;
+				//}
 			}
 
 
@@ -775,6 +824,12 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			if (tile->building.construction_progress < tile->building.construction_max_time) {
 				tile->building.construction_progress += 1;
 			}
+		}
+
+		// unit updates
+		for (int i = 0; i < gs->tilemap.num_units; i++) {
+			Unit* unit = &(gs->tilemap.units[i]);
+			MoveUnit(unit);
 		}
 	}
 	

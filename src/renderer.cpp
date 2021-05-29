@@ -575,6 +575,41 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 			} break;
 			default: break;
 		}
+
+		int curr_x = unit->pos_x;
+		int curr_y = unit->pos_y;
+
+		ExpandingQueueNode* iter = unit->path.front;
+		int iter_offset = unit->path.front_offset;
+
+		while (iter != unit->path.back || iter_offset != unit->path.back_offset) {
+			Direction dir = iter->slot[iter_offset];
+			switch (dir) {
+				case Direction::NORTH: { 
+					curr_y -= 1;
+					DrawSprite(curr_x * scaled_tile_width, curr_y * scaled_tile_height, 0, 0, &path_arrows);
+				} break;
+				case Direction::SOUTH: { 
+					curr_y += 1; 
+					DrawSprite(curr_x * scaled_tile_width, curr_y * scaled_tile_height, 2, 0, &path_arrows);
+				} break;
+				case Direction::WEST: { 
+					curr_x -= 1;
+					DrawSprite(curr_x * scaled_tile_width, curr_y * scaled_tile_height, 3, 0, &path_arrows);
+				} break;
+				case Direction::EAST: { 
+					curr_x += 1;
+					DrawSprite(curr_x * scaled_tile_width, curr_y * scaled_tile_height, 1, 0, &path_arrows);
+				} break;
+				default: break;
+			}
+
+			iter_offset += 1;
+			if (iter_offset == iter->num_slots) {
+				iter_offset = 0;
+				iter = iter->next;
+			}
+		}
 	}
 	
 	EndTimer(CT_TM_DRAW_TILEMAP);

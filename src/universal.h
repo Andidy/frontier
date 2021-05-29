@@ -72,6 +72,23 @@ struct PermanentResourceAllocator {
 	void FreeBackingBuffer();
 };
 
+struct Pool {
+	struct PoolFreeNode {
+		PoolFreeNode* next;
+	};
+	
+	unsigned char* buffer;
+	long long buf_size;
+	int chunk_size; // in bytes
+
+	PoolFreeNode* free_list_head;
+
+	Pool(int num_chunks, int chunk_size_in_bytes);
+	void* Allocate();
+	void Free(void* ptr);
+	void FreeAll();
+};
+
 // This allocator is for resources that should only exist for a single loop
 // iteration, for example a frame of the game loop, and then the Free()
 // method is called at the end of the loop, freeing all contents of the

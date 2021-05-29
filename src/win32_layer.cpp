@@ -500,6 +500,60 @@ void PermanentResourceAllocator::FreeBackingBuffer() {
 	offset = 0;
 }
 
+Pool::Pool(int num_chunks, int chunk_size_in_bytes) {
+	this->chunk_size = chunk_size_in_bytes;
+	buf_size = (long long)chunk_size_in_bytes * (long long)num_chunks;
+	buffer = (unsigned char*)VirtualAlloc(0, buf_size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+	free_list_head = NULL;
+
+	FreeAll();
+}
+
+void* Pool::Allocate() {
+	PoolFreeNode* chunk = free_list_head;
+
+	if (chunk == NULL) {
+		// no free chunk to allocate
+		return NULL;
+	}
+
+	free_list_head = free_list_head->next;
+	return memset(chunk, 0, chunk_size);
+}
+
+void Pool::Free(void* ptr) {
+	PoolFreeNode* node;
+
+	void* start = buffer;
+	void* end = &buffer[buf_size];
+
+	if (ptr == NULL) {
+		// ignore null pointers
+		return;
+	}
+
+	if (!(start <= ptr && ptr < end)) {
+		// memory out of the bounds of the pool
+		return;
+	}
+
+	node = (PoolFreeNode*)ptr;
+	node->next = free_list_head;
+	free_list_head = node;
+}
+
+void Pool::FreeAll() {
+	long long num_chunks = buf_size / chunk_size;
+	for (int i = 0; i < num_chunks; i++) {
+		void* ptr = &buffer[i * chunk_size];
+
+		// push node onto the free list
+		PoolFreeNode* node = (PoolFreeNode*)ptr;
+		node->next = free_list_head;
+		free_list_head = node;
+	}
+}
+
 // end Memory
 // ============================================================================
 // Graphics
@@ -755,13 +809,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				LoadTextures(&tilemap_renderer);
 			}
 
-			Bitmap editing_tm_viewport = { NULL, 0, 0, 0 };
-			editing_tm_viewport.width = 64;
-			editing_tm_viewport.height = 64;
-			editing_tm_viewport.bpp = 4;
-			editing_tm_viewport.buffer = (uchar*)calloc(editing_tm_viewport.bpp * editing_tm_viewport.width * editing_tm_viewport.height, sizeof(uchar));
-			TilemapRenderer editing_tilemap_renderer(32, 32, 1, 0, 0, editing_tm_viewport.width, editing_tm_viewport.height, 4, 0.25f, editing_tm_viewport);
-
 			Bitmap font = { NULL, 0, 0, 0 };
 			// load font
 			{
@@ -773,7 +820,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				font.bpp = 4;
 			}
 
-			const int32_t MAX_UI_IMAGE_BITMAPS = 1;
+			const int32_t MAX_UI_IMAGE_BITMAPS = 2;
 			Bitmap ui_image_bitmaps[MAX_UI_IMAGE_BITMAPS];
 			{
 				int w = 0, h = 0, n = 0;
@@ -783,6 +830,18 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				ui_image_bitmaps[0].height = h;
 				ui_image_bitmaps[0].bpp = 4;
 				CorrectSTBILoadMemoryLayout(buf, w, h);
+
+				buf = NULL, w = 0, h = 0, n = 0;
+				buf = stbi_load("assets/arrows.png", &w, &h, &n, 4);
+				ui_image_bitmaps[1].buffer = buf;
+				ui_image_bitmaps[1].width = w;
+				ui_image_bitmaps[1].height = h;
+				ui_image_bitmaps[1].bpp = 4;
+				CorrectSTBILoadMemoryLayout(buf, w, h);
+				tilemap_renderer.path_arrows.buffer = buf;
+				tilemap_renderer.path_arrows.width = w;
+				tilemap_renderer.path_arrows.height = h;
+				tilemap_renderer.path_arrows.bpp = 4;
 			}
 
 			GameState* gs = (GameState*)gameMemory.data;
