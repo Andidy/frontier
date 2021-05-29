@@ -15,6 +15,10 @@ An example of a town with various buildings (textured and untextured), the yello
 
 ![Initial Buildings and Resource Generation](./screenshots/buildings.png)
 
+I've added basic unit pathing and the units will walk the path one tile per tick.
+
+![Initial basic unit pathing](./screenshots/basic_pathing.png)
+
 ## Features:
  - Software Rendered
  - Camera Movment and Zoom levels.
@@ -22,7 +26,7 @@ An example of a town with various buildings (textured and untextured), the yello
  - Transparency (by discarding pixels with 0 in alpha channel)
  - UI Elements : Rectangles, Images, ASCII Text (w/ text and background coloring), Buttons, Tilemaps, Game Window
  - Game Map Editing
- - Unit Movement, Attacking, State Menu
+ - Unit Movement, Basic Pathing, Attacking, State Menu
  - Program & Game Settings loaded from Json
  - Cycle Counters for performance analysis
  - Production buildings refine resources into other resources
