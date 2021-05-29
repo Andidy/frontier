@@ -368,6 +368,7 @@ void LoadBuildingTemplates(GameState* gs) {
 			}
 
 			gs->building_templates[index].ticks_to_build = json[t]["TICKS_TO_BUILD"].int_value();
+			gs->building_templates[index].production_time = json[t]["PRODUCTION_TICKS"].int_value();
 		}
 	}
 }

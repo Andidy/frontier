@@ -300,6 +300,7 @@ void InitGameState(Memory* gameMemory) {
 
 			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
 			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructureType::NONE;
+			gs->tilemap.tiles[x + tilemap_width * y].building = { TileStructureType::NONE, 0, 0, 0, 0 };
 		}
 	}
 
@@ -694,6 +695,11 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 								gs->resources[(int)current_resource] -= current_resource_cost;
 							}
 							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.type = (TileStructureType)gs->edit_index;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_progress = 0;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_max_time = gs->building_templates[gs->edit_index].production_time;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_progress = 0;
+							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_max_time = gs->building_templates[gs->edit_index].ticks_to_build;
 						}
 					} break;
 					default: break;
@@ -729,33 +735,45 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	// end Mouse Input Controls
 	// ========================================================================
-	// Resource extraction
+	// Game map Updates
 
 	if (gs->frame_ticked) {
+		// tile updates
 		for (int i = 0; i < gs->tilemap.width * gs->tilemap.height; i++) {
-			Tile tile = gs->tilemap.tiles[i];
+			Tile* tile = &(gs->tilemap.tiles[i]);
 			
-			if (tile.structure != TileStructureType::NONE) {
-				int num_inputs = gs->building_templates[(int)tile.structure].num_inputs;
-				bool has_enough_inputs = true;
-				for (int i = 0; i < num_inputs; i++) {
-					ResourceAmount r = gs->building_templates[(int)tile.structure].production_input[i];
-					if (gs->resources[(int)r.resource] < r.amount) {
-						has_enough_inputs = false;
-					}
-				}
-				
-				if (has_enough_inputs) {
+			// building production
+			if (tile->structure != TileStructureType::NONE && (tile->building.construction_progress == tile->building.construction_max_time)) {
+				tile->building.production_progress += 1;
+				if (tile->building.production_progress >= tile->building.production_max_time) {
+					int num_inputs = gs->building_templates[(int)tile->structure].num_inputs;
+					bool has_enough_inputs = true;
 					for (int i = 0; i < num_inputs; i++) {
-						ResourceAmount r = gs->building_templates[(int)tile.structure].production_input[i];
-						gs->resources[(int)r.resource] -= gs->building_templates[(int)tile.structure].production_input[i].amount;
+						ResourceAmount r = gs->building_templates[(int)tile->structure].production_input[i];
+						if (gs->resources[(int)r.resource] < r.amount) {
+							has_enough_inputs = false;
+						}
 					}
-					int num_outputs = gs->building_templates[(int)tile.structure].num_outputs;
-					for (int i = 0; i < num_outputs; i++) {
-						ResourceAmount current_resource = gs->building_templates[(int)tile.structure].production_output[i];
-						gs->resources[(int)current_resource.resource] += current_resource.amount;
+
+					if (has_enough_inputs) {
+						for (int i = 0; i < num_inputs; i++) {
+							ResourceAmount r = gs->building_templates[(int)tile->structure].production_input[i];
+							gs->resources[(int)r.resource] -= gs->building_templates[(int)tile->structure].production_input[i].amount;
+						}
+						int num_outputs = gs->building_templates[(int)tile->structure].num_outputs;
+						for (int i = 0; i < num_outputs; i++) {
+							ResourceAmount current_resource = gs->building_templates[(int)tile->structure].production_output[i];
+							gs->resources[(int)current_resource.resource] += current_resource.amount;
+						}
 					}
+
+					tile->building.production_progress = 0;
 				}
+			}
+
+			// building construction progress
+			if (tile->building.construction_progress < tile->building.construction_max_time) {
+				tile->building.construction_progress += 1;
 			}
 		}
 	}
@@ -802,7 +820,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	gs->ui_system.rects[29].text = gs->resource_counts_buffer[9];
 	gs->ui_system.rects[29].text_len = (int)strlen(gs->resource_counts_buffer[9]);
 
-	// end Resource extraction
+	// end Game map Updates
 	// ========================================================================
 
 	EndTimer(CT_GAME_UPDATE);

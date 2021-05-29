@@ -108,6 +108,7 @@ struct BuildingTemplate {
 	
 	int num_inputs;
 	int num_outputs;
+	int production_time;
 	ResourceAmount* production_input;
 	ResourceAmount* production_output;
 
@@ -119,12 +120,19 @@ struct BuildingTemplate {
 
 struct Building {
 	TileStructureType type;
+
+	int construction_progress;
+	int construction_max_time;
+
+	int production_progress;
+	int production_max_time;
 };
 
 struct Tile {
 	TileTerrain terrain;
 	TileFeature feature;
 	TileStructureType structure;
+	Building building;
 
 	//	Subtile Layout:
 	//	0, 1,
