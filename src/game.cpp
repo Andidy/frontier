@@ -126,14 +126,14 @@ int32_t UIClick(UISystem* ui_system, int32_t x, int32_t y) {
 	return rect_hit;
 }
 
-void ScreenToTile(int scr_x, int scr_y, int rect_x, int rect_y, int view_x, int view_y, int tile_width, int tile_height, int32_t* out_x, int32_t* out_y) {
-	*(out_x) = (scr_x - rect_x + view_x) / tile_width;
-	*(out_y) = (scr_y - rect_y + view_y) / tile_height;
+void ScreenToTile(int scr_x, int scr_y, int rect_x, int rect_y, int view_x, int view_y, int tile_width, int tile_height, int tile_scale, int32_t* out_x, int32_t* out_y) {
+	*(out_x) = (scr_x - rect_x + view_x) / (tile_width * tile_scale);
+	*(out_y) = (scr_y - rect_y + view_y) / (tile_height * tile_scale);
 }
 
-void TileToScreen(int world_x, int world_y, int rect_x, int rect_y, int view_x, int view_y, int tile_width, int tile_height, int32_t* out_x, int32_t* out_y) {
-	*(out_x) = (world_x * tile_width) - view_x + rect_x;
-	*(out_y) = (world_y * tile_height) - view_y + rect_y;
+void TileToScreen(int world_x, int world_y, int rect_x, int rect_y, int view_x, int view_y, int tile_width, int tile_height, int tile_scale, int32_t* out_x, int32_t* out_y) {
+	*(out_x) = (world_x * tile_width * tile_scale) - view_x + rect_x;
+	*(out_y) = (world_y * tile_height * tile_scale) - view_y + rect_y;
 }
 
 // End UI System
@@ -555,7 +555,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			// Handle the click in the game window
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];	
 			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, gs->s, &tile_x, &tile_y);
 			
 			// get id of unit in clicked tile if any
 			int32_t clicked_unit = -1;
@@ -680,7 +680,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
 			UIRect r = gs->ui_system.rects[ui_rect_clicked];
 			int32_t tile_x = 0, tile_y = 0;
-			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, &tile_x, &tile_y);
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, gs->s, &tile_x, &tile_y);
 
 			// get id of unit in clicked tile if any
 			int32_t clicked_unit = -1;
