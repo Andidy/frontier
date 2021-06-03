@@ -176,6 +176,7 @@ struct ResourceAmount {
 };
 
 struct BuildingTemplate {
+	int uid;
 	TileStructureType type;
 	
 	int num_inputs;

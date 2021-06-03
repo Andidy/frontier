@@ -337,7 +337,10 @@ void LoadBuildingTemplates(GameState* gs) {
 		}
 
 		for (int t = 0; t < num_templates; t++) {
+			gs->num_building_templates = num_templates;
+
 			int index = json[t]["ENUM"].int_value();
+			gs->building_templates[index].uid = t;
 			gs->building_templates[index].type = (TileStructureType)index;
 
 			int num_inputs = json[t]["RESOURCE_INPUT"].array_items().size();
