@@ -846,8 +846,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			GameState* gs = (GameState*)gameMemory.data;
 
-			LoadBuildingTemplates(gs);
-
 			while (win32_running) {
 				// Timing
 				f32 dt = 0.0f;

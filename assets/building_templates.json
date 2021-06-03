@@ -1,5 +1,16 @@
 [
   {
+    "_name": "None",
+    "ENUM": 0,
+    "RESOURCE_INPUT": [
+      [ 0, 0 ],
+    ],
+    "RESOURCE_OUTPUT": [ [ 0, 0 ] ],
+    "PRODUCTION_TICKS":  0,
+    "RESOURCES_COST_TO_BUILD": [ [ 0, 0 ] ],
+    "TICKS_TO_BUILD": 0
+  },
+  {
     "_name": "Farmhouse",
     "ENUM": 1,
     "RESOURCE_INPUT": [

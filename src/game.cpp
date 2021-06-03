@@ -245,6 +245,8 @@ void InitGameState(Memory* gameMemory) {
 	gs->s = 1;
 	gs->selected_unit = -1;
 
+	LoadBuildingTemplates(gs);
+
 	// ui game rect
 	gs->ui_system.rects[0] = CreateUIGame(0, 256, 192, (32 * 40) - 256, (32 * 30) - 192, true);
 	

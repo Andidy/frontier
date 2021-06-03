@@ -287,6 +287,7 @@ struct GameState {
 
 	Tilemap tilemap;
 
+	int32_t num_building_templates;
 	BuildingTemplate building_templates[(int)TileStructureType::NUM_TYPES];
 
 	char edit_type_buffer[8];
