@@ -714,54 +714,66 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				gs->ui_system.rects[9].text = gs->unit_info_buffer;
 				gs->ui_system.rects[9].text_len = len;
 			}
-			
-			else {
-				// we didn't click a unit, so we are editing the map
-
-				switch (gs->edit_type) {
-					case 0: {
-						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = (TileTerrain)gs->edit_index;
-						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
-					} break;
-					case 1: {
-						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
-					} break;
-					case 2: {
-						bool enough_resources = true;
-						int num_resources = gs->building_templates[gs->edit_index].num_build_resources;
-
-						for (int i = 0; i < num_resources; i++) {
-							Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
-							int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
-							if (gs->resources[(int)current_resource] < current_resource_cost) {
-								enough_resources = false;
-								break;
-							}
-						}
-
-						if (enough_resources) {
-							for (int i = 0; i < num_resources; i++) {
-								Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
-								int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
-								gs->resources[(int)current_resource] -= current_resource_cost;
-							}
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.type = (TileStructureType)gs->edit_index;
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_progress = 0;
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_max_time = gs->building_templates[gs->edit_index].production_time;
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_progress = 0;
-							gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_max_time = gs->building_templates[gs->edit_index].ticks_to_build;
-						}
-					} break;
-					default: break;
-				}
-			}
 		}
 	}
 	if (keyPressed(mouse.right)) {
 		char buffer[256];
 		snprintf(buffer, 256, "Mouse Right Down, Mouse Position: %d, %d\n", mouse.x, mouse.y);
 		DebugPrint(buffer);
+	}
+	if (keyDown(mouse.right)) {
+		char buffer[256];
+		snprintf(buffer, 256, "Mouse Right Held, Mouse Position: %d, %d\n", mouse.x, mouse.y);
+		DebugPrint(buffer);
+		
+		int32_t ui_rect_clicked = UIClick(&gs->ui_system, mouse.x, mouse.y);
+		
+		if (gs->ui_system.rects[ui_rect_clicked].type == UIRectType::GAME) {
+			UIRect r = gs->ui_system.rects[ui_rect_clicked];
+			int32_t tile_x = 0, tile_y = 0;
+			ScreenToTile(mouse.x, mouse.y, r.x, r.y, (int)gs->x, (int)gs->y, 32, 32, gs->s, &tile_x, &tile_y);
+
+			switch (gs->edit_type) {
+				case 0:
+				{
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain = (TileTerrain)gs->edit_index;
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].terrain_variant_fixed = false;
+				} break;
+				case 1:
+				{
+					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
+				} break;
+				case 2:
+				{
+					bool enough_resources = true;
+					int num_resources = gs->building_templates[gs->edit_index].num_build_resources;
+
+					for (int i = 0; i < num_resources; i++) {
+						Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
+						int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
+						if (gs->resources[(int)current_resource] < current_resource_cost) {
+							enough_resources = false;
+							break;
+						}
+					}
+
+					if (enough_resources) {
+						for (int i = 0; i < num_resources; i++) {
+							Resource current_resource = gs->building_templates[gs->edit_index].resources_to_build[i];
+							int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
+							gs->resources[(int)current_resource] -= current_resource_cost;
+						}
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.type = (TileStructureType)gs->edit_index;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_progress = 0;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_max_time = gs->building_templates[gs->edit_index].production_time;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_progress = 0;
+						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.construction_max_time = gs->building_templates[gs->edit_index].ticks_to_build;
+					}
+				} break;
+				default: break;
+			}
+		}
 	}
 	if (keyReleased(mouse.x1)) {
 		char buffer[256];

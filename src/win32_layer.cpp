@@ -177,7 +177,7 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 			} break;
 			case WM_RBUTTONDOWN: { 
 				gameInput->mouse.right.endedDown = 1; 
-				gameInput->mouse.right.transitionCount = 1; 
+				gameInput->mouse.right.transitionCount = 1;
 			} break;
 			case WM_RBUTTONUP: { 
 				gameInput->mouse.right.endedDown = 0; 
@@ -877,6 +877,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					*newInput = {};
 					for (int i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
 						newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
+					}
+					for (int i = 0; i < NUM_MOUSE_BUTTONS; i++) {
+						newInput->mouse.buttons[i].endedDown = oldInput->mouse.buttons[i].endedDown;
 					}
 					win32_UpdateInput(newInput, window);
 				}
