@@ -138,18 +138,22 @@ enum class TileTerrain {
 	GRASS_CLIFF = 3,
 	WATER = 4,
 	DESERT = 5,
+	MOUNTAIN = 6,
+	HILLS = 7,
+	SWAMP = 8,
 
 	NUM_TYPES
 };
 
-enum class TileFeature {
+enum class TileResource {
 	NONE = 0,
-	MOUNTAIN = 1,
-	HILLS = 2,
-	FOREST = 3,
-	WOODS = 4,
-	SWAMP = 5,
-	
+	FOREST = 1,
+	COPPER = 2,
+	IRON = 3,
+	COAL = 4,
+	GOLD = 5,
+	SILVER = 6,
+
 	NUM_TYPES
 };
 
@@ -165,6 +169,7 @@ enum class TileStructureType {
 	BAKERY = 7,
 	BREWERY = 8,
 	QUARRY = 9,
+	VILLAGE = 10,
 
 	TEST,
 	NUM_TYPES
@@ -203,8 +208,7 @@ struct Building {
 
 struct Tile {
 	TileTerrain terrain;
-	TileFeature feature;
-	TileStructureType structure;
+	TileResource resource;
 	Building building;
 
 	//	Subtile Layout:

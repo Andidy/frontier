@@ -47,8 +47,6 @@ struct TilemapRenderer {
 
 	static const int32_t num_terrain_atlases = (int)TileTerrain::NUM_TYPES;
 	TextureAtlas terrain_atlases[num_terrain_atlases];
-	static const int32_t num_feature_atlases = (int)TileFeature::NUM_TYPES;
-	TextureAtlas feature_atlases[num_feature_atlases];
 	static const int32_t num_structure_atlases = (int)TileStructureType::NUM_TYPES;
 	TextureAtlas structure_atlases[num_structure_atlases];
 	static const int32_t num_unit_atlases = (int)UnitType::NUM_TYPES;
@@ -61,7 +59,6 @@ struct TilemapRenderer {
 	void DrawSubTile(int32_t world_x, int32_t world_y, int32_t tex_atlas_x, int32_t tex_atlas_y, Bitmap* texture_atlas);
 	void DrawSubTiles(int32_t x, int32_t y, int* subtiles, int* variants, Bitmap* texture_atlas);
 	Bitmap* GetTerrainAtlas(TileTerrain type);
-	Bitmap* GetFeatureAtlas(TileFeature type);
 	Bitmap* GetStructureAtlas(TileStructureType type);
 	Bitmap* GetUnitAtlas(UnitType type);
 	void DrawTilemap(Tilemap* tilemap);

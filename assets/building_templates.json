@@ -127,5 +127,18 @@
     "PRODUCTION_TICKS": 15,
     "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
     "TICKS_TO_BUILD": 2
+  },
+  {
+    "_name": "Village",
+    "ENUM": 10,
+    "RESOURCE_INPUT": [
+      [ 0, 0 ]
+    ],
+    "RESOURCE_OUTPUT": [
+      [ 3, 1 ]
+    ],
+    "PRODUCTION_TICKS": 1,
+    "RESOURCES_COST_TO_BUILD": [ [ 4, 10 ] ],
+    "TICKS_TO_BUILD": 2
   }
 ]

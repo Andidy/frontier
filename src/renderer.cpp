@@ -344,11 +344,6 @@ TilemapRenderer::TilemapRenderer(int tile_w, int tile_h, int tile_s, int v_x, in
 		terrain_atlases[i].num_anim_frames = 1;
 		terrain_atlases[i].num_subtile_variants = 1;
 	}
-	for (int i = 0; i < num_feature_atlases; i++) {
-		feature_atlases[i].frames = NULL;
-		feature_atlases[i].num_anim_frames = 1;
-		feature_atlases[i].num_subtile_variants = 1;
-	}
 	for (int i = 0; i < num_structure_atlases; i++) {
 		structure_atlases[i].frames = NULL;
 		structure_atlases[i].num_anim_frames = 1;
@@ -478,11 +473,6 @@ Bitmap* TilemapRenderer::GetTerrainAtlas(TileTerrain type) {
 	return &terrain_atlases[index].frames[animation_frame % terrain_atlases[index].num_anim_frames];
 }
 
-Bitmap* TilemapRenderer::GetFeatureAtlas(TileFeature type) {
-	int index = (int)type;
-	return &feature_atlases[index].frames[animation_frame % feature_atlases[index].num_anim_frames];
-}
-
 Bitmap* TilemapRenderer::GetStructureAtlas(TileStructureType type) {
 	int index = (int)type;
 	return &structure_atlases[index].frames[animation_frame % structure_atlases[index].num_anim_frames];
@@ -516,7 +506,7 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 			//if (tile.feature != TileFeature::NONE) {
 			//
 			//}
-			switch (tile.structure) {
+			switch (tile.building.type) {
 				case TileStructureType::NONE: break;
 				case TileStructureType::FARMHOUSE:
 				{
@@ -553,6 +543,10 @@ void TilemapRenderer::DrawTilemap(Tilemap* tilemap) {
 				case TileStructureType::QUARRY:
 				{
 					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 1, 2, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
+				} break;
+				case TileStructureType::VILLAGE:
+				{
+					DrawSprite(x * scaled_tile_width, y * scaled_tile_height, 2, 2, &structure_atlases[0].frames[animation_frame % unit_atlases[0].num_anim_frames]);
 				} break;
 				default: break;
 			}
@@ -678,14 +672,14 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 
 			// cache subtile type
 			// index 0 = terrain, 1 = feature, 2 = structure
-			int tl[3] = { 0, 0, 0 };
-			int t[3] = { 0, 0, 0 };
-			int tr[3] = { 0, 0, 0 };
-			int l[3] = { 0, 0, 0 };
-			int r[3] = { 0, 0, 0 };
-			int bl[3] = { 0, 0, 0 };
-			int b[3] = { 0, 0, 0 };
-			int br[3] = { 0, 0, 0 };
+			int tl = 0;
+			int t = 0;
+			int tr = 0;
+			int l = 0;
+			int r = 0;
+			int bl = 0;
+			int b = 0;
+			int br = 0;
 			// check if neighbors are valid, we assume invalid neighbors
 			// are matching the tile type
 
@@ -699,140 +693,76 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			// top
 			if (ValidNeighbor(tm, x, y, x, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y - 1)].terrain) {
-					t[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x)+tm->width * (y - 1)].feature) {
-					t[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x)+tm->width * (y - 1)].structure) {
-					t[2] = 1;
+					t = 1;
 				}
 			}
 			else {
-				t[0] = 1;
-				t[1] = 1;
-				t[2] = 1;
+				t = 1;
 			}
 			// left
 			if (ValidNeighbor(tm, x, y, x - 1, y)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y)].terrain) {
-					l[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y)].feature) {
-					l[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y)].structure) {
-					l[2] = 1;
+					l = 1;
 				}
 			}
 			else {
-				l[0] = 1;
-				l[1] = 1;
-				l[2] = 1;
+				l = 1;
 			}
 			// right
 			if (ValidNeighbor(tm, x, y, x + 1, y)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y)].terrain) {
-					r[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y)].feature) {
-					r[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y)].structure) {
-					r[2] = 1;
+					r = 1;
 				}
 			}
 			else {
-				r[0] = 1;
-				r[1] = 1;
-				r[2] = 1;
+				r = 1;
 			}
 			// bottom
 			if (ValidNeighbor(tm, x, y, x, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x)+tm->width * (y + 1)].terrain) {
-					b[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x)+tm->width * (y + 1)].feature) {
-					b[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x)+tm->width * (y + 1)].structure) {
-					b[2] = 1;
+					b = 1;
 				}
 			}
 			else {
-				b[0] = 1;
-				b[1] = 1;
-				b[2] = 1;
+				b = 1;
 			}
 
 			// corners only matter if both adjacent sides are solid so we do additional checks
 			// top left
 			if (ValidNeighbor(tm, x, y, x - 1, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y - 1)].terrain) {
-					tl[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y - 1)].feature) {
-					tl[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y - 1)].structure) {
-					tl[2] = 1;
+					tl = 1;
 				}
 			}
 			else {
-				tl[0] = 1;
-				tl[1] = 1;
-				tl[2] = 1;
+				tl = 1;
 			}
 			// top right
 			if (ValidNeighbor(tm, x, y, x + 1, y - 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y - 1)].terrain) {
-					tr[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y - 1)].feature) {
-					tr[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y - 1)].structure) {
-					tr[2] = 1;
+					tr = 1;
 				}
 			}
 			else {
-				tr[0] = 1;
-				tr[1] = 1;
-				tr[2] = 1;
+				tr = 1;
 			}
 			// bottom left
 			if (ValidNeighbor(tm, x, y, x - 1, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x - 1) + tm->width * (y + 1)].terrain) {
-					bl[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x - 1) + tm->width * (y + 1)].feature) {
-					bl[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x - 1) + tm->width * (y + 1)].structure) {
-					bl[2] = 1;
+					bl = 1;
 				}
 			}
 			else {
-				bl[0] = 1;
-				bl[1] = 1;
-				bl[2] = 1;
+				bl = 1;
 			}
 			// bottom right
 			if (ValidNeighbor(tm, x, y, x + 1, y + 1)) {
 				if (tm->tiles[x + tm->width * y].terrain == tm->tiles[(x + 1) + tm->width * (y + 1)].terrain) {
-					br[0] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].feature == tm->tiles[(x + 1) + tm->width * (y + 1)].feature) {
-					br[1] = 1;
-				}
-				if (tm->tiles[x + tm->width * y].structure == tm->tiles[(x + 1) + tm->width * (y + 1)].structure) {
-					br[2] = 1;
+					br = 1;
 				}
 			}
 			else {
-				br[0] = 1;
-				br[1] = 1;
-				br[2] = 1;
+				br = 1;
 			}
 
 			// now that we know which neighbors match the tile type
@@ -844,7 +774,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			int* subtile_3 = &(tm->tiles[x + tm->width * y].terrain_subtiles[3]);
 
 			// top left subtile 0
-			int index = t[0] + 2 * tl[0] + 4 * l[0];
+			int index = t + 2 * tl + 4 * l;
 
 			if (index == 0 || index == 2) {
 				*subtile_0 = (int)SubTile::TOP_LEFT;
@@ -863,7 +793,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// top right subtile 1
-			index = r[0] + 2 * tr[0] + 4 * t[0];
+			index = r + 2 * tr + 4 * t;
 
 			if (index == 0 || index == 2) {
 				*subtile_1 = (int)SubTile::TOP_RIGHT;
@@ -882,7 +812,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// bottom left subtile 2
-			index = b[0] + 2 * bl[0] + 4 * l[0];
+			index = b + 2 * bl + 4 * l;
 
 			if (index == 0 || index == 2) {
 				*subtile_2 = (int)SubTile::BOTTOM_LEFT;
@@ -901,7 +831,7 @@ void TilemapRenderer::CacheTileRenderingSubtiles(Tilemap* tm) {
 			}
 
 			// bottom right subtile 3
-			index = r[0] + 2 * br[0] + 4 * b[0];
+			index = r + 2 * br + 4 * b;
 
 			if (index == 0 || index == 2) {
 				*subtile_3 = (int)SubTile::BOTTOM_RIGHT;

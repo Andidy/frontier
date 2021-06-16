@@ -411,23 +411,6 @@ void LoadTextures(TilemapRenderer* tilemap_renderer) {
 				CorrectSTBILoadMemoryLayout(buf, w, h);
 			}
 		}
-		else if (type == 1) {
-			int num_anim_frames = textures_json[i]["animation_frames"].int_value();
-			tilemap_renderer->feature_atlases[index].num_anim_frames = num_anim_frames;
-			tilemap_renderer->feature_atlases[index].num_subtile_variants = textures_json[i]["subtile_variants"].int_value();
-
-			tilemap_renderer->feature_atlases[index].frames = (Bitmap*)calloc(num_anim_frames, sizeof(Bitmap));
-
-			for (int j = 0; j < num_anim_frames; j++) {
-				snprintf(buffer, 256, "assets/%s_%d.png", file_name.c_str(), j);
-				uchar* buf = stbi_load(buffer, &w, &h, &n, 4);
-				tilemap_renderer->feature_atlases[index].frames[j].buffer = buf;
-				tilemap_renderer->feature_atlases[index].frames[j].width = w;
-				tilemap_renderer->feature_atlases[index].frames[j].height = h;
-				tilemap_renderer->feature_atlases[index].frames[j].bpp = 4;
-				CorrectSTBILoadMemoryLayout(buf, w, h);
-			}
-		}
 		else if (type == 2) {
 			int num_anim_frames = textures_json[i]["animation_frames"].int_value();
 			tilemap_renderer->structure_atlases[index].num_anim_frames = num_anim_frames;

@@ -349,8 +349,7 @@ void InitGameState(Memory* gameMemory) {
 
 			gs->tilemap.tiles[x + tilemap_width * y].terrain_variant_fixed = true;
 
-			gs->tilemap.tiles[x + tilemap_width * y].feature = TileFeature::NONE;
-			gs->tilemap.tiles[x + tilemap_width * y].structure = TileStructureType::NONE;
+			gs->tilemap.tiles[x + tilemap_width * y].resource = TileResource::NONE;
 			gs->tilemap.tiles[x + tilemap_width * y].building = { TileStructureType::NONE, 0, 0, 0, 0 };
 		}
 	}
@@ -358,7 +357,7 @@ void InitGameState(Memory* gameMemory) {
 	gs->unit_path_pool = Pool(16, sizeof(ExpandingQueueNode));
 
 	uint32_t id_counter = 0;
-	gs->tilemap.units = (Unit*)malloc(sizeof(Unit) * num_units);
+	gs->tilemap.units = (Unit*)calloc(num_units, sizeof(Unit));
 	gs->tilemap.units[0].type = UnitType::ARMY;
 	gs->tilemap.units[0].id = id_counter++;
 	gs->tilemap.units[0].pos_x = 10;
@@ -615,8 +614,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			if (ui_rect_clicked == 12 || ui_rect_clicked == 13) {
 				switch (gs->edit_type) {
 				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
-				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
-				case 2: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
+				case 1: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
 				default: break;
 				}
 
@@ -639,8 +637,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				gs->edit_index += 1;
 				switch (gs->edit_type) {
 				case 0: if (gs->edit_index >= (int)TileTerrain::NUM_TYPES) gs->edit_index = (int)TileTerrain::NUM_TYPES - 1; break;
-				case 1: if (gs->edit_index >= (int)TileFeature::NUM_TYPES) gs->edit_index = (int)TileFeature::NUM_TYPES - 1; break;
-				case 2: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
+				case 1: if (gs->edit_index >= (int)TileStructureType::NUM_TYPES) gs->edit_index = (int)TileStructureType::NUM_TYPES - 1; break;
 				default: break;
 				}
 			}
@@ -741,10 +738,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 				} break;
 				case 1:
 				{
-					gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].feature = (TileFeature)gs->edit_index;
-				} break;
-				case 2:
-				{
 					bool enough_resources = true;
 					int num_resources = gs->building_templates[gs->edit_index].num_build_resources;
 
@@ -763,7 +756,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 							int current_resource_cost = gs->building_templates[gs->edit_index].build_amounts[i];
 							gs->resources[(int)current_resource] -= current_resource_cost;
 						}
-						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
+						//gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].structure = (TileStructureType)gs->edit_index;
 						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.type = (TileStructureType)gs->edit_index;
 						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_progress = 0;
 						gs->tilemap.tiles[tile_x + gs->tilemap.width * tile_y].building.production_max_time = gs->building_templates[gs->edit_index].production_time;
@@ -806,13 +799,13 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 			Tile* tile = &(gs->tilemap.tiles[i]);
 			
 			// building production
-			if (tile->structure != TileStructureType::NONE && (tile->building.construction_progress == tile->building.construction_max_time)) {
+			if (tile->building.type != TileStructureType::NONE && (tile->building.construction_progress == tile->building.construction_max_time)) {
 				tile->building.production_progress += 1;
 				if (tile->building.production_progress >= tile->building.production_max_time) {
-					int num_inputs = gs->building_templates[(int)tile->structure].num_inputs;
+					int num_inputs = gs->building_templates[(int)tile->building.type].num_inputs;
 					bool has_enough_inputs = true;
 					for (int i = 0; i < num_inputs; i++) {
-						ResourceAmount r = gs->building_templates[(int)tile->structure].production_input[i];
+						ResourceAmount r = gs->building_templates[(int)tile->building.type].production_input[i];
 						if (gs->resources[(int)r.resource] < r.amount) {
 							has_enough_inputs = false;
 						}
@@ -820,12 +813,12 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 					if (has_enough_inputs) {
 						for (int i = 0; i < num_inputs; i++) {
-							ResourceAmount r = gs->building_templates[(int)tile->structure].production_input[i];
-							gs->resources[(int)r.resource] -= gs->building_templates[(int)tile->structure].production_input[i].amount;
+							ResourceAmount r = gs->building_templates[(int)tile->building.type].production_input[i];
+							gs->resources[(int)r.resource] -= gs->building_templates[(int)tile->building.type].production_input[i].amount;
 						}
-						int num_outputs = gs->building_templates[(int)tile->structure].num_outputs;
+						int num_outputs = gs->building_templates[(int)tile->building.type].num_outputs;
 						for (int i = 0; i < num_outputs; i++) {
-							ResourceAmount current_resource = gs->building_templates[(int)tile->structure].production_output[i];
+							ResourceAmount current_resource = gs->building_templates[(int)tile->building.type].production_output[i];
 							gs->resources[(int)current_resource.resource] += current_resource.amount;
 						}
 					}
